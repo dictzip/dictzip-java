@@ -1,0 +1,164 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>JDICT</title>
+</head>
+
+<body>
+
+<h2>JDICT - A Java library for accessing electronic dictionaries</h2>
+
+<h3>The DICT format</h3>
+<p>Many electronic dictionaries are available for several languages. A common format for electronic dictionaries is the format used by the DICT
+protocol (http://www.dict.org). JDICT is a Java library used for accessing
+dictionary databases stored in that format.</p>
+<p>The DICT format is defined as follows. A database consists of two files. One is a flat text file, the other in the
+index. The flat text file contains dictionary entries (or any other suitable
+data), and the index contains tab-delimited tuples consisting of the headword,
+the byte offset at which this entry begins in the flat text file, and the length
+of the entry in bytes. The offset and length are encoded using base 64 encoding
+using the 64 characters:</p>
+<p>ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/</p>
+<p>(A=0, B=1, ..., 9=61, +=62, /=63. For example, 9Ca = 61 * 64^2 + 2 * 64^1 + 26)</p>
+<p>Encoding numbers in base 64 saves considerable space when compared with
+the usual base 10 encoding, while still permitting tab characters (ASCII 9) to
+be used for delimiting fields in a record. Each record ends with a newline
+(ASCII 10), so the index file is human readable.</p>
+<h3>Basic functionalities of JDICT</h3>
+
+<p>Given a headword, JDICT performs a search for that word on the index file. If
+the word is found, it gets the position POS and the length LEN of the
+corresponding entry (from the index file) and returns LEN bytes from the data
+file, starting at position POS. Moreover, it also returns a list of headwords
+that are located near the given word in the index file. If no exact match is
+found, only the list of adjacent headwords is returned. The client can process
+that list further, e.g. to get a list of prefix matches.</p>
+
+<p>Additionally, JDICT offers the possibility of looking up by position. A
+client can request the nth entry of a certain dictionary. This is particularly
+useful when the client has requested a word and now wants to browse
+backward/forward (to see the previous/next entries). </p>
+
+<h3>How to use JDICT</h3>
+<p>The central component of JDICT is the interface org.dict.kernel.IDatabase. It
+represents a single dictionary and offers the API to look for an entry by
+headword or by position. To be able to use several databases at the same time,
+the interface org.dict.kernel.IDictEngine is defined that basically groups
+together some
+dictionaries.</p>
+<p>The typical usage of JDICT is as follows:</p>
+
+<pre>/* cfg is the name (String) of a configuration file, discussed later */
+org.dict.kernel.IDictEngine e =
+  org.dict.server.DatabaseFactory.getEngine(cfg);
+while (true) {
+  /* receive from client a request which contains the query String:
+   db=dbID&amp;word=headword or db=ibID&amp;pos=N. Create an IRequest
+   object and pass it to the lookup method */
+  org.dict.kernel.IRequest req =
+    new org.dict.kernel.SimpleRequest(requestURI, queryString);
+  org.dict.kernel.IAnswer[] arr = e.lookup(req);
+  /* do something with the answers */
+}
+
+</pre>
+
+<h3>Parameter passing</h3>
+<p>A request to the IEngine object is encapsulated in an IRequest object. The
+API of that interface is as follows:</p>
+
+<pre>public interface org.dict.kernel.IRequest {
+    public String getParameter(java.lang.String);
+    public String[] getParameterValues(java.lang.String);
+    public String getRequestURI();
+}
+</pre>
+
+<p>JDICT provides a default implementation of IRequest: org.dict.kernel.SimpleRequest.
+We create a SimpleRequest object by using the constructor: new
+SimpleRequest(requestURI, queryString). The parameter requestURI is a String
+which is returned when the method getRequestURI() is called (e.g., the path to
+the CGI script, can be the empty String &quot;&quot;). queryString has the same format as
+a CGI query String: param1=value1&amp;param2=value2&amp;....&nbsp; Calling
+getParameter(param1) returns value1 etc. By default, org.dict.kernel.IEngine
+uses the following the parameters:</p>
+
+<menu>
+  <li>db (e.g., db=wn): the ID of the dictionary to use. There are two special
+  dictionaries * (all) and ! (any). If the value of the parameter db is null, *
+  is assumed. If db is *, all dictionaries will be used to look for a word. If
+  db is !, the first definition is returned. </li>
+  <li>word (e.g., word=river): the headword to search for</li>
+  <li>pos (e.g., pos=365): the position of the entry to be returned (first entry
+  is numbered 0)</li>
+</menu>
+
+<p>Either word or pos must be used, but not both.</p>
+
+<h3>Database configuration file</h3>
+
+<p>A  configuration file contains information about certain dictionary databases.
+It typically looks as follows:</p>
+
+<pre># Configuration for WordNet
+wn.data=wn.dict.dz
+wn.index=wn.index
+wn.morph=org.dict.kernel.EnglishMorphAnalyzer
+wn.html=vietdict.server.WordnetPrinter
+
+# Configuration for FolDoc
+fd.data=foldoc.dict.dz
+fd.index=foldoc.index
+fd.morph=org.dict.kernel.EnglishMorphAnalyzer
+fd.name=Computing Dictionary
+fd.encoding=latin1
+
+</pre>
+
+<p>Lines beginning with # are comments. There are two mandatory entries: db.data and db.index specify the location of
+the data and the index file for the database db. A number of optional
+configurable properties are supported:</p>
+
+<menu>
+  <li>db.name: the database name</li>
+  <li>db.encoding: encoding of the database (default: UTF-8)</li>
+  <li>db.morph: the morphological function used to detect variations of a word.
+  For example, if EnglishMorphAnalyzer is used, one can look for &quot;detects&quot; (that
+  is not in the dictionary) and get the base form &quot;detect&quot; </li>
+  <li>db.html: the HTML formatter for the output. When the client receives the
+  entries from the dictionary, it may use an HTML formatter to generate nice
+  HTML output for displaying the entry in some browser.</li>
+</menu>
+
+<h3>JDictd - The Java implementation of the DICT protocol</h3>
+<p>JDictd implements the DICT server protocol (RFC2229). It uses the JDICT
+library to access dictionary databases. Besides RFC2229, JDictd also implements
+the HTTP protocol, so the server can be accessed using a DICT client, or any Web
+browser.</p>
+
+<h3>The Dict Servlet</h3>
+
+If you run a servlet container (Jakarta Tomcat, WebSphere, WebLogic...) and want to
+run the dictionary server in that container, you can use the servlet
+<code>org.dict.server.DictServlet</code> for that purpose. This servlet class
+uses one initialisation parameter, <code>config</code>, which points to the
+configuration file for the databases. (Unlike the JDictd server which reads
+several dictionary configuration files on the command line, the servlet reads
+only one configuration file, so the configuration for all databases must go there).
+
+<p>
+
+A sample <code>web.xml</code> file is included in the distribution. If you install
+DictServlet in an web application called <code>dict</code>, you can access the dictionaries
+at the URL <code>http://localhost:8080/dict</code>, provided that your servlet engine listens
+on port 8080. The value <code>data/dict.ini</code> of the init-parameter <code>config</code>
+means that your configuration file resides in the subdirectory <code>data/</code> of your
+web application directory (normally <code>webapps/dict/</code>).
+
+</body>
+
+</html>
