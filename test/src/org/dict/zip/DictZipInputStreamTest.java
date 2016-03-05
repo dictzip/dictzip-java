@@ -70,9 +70,6 @@ public class DictZipInputStreamTest extends TestCase {
         int expResult = len;
         int result = din.read(buf, off, len);
         assertEquals(expResult, result);
-        for (int i = 0;; i += len) {
-            len = din.read(buf, off, len);
-        }
     }
 
     /**
