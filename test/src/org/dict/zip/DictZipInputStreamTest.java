@@ -25,105 +25,104 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
 /**
  *
  * @author miurahr
  */
 public class DictZipInputStreamTest extends TestCase {
-                
-        private final String dataFile = "test/data/test.dict.dz";
-        private RandomAccessInputStream in;
-        private DictZipInputStream din;
-        private DictZipHeader header;
-        
-        @Before
-        public void setUp() throws Exception {
-                in = new RandomAccessInputStream(dataFile, "r");
-                din =  new DictZipInputStream(in);
-        }
-        
-        @After
-        public void tearDown() throws Exception {
-                din.close();
-                in.close();
-        }
 
-        private synchronized void getDZHeader(DictZipInputStream din) throws IOException {
-                if (header == null) {
-                        header = din.readHeader();
-                }
-        }
+    private final String dataFile = "test/data/test.dict.dz";
+    private RandomAccessInputStream in;
+    private DictZipInputStream din;
+    private DictZipHeader header;
 
-        /**
-         * Test of read method, of class DictZipInputStream.
-         */
-        @Test
-        public void testRead() throws Exception {
-                System.out.println("read");
-                int start = 1;
-                int len = 10;
-                getDZHeader(din);
-                int off = header.getOffset(start);
-                int pos = header.getPosition(start);
-                in.seek(pos);
-                byte[] buf = new byte[off + len];
-                int expResult = len;
-                int result = din.read(buf, off, len);
-                assertEquals(expResult, result);
-                for (int i = 0; ; i += len) {
-                        len = din.read(buf, off, len);
-                }
-        }
+    @Before
+    public void setUp() throws Exception {
+        in = new RandomAccessInputStream(dataFile, "r");
+        din = new DictZipInputStream(in);
+    }
 
-        /**
-         * Test of readFully method, of class DictZipInputStream.
-         */
-        @Test
-        public void testReadFully_byteArr() throws Exception {
-                System.out.println("readFully");
-                int start = 1;
-                int len = 10;
-                getDZHeader(din);
-                int off = header.getOffset(start);
-                int pos = header.getPosition(start);
-                in.seek(pos);
-                byte[] buf = new byte[off + len];
-                din.readFully(buf);
-        }
+    @After
+    public void tearDown() throws Exception {
+        din.close();
+        in.close();
+    }
 
-        /**
-         * Test of readFully method, of class DictZipInputStream.
-         */
-        @Test
-        public void testReadFully_3args() throws Exception {
-                System.out.println("readFully");
-                int start = 1;
-                int len = 10;
-                getDZHeader(din);
-                int off = header.getOffset(start);
-                int pos = header.getPosition(start);
-                in.seek(pos);
-                byte[] buf = new byte[off + len];
-                din.readFully(buf, off, len);
+    private synchronized void getDZHeader(DictZipInputStream din) throws IOException {
+        if (header == null) {
+            header = din.readHeader();
         }
+    }
 
-        /**
-         * Test of readHeader method, of class DictZipInputStream.
-         */
-        @Test
-        public void testReadHeader() throws Exception {
-                System.out.println("readHeader");
-                header = din.readHeader();
-                StringBuilder sb = new StringBuilder();
-                sb.append("\nHeader length = 49");
-                sb.append("\nSubfield ID = RA");
-                sb.append("\nSubfield length = 20");
-                sb.append("\nSubfield version = 1");
-                sb.append("\nChunk length = 58315");
-                sb.append("\nNumber of chunks = 7");
-                String expResult = sb.toString();
-                assertEquals(expResult, header.toString());
+    /**
+     * Test of read method, of class DictZipInputStream.
+     */
+    @Test
+    public void testRead() throws Exception {
+        System.out.println("read");
+        int start = 1;
+        int len = 10;
+        getDZHeader(din);
+        int off = header.getOffset(start);
+        int pos = header.getPosition(start);
+        in.seek(pos);
+        byte[] buf = new byte[off + len];
+        int expResult = len;
+        int result = din.read(buf, off, len);
+        assertEquals(expResult, result);
+        for (int i = 0;; i += len) {
+            len = din.read(buf, off, len);
         }
+    }
+
+    /**
+     * Test of readFully method, of class DictZipInputStream.
+     */
+    @Test
+    public void testReadFully_byteArr() throws Exception {
+        System.out.println("readFully");
+        int start = 1;
+        int len = 10;
+        getDZHeader(din);
+        int off = header.getOffset(start);
+        int pos = header.getPosition(start);
+        in.seek(pos);
+        byte[] buf = new byte[off + len];
+        din.readFully(buf);
+    }
+
+    /**
+     * Test of readFully method, of class DictZipInputStream.
+     */
+    @Test
+    public void testReadFully_3args() throws Exception {
+        System.out.println("readFully");
+        int start = 1;
+        int len = 10;
+        getDZHeader(din);
+        int off = header.getOffset(start);
+        int pos = header.getPosition(start);
+        in.seek(pos);
+        byte[] buf = new byte[off + len];
+        din.readFully(buf, off, len);
+    }
+
+    /**
+     * Test of readHeader method, of class DictZipInputStream.
+     */
+    @Test
+    public void testReadHeader() throws Exception {
+        System.out.println("readHeader");
+        header = din.readHeader();
+        StringBuilder sb = new StringBuilder();
+        sb.append("\nHeader length = 49");
+        sb.append("\nSubfield ID = RA");
+        sb.append("\nSubfield length = 20");
+        sb.append("\nSubfield version = 1");
+        sb.append("\nChunk length = 58315");
+        sb.append("\nNumber of chunks = 7");
+        String expResult = sb.toString();
+        assertEquals(expResult, header.toString());
+    }
 
 }

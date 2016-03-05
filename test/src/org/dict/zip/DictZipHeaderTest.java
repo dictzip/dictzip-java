@@ -29,85 +29,90 @@ import org.junit.Test;
  * @author miurahr
  */
 public class DictZipHeaderTest extends TestCase {
-        private final String dataFile = "test/data/test.dict.dz";
 
-        private String expResult() {
-                StringBuilder sb = new StringBuilder();
-                sb.append("\nHeader length = 49");
-                sb.append("\nSubfield ID = RA");
-                sb.append("\nSubfield length = 20");
-                sb.append("\nSubfield version = 1");
-                sb.append("\nChunk length = 58315");
-                sb.append("\nNumber of chunks = 7");
-                return sb.toString();
+    private final String dataFile = "test/data/test.dict.dz";
+
+    private String expResult() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\nHeader length = 49");
+        sb.append("\nSubfield ID = RA");
+        sb.append("\nSubfield length = 20");
+        sb.append("\nSubfield version = 1");
+        sb.append("\nChunk length = 58315");
+        sb.append("\nNumber of chunks = 7");
+        return sb.toString();
+    }
+
+    /**
+     * Test of readHeader method, of class DictZipHeader.
+     *
+     * @throws java.lang.Exception if file I/O error occurd.
+     */
+    @Test
+    public void testReadHeader_String() throws Exception {
+        System.out.println("readHeader");
+        DictZipHeader result = DictZipHeader.readHeader(dataFile);
+        assertEquals(expResult(), result.toString());
+    }
+
+    /**
+     * Test of readHeader method, of class DictZipHeader.
+     *
+     * @throws java.lang.Exception if file I/O error occurd.
+     */
+    @Test
+    public void testReadHeader_3args() throws Exception {
+        System.out.println("readHeader");
+        RandomAccessInputStream in = new RandomAccessInputStream(dataFile, "r");
+        CRC32 crc = new CRC32();
+        DictZipHeader header = new DictZipHeader();
+        header.readHeader(header, in, crc);
+        assertEquals(expResult(), header.toString());
+    }
+
+    /**
+     * Test of readHeader method, of class DictZipHeader.
+     *
+     * @throws java.lang.Exception if file I/O error occurd.
+     */
+    @Test
+    public void testReadHeader_NonGZip() throws Exception {
+        System.out.println("readHeader");
+        byte b[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
+        File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
+        FileOutputStream outFile = new FileOutputStream(testFile);
+        outFile.write(b);
+        outFile.close();
+        boolean r = false;
+        try {
+            DictZipHeader result = DictZipHeader.readHeader(testFile.getAbsolutePath());
+        } catch (IOException ex) {
+            // expected
+            r = true;
         }
+        assertTrue("IOException Expected and got", r);
+    }
 
-        /**
-         * Test of readHeader method, of class DictZipHeader.
-         * @throws java.lang.Exception if file I/O error occurd.
-         */
-        @Test
-        public void testReadHeader_String() throws Exception {
-                System.out.println("readHeader");
-                DictZipHeader result = DictZipHeader.readHeader(dataFile);
-                assertEquals(expResult(), result.toString());
+    /**
+     * Test of readHeader method, of class DictZipHeader.
+     *
+     * @throws java.lang.Exception if file I/O error occurd.
+     */
+    @Test
+    public void testReadHeader_GZipMagic() throws Exception {
+        System.out.println("readHeader");
+        byte b[] = {(byte) 0x1f, (byte) 0x8b, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
+        File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
+        FileOutputStream outFile = new FileOutputStream(testFile);
+        outFile.write(b);
+        outFile.close();
+        boolean r = false;
+        try {
+            DictZipHeader result = DictZipHeader.readHeader(testFile.getAbsolutePath());
+        } catch (IOException ex) {
+            // expected
+            r = true;
         }
-
-        /**
-         * Test of readHeader method, of class DictZipHeader.
-         * @throws java.lang.Exception if file I/O error occurd.
-         */
-        @Test
-        public void testReadHeader_3args() throws Exception {
-                System.out.println("readHeader");
-                RandomAccessInputStream in = new RandomAccessInputStream(dataFile, "r");         
-                CRC32 crc = new CRC32();
-                DictZipHeader header = new DictZipHeader();
-                header.readHeader(header, in, crc);
-                assertEquals(expResult(), header.toString());
-        }
-
-        /**
-         * Test of readHeader method, of class DictZipHeader.
-         * @throws java.lang.Exception if file I/O error occurd.
-         */
-        @Test
-        public void testReadHeader_NonGZip() throws Exception {
-                System.out.println("readHeader");
-                byte b[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
-                File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
-                FileOutputStream outFile = new FileOutputStream(testFile);
-                outFile.write(b);
-                outFile.close();
-                boolean r = false;
-                try {
-                        DictZipHeader result = DictZipHeader.readHeader(testFile.getAbsolutePath());
-                } catch (IOException ex) {
-                        // expected
-                        r = true;
-                }
-                assertTrue("IOException Expected and got", r);
-        }
-
-        /**
-         * Test of readHeader method, of class DictZipHeader.
-         * @throws java.lang.Exception if file I/O error occurd.
-         */
-        @Test
-        public void testReadHeader_GZipMagic() throws Exception {
-                System.out.println("readHeader");
-                byte b[] = {(byte)0x1f, (byte)0x8b, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
-                File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
-                FileOutputStream outFile = new FileOutputStream(testFile);
-                outFile.write(b);
-                outFile.close();
-                boolean r = false;
-                try {
-                        DictZipHeader result = DictZipHeader.readHeader(testFile.getAbsolutePath());
-                } catch (IOException ex) {
-                        // expected
-                        r = true;
-                }
-                assertTrue("IOException Expected and got", r);
-        }   
+        assertTrue("IOException Expected and got", r);
+    }
 }

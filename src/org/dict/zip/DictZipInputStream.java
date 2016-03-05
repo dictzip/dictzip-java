@@ -18,7 +18,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 package org.dict.zip;
 
 import java.io.ByteArrayInputStream;
@@ -33,151 +32,149 @@ import java.util.zip.InflaterInputStream;
 
 /**
  * DictZipInputStream.
+ *
  * @author jdictd project
  * @author Hiroshi Miura
  */
 public class DictZipInputStream extends InflaterInputStream {
 
-        /**
-         * CRC-32 for uncompressed data.
-         */
-        private CRC32 crc = new CRC32();
+    /**
+     * CRC-32 for uncompressed data.
+     */
+    private CRC32 crc = new CRC32();
 
-        /**
-         * Indicates end of input stream.
-         */
-        private boolean eos;
+    /**
+     * Indicates end of input stream.
+     */
+    private boolean eos;
 
-        /**
-         * Creates a new input stream with a default buffer size.
-         *
-         * @param in the input stream
-         * @exception IOException if an I/O error has occurred
-         */
-        public DictZipInputStream(final InputStream in) throws IOException {
-                this(in, 512);
-        }
+    /**
+     * Creates a new input stream with a default buffer size.
+     *
+     * @param in the input stream
+     * @exception IOException if an I/O error has occurred
+     */
+    public DictZipInputStream(final InputStream in) throws IOException {
+        this(in, 512);
+    }
 
-        /**
-         * Creates a new input stream with the specified buffer size.
-         *
-         * @param in the input stream
-         * @param size the input buffer size
-         * @exception IOException if an I/O error has occurred
-         */
-        public DictZipInputStream(final InputStream in, final int size) throws IOException {
-                super(in, new Inflater(true), size);
+    /**
+     * Creates a new input stream with the specified buffer size.
+     *
+     * @param in the input stream
+     * @param size the input buffer size
+     * @exception IOException if an I/O error has occurred
+     */
+    public DictZipInputStream(final InputStream in, final int size) throws IOException {
+        super(in, new Inflater(true), size);
                 //readHeader();
-                //crc.reset();
-        }
+        //crc.reset();
+    }
 
-        /**
-         * Closes the input stream.
-         *
-         * @exception IOException if an I/O error has occurred
-         */
-        public final void close() throws IOException {
-                inf.end();
-                in.close();
-                eos = true;
-        }
+    /**
+     * Closes the input stream.
+     *
+     * @exception IOException if an I/O error has occurred
+     */
+    public final void close() throws IOException {
+        inf.end();
+        in.close();
+        eos = true;
+    }
 
-        /**
-         * Reads uncompressed data into an array of bytes. Blocks until enough input is available
-         * for decompression.
-         *
-         * @param buf the buffer into which the data is read
-         * @param off the start offset of the data
-         * @param size the maximum number of bytes read
-         * @return the actual number of bytes read, or -1 if the end of the compressed input
-         *     stream is reached
-         * @exception IOException if an I/O error has occurred or the compressed input data is
-         *     corrupt
-         */
-        public final int read(final byte[] buf, final int off, final int size) throws IOException {
-                if (eos) {
-                        return -1;
-                }
-                int len = super.read(buf, off, size);
-                if (len == -1) {
-                        //readTrailer();
-                        eos = true;
-                } else {
-                        crc.update(buf, off, len);
-                }
-                return len;
+    /**
+     * Reads uncompressed data into an array of bytes. Blocks until enough input is available for
+     * decompression.
+     *
+     * @param buf the buffer into which the data is read
+     * @param off the start offset of the data
+     * @param size the maximum number of bytes read
+     * @return the actual number of bytes read, or -1 if the end of the compressed input stream is
+     * reached
+     * @exception IOException if an I/O error has occurred or the compressed input data is corrupt
+     */
+    public final int read(final byte[] buf, final int off, final int size) throws IOException {
+        if (eos) {
+            return -1;
         }
+        int len = super.read(buf, off, size);
+        if (len == -1) {
+            //readTrailer();
+            eos = true;
+        } else {
+            crc.update(buf, off, len);
+        }
+        return len;
+    }
 
-        /**
-         * Read full data.
-         *
-         * @param buf the buffer into which the data is read
-         * @exception IOException if an I/O error has occurred or the compressed input data is
-         *     corrupt
-         */
-        public final void readFully(final byte[] buf) throws IOException {
-                readFully(buf, 0, buf.length);
-        }
+    /**
+     * Read full data.
+     *
+     * @param buf the buffer into which the data is read
+     * @exception IOException if an I/O error has occurred or the compressed input data is corrupt
+     */
+    public final void readFully(final byte[] buf) throws IOException {
+        readFully(buf, 0, buf.length);
+    }
 
-        /**
-         * Read full data by offset/length.
-         *
-         * @param buf the buffer into which the data is read
-         * @param off offset
-         * @param len length
-         * @exception IOException if an I/O error has occurred or the compressed input data is
-         *     corrupt
-         */
-        public final void readFully(final byte[] buf, final int off, final int len)
-                throws IOException {
-                int num = 0;
-                while (num < len) {
-                        int count = read(buf, off + num, len - num);
-                        if (count < 0) {
-                                throw new EOFException();
-                        }
-                        num += count;
-                }
+    /**
+     * Read full data by offset/length.
+     *
+     * @param buf the buffer into which the data is read
+     * @param off offset
+     * @param len length
+     * @exception IOException if an I/O error has occurred or the compressed input data is corrupt
+     */
+    public final void readFully(final byte[] buf, final int off, final int len)
+            throws IOException {
+        int num = 0;
+        while (num < len) {
+            int count = read(buf, off + num, len - num);
+            if (count < 0) {
+                throw new EOFException();
+            }
+            num += count;
         }
+    }
 
-        /**
-         * Read dictzip header.
-         *
-         * @return header object.
-         * @exception IOException if an I/O error has occurred.
-         */
-        public final DictZipHeader readHeader() throws IOException {
-                DictZipHeader header = new DictZipHeader();
-                header.readHeader(header, in, crc);
-                crc.reset();
-                return header;
-        }
+    /**
+     * Read dictzip header.
+     *
+     * @return header object.
+     * @exception IOException if an I/O error has occurred.
+     */
+    public final DictZipHeader readHeader() throws IOException {
+        DictZipHeader header = new DictZipHeader();
+        header.readHeader(header, in, crc);
+        crc.reset();
+        return header;
+    }
 
-        /**
-         * Reads GZIP member trailer.
-         */
-        private void readTrailer() throws IOException {
-                InputStream in = this.in;
-                int num = inf.getRemaining();
-                if (num > 0) {
-                        in = new SequenceInputStream(
-                                new ByteArrayInputStream(buf, len - num, num), in);
-                }
-                long val = crc.getValue();
-                long crcVal = readUInt(in);
-                if (crcVal != val) {
-                        throw new IOException("Incorrect CRC");
-                }
-                long total = inf.getTotalOut();
-                long trailerTotal = readUInt(in);
-                //System.out.println("Computed CRC = "+v+" / From input "+crcVal);
-                //System.out.println("Computed size = "+total+" / From input "+trailerTotal);
-                if (trailerTotal != total) {
-                        throw new IOException("False number of uncompressed bytes");
-                }
+    /**
+     * Reads GZIP member trailer.
+     */
+    private void readTrailer() throws IOException {
+        InputStream in = this.in;
+        int num = inf.getRemaining();
+        if (num > 0) {
+            in = new SequenceInputStream(
+                    new ByteArrayInputStream(buf, len - num, num), in);
         }
+        long val = crc.getValue();
+        long crcVal = readUInt(in);
+        if (crcVal != val) {
+            throw new IOException("Incorrect CRC");
+        }
+        long total = inf.getTotalOut();
+        long trailerTotal = readUInt(in);
+        //System.out.println("Computed CRC = "+v+" / From input "+crcVal);
+        //System.out.println("Computed size = "+total+" / From input "+trailerTotal);
+        if (trailerTotal != total) {
+            throw new IOException("False number of uncompressed bytes");
+        }
+    }
 
-        private long readUInt(final InputStream in) throws IOException {
-                return DictZipHeader.readUInt(in);
-        }
+    private long readUInt(final InputStream in) throws IOException {
+        return DictZipHeader.readUInt(in);
+    }
 }
