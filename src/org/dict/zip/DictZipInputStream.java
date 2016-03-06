@@ -1,5 +1,5 @@
 /*
- * DictZip library. 
+ * DictZip library.
  *
  * Copyright (C) 2001-2004 JDictd project.
  * Copyright (C) 2016 Hiroshi Miura

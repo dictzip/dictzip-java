@@ -1,5 +1,5 @@
 /*
- * DictZip library. 
+ * DictZip library.
  *
  * Copyright (C) 2016 Hiroshi Miura
  *
@@ -53,13 +53,13 @@ public class RandomAccessOutputStream extends OutputStream {
     }
 
     @Override
-    public synchronized void write(final byte[] buf, final int off, final int len)
+    public final synchronized void write(final byte[] buf, final int off, final int len)
             throws IOException {
         out.write(buf, off, len);
     }
 
     @Override
-    public synchronized void write(int b) throws IOException {
+    public final synchronized void write(final int b) throws IOException {
         out.write(b);
     }
 

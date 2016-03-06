@@ -1,5 +1,5 @@
 /*
- * DictZip library. 
+ * DictZip library.
  *
  * Copyright (C) 2016 Hiroshi Miura
  *
@@ -25,209 +25,251 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.CRC32;
 import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-
 
 /**
- *
- * @author miurahr
+ * Test of DictZipOutputStream.
+ * @author Hiroshi Miura
  */
 public class DictZipOutputStream extends FilterOutputStream {
-        private boolean closed = false;
 
-        protected Deflater def;
-        protected byte[] buf;
-        protected int cindex;
+    /**
+     * Compressor for this stream.
+     */
+    protected Deflater def;
 
-        protected final long dataSize;
-        protected CRC32 crc;
-        protected DictZipHeader header;
+    /**
+     * Output buffer for writing compressed data.
+     */
+    protected byte[] buf;
 
-        boolean usesDefaultDeflater = false;
+    /**
+     * CRC-32 of uncompressed data.
+     */
+    protected CRC32 crc;
 
-        public DictZipOutputStream(final OutputStream out, final long dataSize)
-                        throws  IOException, IllegalArgumentException {
-                this(out, 512, dataSize);
+    private int cindex;
+    private boolean closed = false;
+    private long dataSize;
+    private DictZipHeader header;
+    private boolean usesDefaultDeflater = false;
+
+    /**
+     * Constructor.
+     * @param out output stream to filter.
+     * @param size total data of test file.
+     * @throws IOException if I/O error occored.
+     * @throws IllegalArgumentException if parameter is invalid.
+     */
+    public DictZipOutputStream(final OutputStream out, final long size)
+            throws IOException, IllegalArgumentException {
+        this(out, 512, size);
+    }
+
+    /**
+     * Constructor.
+     * @param out output stream to filter.
+     * @param buflen size of buffer to write.
+     * @param size total data of test file.
+     * @throws IOException if I/O error occored.
+     * @throws IllegalArgumentException if parameter is invalid.
+     */
+    public DictZipOutputStream(final OutputStream out, final int buflen,
+            final long size) throws IOException, IllegalArgumentException {
+        this(out, Deflater.DEFAULT_COMPRESSION, buflen, size);
+    }
+
+    /**
+     * Constructor.
+     * @param out output stream to filter.
+     * @param level level of compression, 9=best, 1=fast.
+     * @param buflen size of buffer to write.
+     * @param size total data of test file.
+     * @throws IOException if I/O error occored.
+     * @throws IllegalArgumentException if parameter is invalid.
+     */
+    public DictZipOutputStream(final OutputStream out, final int level,
+            final int buflen, final long size) throws IOException,
+            IllegalArgumentException {
+        this(out, new Deflater(level, true), buflen, size);
+        usesDefaultDeflater = true;
+    }
+
+   /**
+     * Constructor.
+     * @param out output stream to filter.
+     * @param defl custom deflater class, should be child of Deflater class.
+     * @param buflen size of buffer to write.
+     * @param size total data of test file.
+     * @throws IOException if I/O error occored.
+     * @throws IllegalArgumentException if parameter is invalid.
+     */
+    public DictZipOutputStream(final OutputStream out, final Deflater defl,
+            final int buflen, final long size) throws IOException,
+            IllegalArgumentException {
+        super(out);
+        if (out == null || defl == null) {
+            throw new NullPointerException();
+        }
+        if (buflen <= 0) {
+            throw new IllegalArgumentException("buffer size <= 0");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("total data size <= 0");
         }
 
-        public DictZipOutputStream(final OutputStream out, final int bufferSize,
-                        final long dataSize) throws  IOException, IllegalArgumentException {
-                this(out, Deflater.DEFAULT_COMPRESSION, bufferSize, dataSize);
+        this.def = defl;
+        buf = new byte[buflen];
+        this.dataSize = size;
+        crc = new CRC32();
+
+        header = new DictZipHeader(dataSize, buflen);
+        writeHeader();
+        crc.reset();
+        cindex = 0;
+    }
+
+    /**
+     * Closes the output stream.
+     *
+     * @exception IOException if an I/O error has occurred
+     */
+    @Override
+    public void close() throws IOException {
+        if (!closed) {
+            finish();
+            if (usesDefaultDeflater) {
+                def.end();
+            }
+            out.close();
+            closed = true;
         }
+    }
 
-        public DictZipOutputStream(final OutputStream out, final int level,
-                        final int bufferSize, final long dataSize) throws IOException,
-                        IllegalArgumentException {
-                this(out, new Deflater(level, true), bufferSize, dataSize);
-                usesDefaultDeflater = true;
+    /**
+     * Writes next block of compressed data to the output stream.
+     *
+     * @throws IOException if an I/O error has occurred
+     */
+    protected void deflate() throws IOException {
+        // FIXME: handling chunk
+        crc.update(buf, 0, buf.length);
+        int len = def.deflate(buf, 0, buf.length);
+        if (len > 0) {
+            out.write(buf, 0, len);
+            header.chunks[cindex] = len;
+            cindex++;
         }
+    }
 
-        public DictZipOutputStream(final OutputStream out, final Deflater def,
-                        final int bufferSize, final long dataSize) throws IOException,
-                        IllegalArgumentException {
-                super(out);
-                if (out == null || def == null) {
-                        throw new NullPointerException();
-                }
-                if (bufferSize <= 0) {
-                        throw new IllegalArgumentException("buffer size <= 0");
-                }
-                if (dataSize <= 0) {
-                        throw new IllegalArgumentException("total data size <= 0");
-                }
-                
-                this.def = def;
-                buf = new byte[bufferSize];
-                this.dataSize = dataSize;
-                crc = new CRC32();
-
-                header= new DictZipHeader();
-                header.chunkLength = bufferSize;
-                long tmpCount = dataSize / header.chunkLength;
-                if (tmpCount > Integer.MAX_VALUE) {
-                        throw new IllegalArgumentException("data size is out of DictZip range.");
-                }
-                header.chunkCount = (int) tmpCount;
-                header.chunks = new int[header.chunkCount];
-                header.extraLength = 10 + header.chunkCount * 2; // standard header + chunks*2
-                header.headerLength = 10 + 2 + header.extraLength + 2; // SH+XLEN+extraLength+CRC
-                writeHeader();
-                crc.reset();
-                cindex = 0;
+    /**
+     * Writes an array of bytes to the compressed output stream.
+     * <p>
+     * This method will block until all the bytes are written.
+     *
+     * @param b the data to be written
+     * @param off the start offset of the data
+     * @param len the length of the data
+     * @throws IOException if an I/O error has occurred
+     */
+    @Override
+    public synchronized void write(final byte[] b, final int off, final int len)
+            throws IOException {
+        if (def.finished()) {
+            throw new IOException("write beyond end of stream");
         }
-
-        /**
-         * Closes the output stream.
-         *
-         * @exception IOException if an I/O error has occurred
-         */
-        public void close() throws IOException {
-                if (!closed) {
-                        finish();
-                        if (usesDefaultDeflater) {
-                                def.end();
-                        }
-                        out.close();
-                        closed = true;
-                }
+        if ((off | len | (off + len) | (b.length - (off + len))) < 0) {
+            throw new IndexOutOfBoundsException();
+        } else if (def.getTotalIn() + len > dataSize) {
+            throw new IOException("write beyond decralated data size");
+        } else if (len == 0) {
+            return;
         }
-
-        /**
-         * Writes next block of compressed data to the output stream.
-         * @throws IOException if an I/O error has occurred
-         */
-        protected void deflate() throws IOException {
-                // FIXME: handling chunk
-                crc.update(buf, 0, buf.length);
-                int len = def.deflate(buf, 0, buf.length);
-                if (len > 0) {
-                        out.write(buf, 0, len);
-                        header.chunks[cindex] = len;
-                        cindex++;
-                }
-        }
-
-        /**
-         * Writes an array of bytes to the compressed output stream.
-         * <p>
-         * This method will block until all the bytes are written.
-         *
-         * @param b the data to be written
-         * @param off the start offset of the data
-         * @param len the length of the data
-         * @throws IOException if an I/O error has occurred
-         */
-        public synchronized void write(byte[] b, int off, int len) throws IOException {
-                if (def.finished()) {
-                        throw new IOException("write beyond end of stream");
-                }
-                if ((off | len | (off + len) | (b.length - (off + len))) < 0) {
-                        throw new IndexOutOfBoundsException();
-                } else if (len == 0) {
-                        return;
-                }
-                if (!def.finished()) {
+        if (!def.finished()) {
                         // Deflate no more than stride bytes at a time.  This avoids
-                        // excess copying in deflateBytes (see Deflater.c)
-                        // as same as java.io.DeflaterOutputStream
-                        int stride = buf.length;
-                        for (int i = 0; i < len; i+= stride) {
-                                def.setInput(b, off + i, Math.min(stride, len - i));
-                                while (!def.needsInput()) {
-                                        deflate();
-                                }
-                        }
+            // excess copying in deflateBytes (see Deflater.c)
+            // as same as java.io.DeflaterOutputStream
+            int stride = buf.length;
+            for (int i = 0; i < len; i += stride) {
+                def.setInput(b, off + i, Math.min(stride, len - i));
+                while (!def.needsInput()) {
+                    deflate();
                 }
+            }
         }
-        
-        /**
-         * Writes a byte to the compressed output stream.
-         * <p>
-         * This method will block until the byte can be written.
-         *
-         * @param b the byte to be written
-         * @throws IOException if an I/O error has occurred
-         */
-        @Override
-        public synchronized void write(int b) throws IOException {
-                // FIXME: implement for chunk handling
-                byte[] buf = new byte[1];
-                buf[0] = (byte)(b & 0xff);
-                write(buf, 0, 1);
-        }
+    }
 
-        private final static int TRAILER_SIZE = 8;
+    /**
+     * Writes a byte to the compressed output stream.
+     * <p>
+     * This method will block until the byte can be written.
+     *
+     * @param b the byte to be written
+     * @throws IOException if an I/O error has occurred
+     */
+    @Override
+    public synchronized void write(final int b) throws IOException {
+        // FIXME: implement for chunk handling
+        byte[] buf1 = new byte[1];
+        buf1[0] = (byte) (b & 0xff);
+        write(buf1, 0, 1);
+    }
 
-        public void finish() throws IOException {
-                if (!def.finished()) {
-                        def.finish();
-                        while (!def.finished()) {
-                                int len = def.deflate(buf, 0, buf.length);
-                                if (def.finished() && len <= buf.length - TRAILER_SIZE) {
-                                        // last deflater buffer. Fit trailer at the end
-                                        writeTrailer(buf, len);
-                                        len = len + TRAILER_SIZE;
-                                        out.write(buf, 0, len);
-                                        return;
-                                }
-                                if (len > 0) {
-                                        out.write(buf, 0, len);
-                                }
-                        }
+    private static final int TRAILER_SIZE = 8;
+
+    /**
+     * Finish compression, as same function as GZIPOutputStream.
+     * @throws IOException if I/O error occured.
+     */
+    public final void finish() throws IOException {
+        if (!def.finished()) {
+            def.finish();
+            while (!def.finished()) {
+                int len = def.deflate(buf, 0, buf.length);
+                if (def.finished() && len <= buf.length - TRAILER_SIZE) {
+                    // last deflater buffer. Fit trailer at the end
+                    writeTrailer(buf, len);
+                    len = len + TRAILER_SIZE;
+                    out.write(buf, 0, len);
+                    return;
                 }
-                byte[] trailer = new byte[TRAILER_SIZE];
-                writeTrailer(trailer, 0);
-                out.write(trailer);
+                if (len > 0) {
+                    out.write(buf, 0, len);
+                }
+            }
         }
+        byte[] trailer = new byte[TRAILER_SIZE];
+        writeTrailer(trailer, 0);
+        out.write(trailer);
+    }
 
-        private void writeHeader() throws IOException {
-                DictZipHeader.writeHeader(header, out);
-        }
+    private void writeHeader() throws IOException {
+        DictZipHeader.writeHeader(header, out);
+    }
 
-        private void writeHeader(byte[] b, int offset) {
-                DictZipHeader.writeHeader(header, b, offset);
-        }
+    private void writeHeader(final byte[] b, final int offset) {
+        DictZipHeader.writeHeader(header, b, offset);
+    }
 
-        private void writeTrailer(byte[] b, int offset) throws IOException {
-                writeInt((int) crc.getValue(), b, offset); // CRC-32 of uncompr. data
-                writeInt(def.getTotalIn(), b, offset + 4); // Number of uncompr. bytes
-        }
+    private void writeTrailer(final byte[] b, final int offset) throws IOException {
+        writeInt((int) crc.getValue(), b, offset); // CRC-32 of uncompr. data
+        writeInt(def.getTotalIn(), b, offset + 4); // Number of uncompr. bytes
+    }
 
-        /*
-         * Writes integer in Intel byte order to a byte array, starting at a
-         * given offset.
-         */
-        private void writeInt(int i, byte[] b, int offset) throws IOException {
-                writeShort(i & 0xffff, b, offset);
-                writeShort((i >> 16) & 0xffff, b, offset + 2);
-        }
+    /*
+     * Writes integer in Intel byte order to a byte array, starting at a
+     * given offset.
+     */
+    private void writeInt(final int i, final byte[] b, final int offset) throws IOException {
+        writeShort(i & 0xffff, b, offset); // int low short val
+        writeShort((i >> 16) & 0xffff, b, offset + 2); // int high short val
+    }
 
-        /*
-         * Writes short integer in Intel byte order to a byte array, starting
-         * at a given offset
-         */
-        private void writeShort(int s, byte[] b, int offset) throws IOException {
-                b[offset] = (byte) (s & 0xff);
-                b[offset + 1] = (byte) ((s >> 8) & 0xff);
-        }
+    /*
+     * Writes short integer in Intel byte order to a byte array, starting
+     * at a given offset
+     */
+    private void writeShort(final int s, final byte[] b, final int offset) throws IOException {
+        b[offset] = (byte) (s & 0xff); // low byte
+        b[offset + 1] = (byte) ((s >> 8) & 0xff); // high byte
+    }
 }

@@ -26,8 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
- * @author miurahr
+ * Test of DictZipInputStream.
+ * @author Hiroshi Miura
  */
 public class DictZipInputStreamTest extends TestCase {
 
@@ -36,13 +36,23 @@ public class DictZipInputStreamTest extends TestCase {
     private DictZipInputStream din;
     private DictZipHeader header;
 
+    /**
+     * Open output stream.
+     * @throws Exception
+     */
     @Before
+    @Override
     public void setUp() throws Exception {
         in = new RandomAccessInputStream(dataFile, "r");
         din = new DictZipInputStream(in);
     }
 
+    /**
+     * Close output stream.
+     * @throws Exception if I/O error occured.
+     */
     @After
+    @Override
     public void tearDown() throws Exception {
         din.close();
         in.close();
@@ -74,6 +84,7 @@ public class DictZipInputStreamTest extends TestCase {
 
     /**
      * Test of readFully method, of class DictZipInputStream.
+     * @throws java.lang.Exception
      */
     @Test
     public void testReadFully_byteArr() throws Exception {
@@ -90,6 +101,7 @@ public class DictZipInputStreamTest extends TestCase {
 
     /**
      * Test of readFully method, of class DictZipInputStream.
+     * @throws java.lang.Exception
      */
     @Test
     public void testReadFully_3args() throws Exception {
@@ -106,6 +118,7 @@ public class DictZipInputStreamTest extends TestCase {
 
     /**
      * Test of readHeader method, of class DictZipInputStream.
+     * @throws java.lang.Exception
      */
     @Test
     public void testReadHeader() throws Exception {
