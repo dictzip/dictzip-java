@@ -154,7 +154,8 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
             fail("an IO error occured while trying to find the output file or creating DictZip constructor");
         }
         try {
-            outFile = new FileOutputStream("GZIPOutFinish.txt");
+            outFile = new FileOutputStream(
+                    File.createTempFile("DictZipOutCon", ".txt"));
             instance = new TestDictZipOutputStream(outFile, 10);
             outFile.close();
 
