@@ -39,45 +39,19 @@ import java.util.zip.Deflater;
 public class DictZipHeader {
 
     /**
-     * Length of header.
-     */
-    protected int headerLength;
-    /**
      * Each chunk size.
      */
     protected int[] chunks;
-    /**
-     * Offsets of each chunks.
-     */
-    protected int[] offsets;
-    /**
-     * Length of extra fields.
-     */
-    protected int extraLength;
-    /**
-     * Subfield ID.
-     */
-    protected byte subfieldID1;
-    /**
-     * Subfield ID.
-     */
-    protected byte subfieldID2;
-    /**
-     * Length of subfield.
-     */
-    protected int subfieldLength;
-    /**
-     * Version of subfield.
-     */
-    protected int subfieldVersion;
-    /**
-     * Length of each chunk.
-     */
-    protected int chunkLength;
-    /**
-     * Count of chunks.
-     */
-    protected int chunkCount;
+
+    private int headerLength;
+    private int[] offsets;
+    private int extraLength;
+    private byte subfieldID1;
+    private byte subfieldID2;
+    private int subfieldLength;
+    private int subfieldVersion;
+    private int chunkLength;
+    private int chunkCount;
 
     /**
      * GZIP header magic number & file header flags.
@@ -111,6 +85,30 @@ public class DictZipHeader {
      * Other constants.
      */
     private static final int BUFLEN = 128;
+
+    /**
+     * Default constructor.
+     */
+    public DictZipHeader() {
+    }
+
+    /**
+     * Initialize DictZip header from data and buffer size.
+     * Constructor for writing dictzip file.
+     * @param dataSize total data size.
+     * @param bufferSize buffer size.
+     */
+    public DictZipHeader(final long dataSize, final int bufferSize) {
+        chunkLength = bufferSize;
+        long tmpCount = dataSize / bufferSize;
+        if (tmpCount > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("data size is out of DictZip range.");
+        }
+        chunkCount = (int) tmpCount;
+        chunks = new int[chunkCount];
+        extraLength = 10 + chunkCount * 2; // standard header + chunks*2
+        headerLength = 10 + 2 + extraLength + 2; // SH+XLEN+extraLength+CRC
+    }
 
     private void initOffsets() {
         offsets = new int[chunks.length];
@@ -286,7 +284,18 @@ public class DictZipHeader {
      * Writes GZIP member header to buffer.
      *
      * @param h DictZipHeader header values.
-     * @param b byte buffer.
+     * @param buf buffer to write.
+     */
+    public static void writeHeader(final DictZipHeader h, final byte[] buf) {
+        writeHeader(h, buf, 0);
+    }
+
+    /**
+     * Writes GZIP member header to buffer.
+     *
+     * @param h DictZipHeader header values.
+     * @param buf buffer to write.
+     * @param offset in buffer.
      */
     public static void writeHeader(final DictZipHeader h, final byte[] buf, final int offset) {
         // XXX: implement me
@@ -363,4 +372,5 @@ public class DictZipHeader {
         int idx = start / this.chunkLength;
         return this.offsets[idx];
     }
+
 }
