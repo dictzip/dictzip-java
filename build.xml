@@ -74,6 +74,15 @@
     -->
   <target name="-post-compile-test" depends="checkstyle"/>
 
+  <target name="-pre-jar">
+    <jar compress="${jar.compress}" index="${jar.index}" jarfile="dist/dictzip-libs.jar">
+      <fileset dir="${build.classes.dir}" excludes="**/cli/*,**/cli/"/>
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+    </manifest>
+    </jar>
+  </target>
+
   <target name="checkstyle"
         description="Generates a report of code convention violations.">
     <checkstyle config="doc/codingstyle_checks.xml">
