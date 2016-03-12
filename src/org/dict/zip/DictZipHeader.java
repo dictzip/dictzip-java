@@ -52,6 +52,8 @@ public class DictZipHeader {
     private int subfieldVersion;
     private int chunkLength;
     private int chunkCount;
+    private long mtime;
+    private String filename = null;
 
     /**
      * GZIP header magic number & file header flags.
@@ -157,8 +159,9 @@ public class DictZipHeader {
         }
         // Read flags
         int flg = readUByte(in);
+        h.mtime = readUInt(in);
         // Skip MTIME, XFL, and OS fields
-        skipBytes(in, MTIME_LEN + XFL_LEN + OS_LEN);
+        skipBytes(in, XFL_LEN + OS_LEN);
         h.headerLength = DICTZIP_HEADER_LEN;
         // Optional extra field
         if ((flg & FEXTRA) == FEXTRA) {
@@ -177,9 +180,13 @@ public class DictZipHeader {
         }
         // Skip optional file name
         if ((flg & FNAME) == FNAME) {
-            while (readUByte(in) != 0) {
+            StringBuffer sb = new StringBuffer();
+            int ubyte;
+            while ((ubyte = readUByte(in)) != 0) {
+                sb.append((char)(ubyte & 0xff));
                 h.headerLength++;
             }
+            h.filename = sb.toString();
             h.headerLength++;
         }
         // Skip optional file comment
@@ -373,4 +380,27 @@ public class DictZipHeader {
         return this.offsets[idx];
     }
 
+    public final String getType() {
+        if (subfieldID1 == 'R' && subfieldID2 == 'A') {
+            return "dzip";
+        } else {
+            return "gzip";
+        }
+    }
+
+    public int getChunkLength() {
+        return chunkLength;
+    }
+
+    public int getChunkCount() {
+        return chunkCount;
+    }
+
+    public long getMtime() {
+        return mtime;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
 }

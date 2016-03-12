@@ -72,6 +72,61 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <!-- Set the repo.revision property from the first valid source in this order:
+     1. src/**/Version.properties
+     2. This git SHA1
+    -->
+  <target name="get-revision" depends="get-source-revision,get-git-revision">
+    <!-- Fallback in case value was not set from source or git -->
+    <property name="repo.revision" value="unknown"/>
+    <echo message="Detected revision: ${repo.revision}"/>
+  </target>
+
+  <target name="get-source-revision">
+    <condition property="repo.revision" value="${revision}">
+      <and>
+        <isset property="revision"/>
+        <not>
+          <equals arg1="${revision}" arg2="dev"/>
+        </not>
+      </and>
+    </condition>
+  </target>
+
+  <available file=".git" type="dir" property="git.available"/>
+  <target name="get-git-revision" if="git.available">
+    <exec executable="git" outputproperty="git.sha1" failifexecutionfails="false">
+      <arg value="rev-parse"/>
+      <arg value="--short"/>
+      <arg value="HEAD"/>
+    </exec>
+    <condition property="repo.revision" value="${git.sha1}">
+      <and>
+        <isset property="git.sha1"/>
+        <length string="${git.sha1}" trim="yes" length="0" when="greater"/>
+      </and>
+    </condition>
+  </target>
+
+  <!-- Builds a source distribution -->
+  <target name="src" depends="init,get-revision" description="Build source distribution">
+    <mkdir dir="dist2"/>
+    <!-- Create temporary Version.properties with current revision -->
+    <tempfile property="temp.version.props" destdir="dist2" deleteonexit="true"/>
+    <copy file="src/org/dict/zip/Version.properties" tofile="${temp.version.props}"/>
+    <propertyfile file="${temp.version.props}">
+      <entry key="revision" value="${repo.revision}"/>
+    </propertyfile>
+    <!-- Build zip -->
+    <zip destfile="dist2/dictzip_${version}_${revision}_Source.zip">
+      <fileset dir="."
+          includes="doc/** lib/** nbproject/** src/** test/** build.xml"
+          excludes="**/nbproject/private/** **/build/** **/dist/** src/**/Version.properties" />
+      <zipfileset file="${temp.version.props}" fullpath="src/org/dict/zip/Version.properties"/>
+    </zip>
+  </target>
+
+
   <target name="-post-compile-test" depends="checkstyle"/>
 
   <target name="-pre-jar">

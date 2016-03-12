@@ -43,6 +43,10 @@ public class DictZipInputStream extends InflaterInputStream {
      */
     private CRC32 crc = new CRC32();
 
+    private long crcVal = 0;
+    private long totalLength = 0;
+    private long compLength = 0;
+
     /**
      * Indicates end of input stream.
      */
@@ -67,8 +71,6 @@ public class DictZipInputStream extends InflaterInputStream {
      */
     public DictZipInputStream(final InputStream in, final int size) throws IOException {
         super(in, new Inflater(true), size);
-                //readHeader();
-        //crc.reset();
     }
 
     /**
@@ -76,6 +78,7 @@ public class DictZipInputStream extends InflaterInputStream {
      *
      * @exception IOException if an I/O error has occurred
      */
+    @Override
     public final void close() throws IOException {
         inf.end();
         in.close();
@@ -150,10 +153,28 @@ public class DictZipInputStream extends InflaterInputStream {
         return header;
     }
 
-    /**
-     * Reads GZIP member trailer.
-     */
-    private void readTrailer() throws IOException {
+    public long getCrc() throws IOException {
+        if (totalLength == 0) {
+            readTrailer();
+        }
+        return crcVal; 
+    }
+
+    public long getLength() throws IOException {
+        if (totalLength == 0) {
+            readTrailer();
+        }
+        return totalLength;
+    }
+
+    public long getCompLength() throws IOException {
+        if (totalLength == 0) {
+            readTrailer();
+        }
+        return compLength;
+    }
+
+    private void checkTrailer() throws IOException {
         InputStream in = this.in;
         int num = inf.getRemaining();
         if (num > 0) {
@@ -171,6 +192,22 @@ public class DictZipInputStream extends InflaterInputStream {
         //System.out.println("Computed size = "+total+" / From input "+trailerTotal);
         if (trailerTotal != total) {
             throw new IOException("False number of uncompressed bytes");
+        }
+    }
+
+    /**
+     * Reads GZIP member trailer.
+     * @throws java.io.IOException If file I/O error
+     */
+    public void readTrailer() throws IOException {
+        if (in instanceof RandomAccessInputStream) {
+            RandomAccessInputStream rain = (RandomAccessInputStream) in;
+            compLength = rain.getLength();
+            rain.seek(compLength - 8);
+            crcVal = readUInt(in);
+            totalLength = readUInt(in);
+        } else {
+            // FIXME
         }
     }
 
