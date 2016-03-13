@@ -15,6 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
 package org.dict.zip.cli;
 
 import java.io.File;
@@ -41,15 +42,18 @@ import org.dict.zip.RandomAccessOutputStream;
  */
 public class DictData {
 
-    static final ResourceBundle _messages = ResourceBundle.getBundle("org/dict/zip/cli/Bundle",
+    static ResourceBundle messages = ResourceBundle.getBundle("org/dict/zip/cli/Bundle",
             Locale.getDefault());
-    
+
     private final String targetFileName;
 
     private File targetFile;
     private RandomAccessFile targetRaFile;
 
-    public enum OpsMode {WRITE, READ};
+    /**
+     * Operation mode (WRITE or READ).
+     */
+    public enum OpsMode { WRITE, READ };
 
     private OpsMode opsMode;
     private RandomAccessInputStream in;
@@ -62,26 +66,37 @@ public class DictData {
      * Default constructor for reader.
      * @param targetFileName to handle
      */
-    public DictData(String targetFileName) {
+    public DictData(final String targetFileName) {
         this.targetFileName = targetFileName;
     }
 
-    public void open(OpsMode mode) throws IOException, FileNotFoundException  {
+    /**
+     * Open target(.dz) file on mode.
+     *
+     * @param mode READ or WRITE
+     * @throws IOException if file I/O error.
+     * @throws FileNotFoundException if specified file is not exist for read.
+     */
+    public void open(final OpsMode mode) throws IOException, FileNotFoundException  {
         targetFile = new File(targetFileName);
         opsMode = mode;
         if (mode.equals(OpsMode.READ)) {
-            targetRaFile = new RandomAccessFile(targetFile,"r");
+            targetRaFile = new RandomAccessFile(targetFile, "r");
             in = new RandomAccessInputStream(targetRaFile);
             din = new DictZipInputStream(in);
         } else if (mode.equals(OpsMode.WRITE)) {
-            targetRaFile = new RandomAccessFile(targetFile,"w");
+            targetRaFile = new RandomAccessFile(targetFile, "w");
             out = new RandomAccessOutputStream(targetRaFile);
         } else {
+            // Not come here.
             throw new IllegalArgumentException("Unknown file I/O mode");
         }
     }
 
     public void printHeader() throws IOException {
+        if (opsMode.equals(OpsMode.WRITE)) {
+            throw new IOException("Cannot read header.");
+        }
         Format timeFormatter;
         Format dateFormatter;
         header = din.readHeader();
@@ -94,12 +109,17 @@ public class DictData {
         long comp = din.getCompLength();
         String filename = header.getFilename();
         timeFormatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss");
-        System.out.println(_messages.getString("dictzip.header.title"));
+        System.out.println(messages.getString("dictzip.header.title"));
         System.out.print(String.format("%s\t%08x\t%s\t", type, crc, timeFormatter.format(mtime)));
-        System.out.print(String.format("%6d\t%d\t%d\t  %d\t", chunkCount, chunkLength, comp, uncomp));
+        System.out.print(String.format("%6d\t%d\t%d\t  %d\t", chunkCount, chunkLength, comp,
+                uncomp));
         System.out.println(String.format("%3.1f%%\t%s", (100.0 * comp) / uncomp, filename));
     }
-    
+
+    /**
+     * Close opened file.
+     * @throws IOException if file I/O error.
+     */
     public void close() throws IOException {
         if (opsMode.equals(OpsMode.READ)) {
             din.close();
@@ -111,16 +131,32 @@ public class DictData {
         targetRaFile.close();
     }
 
+    /**
+     * Do compression.
+     * @throws IOException if file I/O error.
+     */
     public void doZip() throws IOException {
-        
+        if (opsMode.equals(OpsMode.READ)) {
+            throw new IOException("Cannot compress.");
+        }
     }
 
+    /**
+     * Do uncompression.
+     * @throws IOException if file I/O error.
+     */
     public void doUnzip() throws IOException {
-        
+        if (opsMode.equals(OpsMode.WRITE)) {
+            throw new IOException("Cannot decompress.");
+        }
     }
 
+    /**
+     * Remove file set to target file.
+     * @return result of operation.
+     * @throws IOException if file I/O error.
+     */
     public boolean removeTarget() throws IOException {
         return targetFile.delete();
     }
-    
 }

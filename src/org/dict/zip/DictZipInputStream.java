@@ -153,6 +153,11 @@ public class DictZipInputStream extends InflaterInputStream {
         return header;
     }
 
+    /**
+     * Return CRC value set to gzip trailer.
+     * @return CRC value.
+     * @throws IOException if I/O error.
+     */
     public long getCrc() throws IOException {
         if (totalLength == 0) {
             readTrailer();
@@ -160,6 +165,11 @@ public class DictZipInputStream extends InflaterInputStream {
         return crcVal; 
     }
 
+    /**
+     * Return length value set to gzip trailer.
+     * @return data length.
+     * @throws IOException if I/O error.
+     */
     public long getLength() throws IOException {
         if (totalLength == 0) {
             readTrailer();
@@ -208,6 +218,7 @@ public class DictZipInputStream extends InflaterInputStream {
             totalLength = readUInt(in);
         } else {
             // FIXME
+            System.err.println("Ask to read gzip trailer when stream is not random accessable.");
         }
     }
 

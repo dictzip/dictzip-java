@@ -183,7 +183,7 @@ public class DictZipHeader {
             StringBuffer sb = new StringBuffer();
             int ubyte;
             while ((ubyte = readUByte(in)) != 0) {
-                sb.append((char)(ubyte & 0xff));
+                sb.append((char) (ubyte & 0xff));
                 h.headerLength++;
             }
             h.filename = sb.toString();
@@ -380,6 +380,10 @@ public class DictZipHeader {
         return this.offsets[idx];
     }
 
+    /**
+     *　Return zip type, whether gzip or dzip.
+     * @return type name.
+     */
     public final String getType() {
         if (subfieldID1 == 'R' && subfieldID2 == 'A') {
             return "dzip";
@@ -388,18 +392,34 @@ public class DictZipHeader {
         }
     }
 
+    /**
+     * Return chunk length.
+     * @return length in int.
+     */
     public int getChunkLength() {
         return chunkLength;
     }
 
+    /**
+     * Return chunk count.
+     * @return int number.
+     */
     public int getChunkCount() {
         return chunkCount;
     }
 
+    /**
+     * Return modification date/time in second from epoch.
+     * @return long second from epoch.
+     */
     public long getMtime() {
         return mtime;
     }
 
+    /**
+     * Return filename set to header.
+     * @return filename set to header.
+     */
     public String getFilename() {
         return filename;
     }

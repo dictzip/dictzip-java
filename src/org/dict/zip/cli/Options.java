@@ -31,105 +31,201 @@ public class Options {
     private boolean stdoutput = false;
     private boolean test = false;
     private boolean verbose = false;
-    private boolean debug_verbose = false;
+    private boolean debugVerbose = false;
     private int start = 0;
     private int size = 0;
     private String pre;
     private String post;
 
+    /**
+     * Whether -d option is spedified.
+     * @return true if -d option is specified.
+     */
     public boolean isDecompress() {
         return decompress;
     }
 
-    public void setDecompress(boolean decompress) {
+    /**
+     * Set -d option.
+     * @param decompress true if -d option is specified.
+     */
+    public void setDecompress(final boolean decompress) {
         this.decompress = decompress;
     }
 
+    /**
+     * Whether -f/--force option is spedified.
+     * @return true if -f option is spefified.
+     */
     public boolean isForce() {
         return force;
     }
 
-    public void setForce(boolean force) {
+    /**
+     * Set -f/--force option.
+     * @param force true if -f option is spefified.
+     */
+    public void setForce(final boolean force) {
         this.force = force;
     }
 
+    /**
+     * Whether -k/--keep is specified or not.
+     * @return true if -k is specified
+     */
     public boolean isKeep() {
         return keep;
     }
 
-    public void setKeep(boolean keep) {
+    /**
+     * Set -k/--keep option.
+     * @param keep true if -k is specified.
+     */
+    public void setKeep(final boolean keep) {
         this.keep = keep;
     }
 
+    /**
+     * Whether -l/--list option is specified.
+     * @return true if -l specified.
+     */
     public boolean isList() {
         return list;
     }
 
-    public void setList(boolean list) {
+    /**
+     * Set -l option.
+     * @param list true if -l option is specified.
+     */
+    public void setList(final boolean list) {
         this.list = list;
     }
 
+    /**
+     * Whther -c option is specified.
+     * @return true if -l option is specified.
+     */
     public boolean isStdoutput() {
         return stdoutput;
     }
 
-    public void setStdoutput(boolean stdoutput) {
+    /**
+     * Set -c option.
+     * @param stdoutput true when -c option specified.
+     */
+    public void setStdoutput(final boolean stdoutput) {
         this.stdoutput = stdoutput;
     }
 
+    /**
+     * Whether -t/--test option specified.
+     * @return true if -t specified.
+     */
     public boolean isTest() {
         return test;
     }
 
-    public void setTest(boolean test) {
+    /**
+     * Set -t option.
+     * @param test true if -t specified.
+     */
+    public void setTest(final boolean test) {
         this.test = test;
     }
 
+    /**
+     * Whether -v/--verbose option specified.
+     * @return true if -v specified.
+     */
     public boolean isVerbose() {
         return verbose;
     }
 
-    public void setVerbose(boolean verbose) {
+    /**
+     * Set -v option.
+     * @param verbose true if -v option specified.
+     */
+    public void setVerbose(final boolean verbose) {
         this.verbose = verbose;
     }
 
-    public boolean isDebug_verbose() {
-        return debug_verbose;
+    /**
+     * Whether -Dverbose/--debug=verbose specified.
+     * @return true if -Dverbose specified.
+     */
+    public boolean isDebugVerbose() {
+        return debugVerbose;
     }
 
-    public void setDebug_verbose(boolean debug_verbose) {
-        this.debug_verbose = debug_verbose;
+    /**
+     * Set -Dverbose/--debug=verbose specified.
+     * @param debugVerbose true if specified.
+     */
+    public void setDebugVerbose(final boolean debugVerbose) {
+        this.debugVerbose = debugVerbose;
     }
 
+    /**
+     * Get value of -s/--start option.
+     * @return Value of -s/--start option. If not specified, return 0.
+     */
     public int getStart() {
         return start;
     }
 
-    public void setStart(int start) {
+    /**
+     * Set value of start option.
+     * @param start value of start option.
+     */
+    public void setStart(final int start) {
         this.start = start;
     }
 
+    /**
+     * Get value of -S/--size option.
+     * @return value of size option.
+     */
     public int getSize() {
         return size;
     }
 
-    public void setSize(int size) {
+    /**
+     * Set value of size option.
+     * @param size value of size option.
+     */
+    public void setSize(final int size) {
         this.size = size;
     }
 
+    /**
+     * Get preset filter option.
+     * @return preset filter command.
+     */
     public String getPre() {
         return pre;
     }
 
-    public void setPre(String pre) {
+    /**
+     * Set preset filter option.
+     * @param pre preset filter command in String.
+     */
+    public void setPre(final String pre) {
         this.pre = pre;
     }
 
+    /**
+     * Get post process filter option.
+     * @return post filter command.
+     */
     public String getPost() {
         return post;
     }
 
-    public void setPost(String post) {
+    /**
+     * Set post process filter option.
+     * @param post post filter command in String.
+     */
+    public void setPost(final String post) {
         this.post = post;
     }
 }

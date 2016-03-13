@@ -15,6 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
 package org.dict.zip.cli;
 
 import java.util.Locale;
@@ -22,18 +23,17 @@ import java.util.ResourceBundle;
 import java.io.IOException;
 
 /**
- *
+ * dictzip/dictunzip main class.
  * @author Hiroshi Miura
  */
-public class Main {
-
+public final class Main {
     /**
-     * The localized strings are kept in a separate file
+     * The localized strings are kept in a separate file.
      */
-    private static ResourceBundle _messages = ResourceBundle.getBundle(
+    private static ResourceBundle messages = ResourceBundle.getBundle(
             "org/dict/zip/cli/Bundle", Locale.getDefault());
 
-    private static final CommandLine commandLine = new CommandLine();
+    private static CommandLine commandLine = new CommandLine();
 
     /**
      * main method.
@@ -42,12 +42,10 @@ public class Main {
      */
     public static void main(final String[] argv) {
         int res = commandLine.parse(argv);
-        
         // If error in command line, exit with code
         if (res != 0) {
             System.exit(res);
         }
-        
         for (String fName: commandLine.getTargetFiles()) {
             try {
             DictData dict = new DictData(fName);
@@ -65,10 +63,14 @@ public class Main {
                 dict.removeTarget();
             }
             } catch (IOException ex) {
-                System.err.println(_messages.getString("main.io.error"));
+                System.err.println(messages.getString("main.io.error"));
                 System.exit(1);
             }
         }
         System.exit(0);
     }
+
+    private Main() {
+    }
+
 }

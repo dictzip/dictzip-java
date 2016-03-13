@@ -33,18 +33,17 @@ public class AppConsts {
             .getString("update");
     static final String REVISION = ResourceBundle.getBundle("org/dict/zip/Version")
             .getString("revision");
-    
+
     static final ResourceBundle _messages = ResourceBundle.getBundle("org/dict/zip/cli/Bundle",
             Locale.getDefault());
-    
+
     static final String NAME = _messages.getString("application.name");
-    static final String BRANDING = "";    
+    static final String BRANDING = "";
     static final String YEAR = "2016";
     static final String AUTHORS = "Hiroshi Miura";
     static final String LICENSE = "GPLv2+";
 
-    
-    private static String getString(String key) {
+    private static String getString(final String key) {
         return _messages.getString(key);
     }
 
@@ -61,5 +60,7 @@ public class AppConsts {
     static String getApplicationName() {
         return BRANDING.isEmpty() ? NAME : NAME + " " + BRANDING;
     }
-    
+
+    private AppConsts() {
+    }
 }
