@@ -91,7 +91,7 @@ public class DictZipHeader {
     /**
      * Default constructor.
      */
-    public DictZipHeader() {
+    private DictZipHeader() {
     }
 
     /**
@@ -136,6 +136,22 @@ public class DictZipHeader {
         return h;
     }
 
+
+    /**
+     * Read dictzip header from file.
+     *
+     * @param is input stream for retrieve header.
+     * @param crc CRC32 value for check.
+     * @return dictzip header object.
+     * @throws IOException when error in file read.
+     */
+    public static DictZipHeader readHeader(final InputStream is, final CRC32 crc)
+            throws IOException {
+        DictZipHeader h = new DictZipHeader();
+        readHeader(h, is, crc);
+        return h;
+    }
+
     /**
      * Read dictzip header from file.
      *
@@ -144,7 +160,7 @@ public class DictZipHeader {
      * @param crc CRC32 value for check.
      * @throws IOException when error in file read.
      */
-    public static void readHeader(final DictZipHeader h, final InputStream is, final CRC32 crc)
+    private static void readHeader(final DictZipHeader h, final InputStream is, final CRC32 crc)
             throws IOException {
         CheckedInputStream in = new CheckedInputStream(is, crc);
         crc.reset();

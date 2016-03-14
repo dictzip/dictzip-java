@@ -39,6 +39,11 @@ import java.util.zip.InflaterInputStream;
 public class DictZipInputStream extends InflaterInputStream {
 
     /**
+     * DictZip Header.
+     */
+    private DictZipHeader header = null;
+
+    /**
      * CRC-32 for uncompressed data.
      */
     private CRC32 crc = new CRC32();
@@ -71,6 +76,7 @@ public class DictZipInputStream extends InflaterInputStream {
      */
     public DictZipInputStream(final InputStream in, final int size) throws IOException {
         super(in, new Inflater(true), size);
+        header = readHeader();
     }
 
     /**
@@ -147,9 +153,10 @@ public class DictZipInputStream extends InflaterInputStream {
      * @exception IOException if an I/O error has occurred.
      */
     public final DictZipHeader readHeader() throws IOException {
-        DictZipHeader header = new DictZipHeader();
-        header.readHeader(header, in, crc);
-        crc.reset();
+        if (header == null) {
+            header = DictZipHeader.readHeader(in, crc);
+            crc.reset();
+        }
         return header;
     }
 
