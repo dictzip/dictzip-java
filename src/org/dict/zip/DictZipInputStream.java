@@ -105,18 +105,19 @@ public class DictZipInputStream extends InflaterInputStream {
      * reached
      * @exception IOException if an I/O error has occurred or the compressed input data is corrupt
      */
+    @Override
     public final int read(final byte[] buf, final int off, final int size) throws IOException {
         if (eos) {
             return -1;
         }
-        int len = super.read(buf, off, size);
-        if (len == -1) {
+        int readLen = super.read(buf, off, size);
+        if (readLen == -1) {
             //readTrailer();
             eos = true;
         } else {
-            crc.update(buf, off, len);
+            crc.update(buf, off, readLen);
         }
-        return len;
+        return readLen;
     }
 
     /**
@@ -161,6 +162,17 @@ public class DictZipInputStream extends InflaterInputStream {
             crc.reset();
         }
         return header;
+    }
+
+    public void seek(int next) throws IOException {
+        if (in instanceof RandomAccessInputStream) {
+            RandomAccessInputStream rain = (RandomAccessInputStream) in;
+            offset = header.getOffset(next);
+            int pos = header.getPosition(next);
+            rain.seek(pos);
+        } else {
+            throw new IOException("Illegal type of InputStream.");
+        }
     }
 
     /**
