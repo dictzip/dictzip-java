@@ -32,8 +32,8 @@ public class Options {
     private boolean test = false;
     private boolean verbose = false;
     private boolean debugVerbose = false;
-    private int start = 0;
-    private int size = 0;
+    private long start = 0;
+    private long size = 0;
     private String pre;
     private String post;
 
@@ -169,7 +169,7 @@ public class Options {
      * Get value of -s/--start option.
      * @return Value of -s/--start option. If not specified, return 0.
      */
-    public int getStart() {
+    public long getStart() {
         return start;
     }
 
@@ -177,7 +177,7 @@ public class Options {
      * Set value of start option.
      * @param start value of start option.
      */
-    public void setStart(final int start) {
+    public void setStart(final long start) {
         this.start = start;
     }
 
@@ -185,7 +185,7 @@ public class Options {
      * Get value of -S/--size option.
      * @return value of size option.
      */
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
@@ -193,7 +193,7 @@ public class Options {
      * Set value of size option.
      * @param size value of size option.
      */
-    public void setSize(final int size) {
+    public void setSize(final long size) {
         this.size = size;
     }
 

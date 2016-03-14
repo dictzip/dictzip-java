@@ -62,6 +62,9 @@ public class DictData {
     private DictZipOutputStream dout;
     private DictZipHeader header;
 
+    private long targetSize = 0;
+    private int bufLen = 512;
+
     /**
      * Default constructor for reader.
      * @param targetFileName to handle
@@ -97,18 +100,16 @@ public class DictData {
         if (opsMode.equals(OpsMode.WRITE)) {
             throw new IOException("Cannot read header.");
         }
-        Format timeFormatter;
-        Format dateFormatter;
+        long uncomp = din.getLength();
+        long comp = din.getCompLength();
+        long crc = din.getCrc();
         header = din.readHeader();
         String type = header.getType();
-        long crc = din.getCrc();
         int chunkLength = header.getChunkLength();
         int chunkCount = header.getChunkCount();
         Date mtime = new Date(header.getMtime() * 1000);
-        long uncomp = din.getLength();
-        long comp = din.getCompLength();
         String filename = header.getFilename();
-        timeFormatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss");
+        Format timeFormatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss");
         System.out.println(messages.getString("dictzip.header.title"));
         System.out.print(String.format("%s\t%08x\t%s\t", type, crc, timeFormatter.format(mtime)));
         System.out.print(String.format("%6d\t%d\t%d\t  %d\t", chunkCount, chunkLength, comp,
@@ -143,12 +144,16 @@ public class DictData {
 
     /**
      * Do uncompression.
+     * @param file save extracted data to
+     * @param start start offset of data
+     * @param size size to retrieve
      * @throws IOException if file I/O error.
      */
-    public void doUnzip() throws IOException {
+    public void doUnzip(String file, long start, long size) throws IOException {
         if (opsMode.equals(OpsMode.WRITE)) {
             throw new IOException("Cannot decompress.");
         }
+        File outFile = new File(file);
     }
 
     /**

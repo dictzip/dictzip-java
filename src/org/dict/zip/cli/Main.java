@@ -33,7 +33,7 @@ public final class Main {
     private static ResourceBundle messages = ResourceBundle.getBundle(
             "org/dict/zip/cli/Bundle", Locale.getDefault());
 
-    private static CommandLine commandLine = new CommandLine();
+    private static final CommandLine commandLine = new CommandLine();
 
     /**
      * main method.
@@ -55,9 +55,10 @@ public final class Main {
                 dict.printHeader();
                 dict.close();
             } else if (commandLine.options.isDecompress()) {
-                dict.doUnzip();
-            } else {
-                dict.doZip();
+                String extractFile = DictZipUtils.uncompressedFileName(fName);
+                long start = commandLine.options.getStart();
+                long size = commandLine.options.getSize();
+                dict.doUnzip(extractFile, start, size);
             }
             if (!commandLine.options.isKeep()) {
                 dict.removeTarget();
