@@ -25,6 +25,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.text.MessageFormat;
 
 import java.util.zip.CRC32;
 import java.util.zip.Inflater;
@@ -52,6 +53,8 @@ public class DictZipInputStream extends InflaterInputStream {
     private long totalLength = 0;
     private long compLength = 0;
 
+    private int offset = 0;
+
     /**
      * Indicates end of input stream.
      */
@@ -63,7 +66,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * @param in the input stream
      * @exception IOException if an I/O error has occurred
      */
-    public DictZipInputStream(final InputStream in) throws IOException {
+    public DictZipInputStream(final RandomAccessInputStream in) throws IOException {
         this(in, 512);
     }
 
@@ -74,7 +77,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * @param size the input buffer size
      * @exception IOException if an I/O error has occurred
      */
-    public DictZipInputStream(final InputStream in, final int size) throws IOException {
+    public DictZipInputStream(final RandomAccessInputStream in, final int size) throws IOException {
         super(in, new Inflater(true), size);
         header = readHeader();
     }
@@ -199,16 +202,17 @@ public class DictZipInputStream extends InflaterInputStream {
                     new ByteArrayInputStream(buf, len - num, num), in);
         }
         long val = crc.getValue();
-        long crcVal = readUInt(in);
-        if (crcVal != val) {
-            throw new IOException("Incorrect CRC");
+        long crcValue = readUInt(in);
+        if (crcValue != val) {
+            throw new IOException(MessageFormat
+                    .format("Incorrect CRC: Computed CRC = %8x / From input %8x", val, crcValue));
         }
         long total = inf.getTotalOut();
         long trailerTotal = readUInt(in);
-        //System.out.println("Computed CRC = "+v+" / From input "+crcVal);
-        //System.out.println("Computed size = "+total+" / From input "+trailerTotal);
         if (trailerTotal != total) {
-            throw new IOException("False number of uncompressed bytes");
+            throw new IOException(MessageFormat
+                    .format("False number of uncompressed bytes: Computed size =%d / From input %d",
+                            total, trailerTotal));
         }
     }
 
@@ -221,11 +225,10 @@ public class DictZipInputStream extends InflaterInputStream {
             RandomAccessInputStream rain = (RandomAccessInputStream) in;
             compLength = rain.getLength();
             rain.seek(compLength - 8);
-            crcVal = readUInt(in);
-            totalLength = readUInt(in);
+        crcVal = readUInt(rain);
+        totalLength = readUInt(rain);
         } else {
-            // FIXME
-            System.err.println("Ask to read gzip trailer when stream is not random accessable.");
+            throw new IOException("Illegal type of InputStream.");
         }
     }
 
