@@ -74,7 +74,7 @@ public class DictZipInputStreamTest extends TestCase {
         int len = 10;
         getDZHeader(din);
         int off = header.getOffset(start);
-        int pos = header.getPosition(start);
+        long pos = header.getPosition(start);
         in.seek(pos);
         byte[] buf = new byte[off + len];
         int expResult = len;
@@ -93,7 +93,7 @@ public class DictZipInputStreamTest extends TestCase {
         int len = 10;
         getDZHeader(din);
         int off = header.getOffset(start);
-        int pos = header.getPosition(start);
+        long pos = header.getPosition(start);
         in.seek(pos);
         byte[] buf = new byte[off + len];
         din.readFully(buf);
@@ -110,7 +110,7 @@ public class DictZipInputStreamTest extends TestCase {
         int len = 10;
         getDZHeader(din);
         int off = header.getOffset(start);
-        int pos = header.getPosition(start);
+        long pos = header.getPosition(start);
         in.seek(pos);
         byte[] buf = new byte[off + len];
         din.readFully(buf, off, len);
