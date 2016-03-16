@@ -18,9 +18,12 @@
 
 package org.dict.zip.cli;
 
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -63,7 +66,7 @@ public class DictData {
     private DictZipHeader header;
 
     private long targetSize = 0;
-    private int bufLen = 512;
+    private int bufLen = 65536;
 
     /**
      * Default constructor for reader.
@@ -88,8 +91,9 @@ public class DictData {
             in = new RandomAccessInputStream(targetRaFile);
             din = new DictZipInputStream(in);
         } else if (mode.equals(OpsMode.WRITE)) {
-            targetRaFile = new RandomAccessFile(targetFile, "w");
-            out = new RandomAccessOutputStream(targetRaFile);
+            
+            //targetRaFile = new RandomAccessFile(targetFile, "rw");
+            //out = new RandomAccessOutputStream(targetRaFile);
         } else {
             // Not come here.
             throw new IllegalArgumentException("Unknown file I/O mode");
@@ -134,12 +138,31 @@ public class DictData {
 
     /**
      * Do compression.
+     * @param zippedFile
      * @throws IOException if file I/O error.
      */
-    public void doZip() throws IOException {
+    public void doZip(String zippedFile) throws IOException {
+        if (opsMode == null) {
+            throw new IOException("Not opened.");
+        }
         if (opsMode.equals(OpsMode.READ)) {
             throw new IOException("Cannot compress.");
         }
+        targetRaFile = new RandomAccessFile(zippedFile, "rws");
+        out = new RandomAccessOutputStream(targetRaFile);
+        long size = targetFile.length();
+        FileInputStream ins = new FileInputStream(targetFile);
+        byte[] buf = new byte[bufLen];
+        dout = new DictZipOutputStream(out, bufLen, size);
+        try {
+            int len;
+            while ((len = ins.read(buf, 0, bufLen)) > 0) {
+                dout.write(buf, 0, len);
+            }
+        } catch (EOFException eof) {
+            // ignore it.
+        }
+        dout.close();
     }
 
     /**
@@ -149,11 +172,43 @@ public class DictData {
      * @param size size to retrieve
      * @throws IOException if file I/O error.
      */
-    public void doUnzip(String file, long start, long size) throws IOException {
+    public void doUnzip(String file, long start, int size) throws IOException {
+        if (opsMode == null) {
+            throw new IOException("Not opened.");
+        }
         if (opsMode.equals(OpsMode.WRITE)) {
             throw new IOException("Cannot decompress.");
         }
-        File outFile = new File(file);
+        OutputStream unzipOut = new RandomAccessOutputStream(file, "rw");
+        byte[] buf = new byte[bufLen];
+        din.seek(start);
+        if (size == 0) {
+            int len;
+            while ((len = din.read(buf, 0, bufLen)) > 0) {
+                unzipOut.write(buf, 0, len);
+            }
+        } else {
+            try {
+                int len;
+                int readSize = 0;
+                while (size - readSize > 0) {
+                    if (size - readSize < bufLen) {
+                        len = din.read(buf, 0, size - readSize);
+                    } else {
+                        len = din.read(buf, 0, bufLen);
+                    }
+                    if (len > 0) {
+                        unzipOut.write(buf, 0, len);
+                        readSize += len;
+                    } else {
+                        break;
+                    }
+                }
+            } catch (EOFException eof) {
+                // ignore it.
+            }
+        }
+        unzipOut.close();
     }
 
     /**

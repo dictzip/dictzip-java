@@ -56,15 +56,23 @@ public final class Main {
                 dict.close();
             } else if (commandLine.options.isDecompress()) {
                 String extractFile = DictZipUtils.uncompressedFileName(fName);
+                dict.open(DictData.OpsMode.READ);
                 long start = commandLine.options.getStart();
-                long size = commandLine.options.getSize();
+                int size = commandLine.options.getSize();
                 dict.doUnzip(extractFile, start, size);
+                dict.close();
+            } else { // compression.
+                String zippedFile = DictZipUtils.compressedFileName(fName);
+                dict.open(DictData.OpsMode.WRITE);
+                dict.doZip(zippedFile);
+                dict.close();
             }
             if (!commandLine.options.isKeep()) {
                 dict.removeTarget();
             }
             } catch (IOException ex) {
                 System.err.println(messages.getString("main.io.error"));
+                System.err.println(ex.getLocalizedMessage());
                 System.exit(1);
             }
         }

@@ -44,7 +44,7 @@ public class DictZipHeader {
     protected int[] chunks;
 
     private int headerLength;
-    private int[] offsets;
+    private long[] offsets;
     private int extraLength;
     private byte subfieldID1;
     private byte subfieldID2;
@@ -106,14 +106,17 @@ public class DictZipHeader {
         if (tmpCount > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("data size is out of DictZip range.");
         }
+        subfieldID1 = 'R';
+        subfieldID2 = 'A';
         chunkCount = (int) tmpCount;
         chunks = new int[chunkCount];
         extraLength = 10 + chunkCount * 2; // standard header + chunks*2
-        headerLength = 10 + 2 + extraLength + 2; // SH+XLEN+extraLength+CRC
+        subfieldLength = 0x1400;
+        headerLength = DICTZIP_HEADER_LEN + extraLength + 2; // SH+XLEN+extraLength
     }
 
     private void initOffsets() {
-        offsets = new int[chunks.length];
+        offsets = new long[chunks.length];
         offsets[0] = headerLength;
         for (int i = 1; i < chunks.length; i++) {
             offsets[i] = offsets[i - 1] + chunks[i - 1];
@@ -196,7 +199,7 @@ public class DictZipHeader {
         }
         // Skip optional file name
         if ((flg & FNAME) == FNAME) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             int ubyte;
             while ((ubyte = readUByte(in)) != 0) {
                 sb.append((char) (ubyte & 0xff));
@@ -342,7 +345,7 @@ public class DictZipHeader {
         writeShort(out, h.extraLength);  // extra field length
         out.write(h.subfieldID1);
         out.write(h.subfieldID2);        // subfield ID
-        writeShort(out, h.extraLength);  // extra field length
+        writeShort(out, h.subfieldLength);  // extra field length
         writeShort(out, h.subfieldVersion); // extra field length
         writeShort(out, h.chunkLength);  // extra field length
         writeShort(out, h.chunkCount);   // extra field length
@@ -381,8 +384,13 @@ public class DictZipHeader {
      * @param start total offset bytes.
      * @return offset in the chunk.
      */
-    public final int getOffset(final int start) {
-        return start % this.chunkLength;
+    public final int getOffset(final long start) throws IllegalArgumentException {
+        long off = start % this.chunkLength;
+        if (off < Integer.MAX_VALUE) {
+            return (int) off;
+        } else {
+            throw new IllegalArgumentException("Index is out of boundary.");
+        }
     }
 
     /**
@@ -391,9 +399,13 @@ public class DictZipHeader {
      * @param start total offset bytes.
      * @return chunk position.
      */
-    public final int getPosition(final int start) {
-        int idx = start / this.chunkLength;
-        return this.offsets[idx];
+    public final long getPosition(final long start) throws IllegalArgumentException {
+        long idx = start / this.chunkLength;
+        if (idx < Integer.MAX_VALUE) {
+            return this.offsets[(int) idx];
+        } else {
+            throw new IllegalArgumentException("Index is out of boudary.");
+        }
     }
 
     /**

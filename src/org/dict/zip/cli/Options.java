@@ -33,9 +33,7 @@ public class Options {
     private boolean verbose = false;
     private boolean debugVerbose = false;
     private long start = 0;
-    private long size = 0;
-    private String pre;
-    private String post;
+    private int size = 0;
 
     /**
      * Whether -d option is spedified.
@@ -185,7 +183,7 @@ public class Options {
      * Get value of -S/--size option.
      * @return value of size option.
      */
-    public long getSize() {
+    public int getSize() {
         return size;
     }
 
@@ -193,39 +191,7 @@ public class Options {
      * Set value of size option.
      * @param size value of size option.
      */
-    public void setSize(final long size) {
+    public void setSize(final int size) {
         this.size = size;
-    }
-
-    /**
-     * Get preset filter option.
-     * @return preset filter command.
-     */
-    public String getPre() {
-        return pre;
-    }
-
-    /**
-     * Set preset filter option.
-     * @param pre preset filter command in String.
-     */
-    public void setPre(final String pre) {
-        this.pre = pre;
-    }
-
-    /**
-     * Get post process filter option.
-     * @return post filter command.
-     */
-    public String getPost() {
-        return post;
-    }
-
-    /**
-     * Set post process filter option.
-     * @param post post filter command in String.
-     */
-    public void setPost(final String post) {
-        this.post = post;
     }
 }

@@ -140,13 +140,6 @@ public class CommandLine {
                 case 'E':
                     arg = g.getOptarg();
                     options.setSize(Base64.decodeInteger(Base64.decodeBase64(arg)).intValue());
-                case 'p':
-                    arg = g.getOptarg();
-                    options.setPre(arg);
-                    break;
-                case 'P':
-                    arg = g.getOptarg();
-                    options.setPost(arg);
                 case ':':
                     System.out.println("Doh! You need an argument for option "
                             + (char) g.getOptopt());

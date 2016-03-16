@@ -22,7 +22,6 @@ package org.dict.zip;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 
@@ -60,9 +59,9 @@ public class DictZipOutputStream extends FilterOutputStream {
      * @throws IOException if I/O error occored.
      * @throws IllegalArgumentException if parameter is invalid.
      */
-    public DictZipOutputStream(final OutputStream out, final long size)
+    public DictZipOutputStream(final RandomAccessOutputStream out, final long size)
             throws IOException, IllegalArgumentException {
-        this(out, 512, size);
+        this(out, 65536, size);
     }
 
     /**
@@ -73,7 +72,7 @@ public class DictZipOutputStream extends FilterOutputStream {
      * @throws IOException if I/O error occored.
      * @throws IllegalArgumentException if parameter is invalid.
      */
-    public DictZipOutputStream(final OutputStream out, final int buflen,
+    public DictZipOutputStream(final RandomAccessOutputStream out, final int buflen,
             final long size) throws IOException, IllegalArgumentException {
         this(out, Deflater.DEFAULT_COMPRESSION, buflen, size);
     }
@@ -87,7 +86,7 @@ public class DictZipOutputStream extends FilterOutputStream {
      * @throws IOException if I/O error occored.
      * @throws IllegalArgumentException if parameter is invalid.
      */
-    public DictZipOutputStream(final OutputStream out, final int level,
+    public DictZipOutputStream(final RandomAccessOutputStream out, final int level,
             final int buflen, final long size) throws IOException,
             IllegalArgumentException {
         this(out, new Deflater(level, true), buflen, size);
@@ -98,19 +97,19 @@ public class DictZipOutputStream extends FilterOutputStream {
      * Constructor.
      * @param out output stream to filter.
      * @param defl custom deflater class, should be child of Deflater class.
-     * @param buflen size of buffer to write.
+     * @param inBufferSize size of buffer to write.
      * @param size total data of test file.
      * @throws IOException if I/O error occored.
      * @throws IllegalArgumentException if parameter is invalid.
      */
-    public DictZipOutputStream(final OutputStream out, final Deflater defl,
-            final int buflen, final long size) throws IOException,
+    public DictZipOutputStream(final RandomAccessOutputStream out, final Deflater defl,
+            final int inBufferSize, final long size) throws IOException,
             IllegalArgumentException {
         super(out);
         if (out == null || defl == null) {
             throw new NullPointerException();
         }
-        if (buflen <= 0) {
+        if (inBufferSize <= 0) {
             throw new IllegalArgumentException("buffer size <= 0");
         }
         if (size <= 0) {
@@ -118,12 +117,13 @@ public class DictZipOutputStream extends FilterOutputStream {
         }
 
         this.def = defl;
-        buf = new byte[buflen];
+        int outBufferSize = (int) ((inBufferSize + 12) * 1.1); 
+        buf = new byte[outBufferSize];
         this.dataSize = size;
         crc = new CRC32();
 
-        header = new DictZipHeader(dataSize, buflen);
-        writeHeader();
+        header = new DictZipHeader(dataSize, inBufferSize);
+        writeHeader(out);
         crc.reset();
         cindex = 0;
     }
@@ -137,6 +137,11 @@ public class DictZipOutputStream extends FilterOutputStream {
     public void close() throws IOException {
         if (!closed) {
             finish();
+            if (out instanceof RandomAccessOutputStream) {
+                RandomAccessOutputStream raout = (RandomAccessOutputStream) out;
+                raout.seek(0);
+                writeHeader(raout);
+            }
             if (usesDefaultDeflater) {
                 def.end();
             }
@@ -151,9 +156,8 @@ public class DictZipOutputStream extends FilterOutputStream {
      * @throws IOException if an I/O error has occurred
      */
     protected void deflate() throws IOException {
-        // FIXME: handling chunk
         crc.update(buf, 0, buf.length);
-        int len = def.deflate(buf, 0, buf.length);
+        int len = def.deflate(buf, 0, buf.length, Deflater.SYNC_FLUSH);
         if (len > 0) {
             out.write(buf, 0, len);
             header.chunks[cindex] = len;
@@ -185,7 +189,7 @@ public class DictZipOutputStream extends FilterOutputStream {
             return;
         }
         if (!def.finished()) {
-                        // Deflate no more than stride bytes at a time.  This avoids
+            // Deflate no more than stride bytes at a time.  This avoids
             // excess copying in deflateBytes (see Deflater.c)
             // as same as java.io.DeflaterOutputStream
             int stride = buf.length;
@@ -242,8 +246,8 @@ public class DictZipOutputStream extends FilterOutputStream {
         out.write(trailer);
     }
 
-    private void writeHeader() throws IOException {
-        DictZipHeader.writeHeader(header, out);
+    private void writeHeader(RandomAccessOutputStream raout) throws IOException {
+        DictZipHeader.writeHeader(header, raout);
     }
 
     private void writeHeader(final byte[] b, final int offset) {

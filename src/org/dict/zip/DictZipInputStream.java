@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
 package org.dict.zip;
 
 import java.io.ByteArrayInputStream;
@@ -164,11 +165,11 @@ public class DictZipInputStream extends InflaterInputStream {
         return header;
     }
 
-    public void seek(int next) throws IOException {
+    public void seek(long next) throws IOException {
         if (in instanceof RandomAccessInputStream) {
             RandomAccessInputStream rain = (RandomAccessInputStream) in;
             offset = header.getOffset(next);
-            int pos = header.getPosition(next);
+            long pos = header.getPosition(next);
             rain.seek(pos);
         } else {
             throw new IOException("Illegal type of InputStream.");

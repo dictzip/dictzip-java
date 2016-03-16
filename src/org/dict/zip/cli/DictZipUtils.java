@@ -41,4 +41,13 @@ public class DictZipUtils {
         }
         return result;
     }
+    
+    /**
+     * Return file name for compressed output.
+     * @param name input file name.
+     * @return output filename.
+     */
+    protected static String compressedFileName(String name) {
+        return name + ".dz";
+    }
 }
