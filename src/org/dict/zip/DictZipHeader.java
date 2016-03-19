@@ -86,7 +86,7 @@ public class DictZipHeader {
     /**
      * Other constants.
      */
-    private static final int BUFLEN = 128;
+    private static final int BUFLEN = 58315;
 
     /**
      * Default constructor.
@@ -101,8 +101,13 @@ public class DictZipHeader {
      * @param bufferSize buffer size.
      */
     public DictZipHeader(final long dataSize, final int bufferSize) {
-        chunkLength = bufferSize;
+        if (bufferSize <= 0) {
+            throw new IllegalArgumentException("Buffer size is zero or minus.");
+        }
         long tmpCount = dataSize / bufferSize;
+        if (dataSize % bufferSize > 0) {
+            tmpCount++;
+        }
         if (tmpCount > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("data size is out of DictZip range.");
         }
@@ -110,9 +115,11 @@ public class DictZipHeader {
         subfieldID2 = 'A';
         chunkCount = (int) tmpCount;
         chunks = new int[chunkCount];
-        extraLength = 10 + chunkCount * 2; // standard header + chunks*2
-        subfieldLength = 0x1400;
-        headerLength = DICTZIP_HEADER_LEN + extraLength + 2; // SH+XLEN+extraLength
+        subfieldLength =  6 + chunkCount * 2;
+        subfieldVersion = 1;
+        extraLength = subfieldLength + 4;
+        headerLength = 10 + extraLength;
+        chunkLength = bufferSize;
     }
 
     private void initOffsets() {
@@ -179,7 +186,7 @@ public class DictZipHeader {
         // Read flags
         int flg = readUByte(in);
         h.mtime = readUInt(in);
-        // Skip MTIME, XFL, and OS fields
+        // Skip XFL, and OS fields
         skipBytes(in, XFL_LEN + OS_LEN);
         h.headerLength = DICTZIP_HEADER_LEN;
         // Optional extra field

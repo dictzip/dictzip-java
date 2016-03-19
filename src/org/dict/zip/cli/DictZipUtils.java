@@ -50,4 +50,6 @@ public class DictZipUtils {
     protected static String compressedFileName(String name) {
         return name + ".dz";
     }
+
+    private DictZipUtils() { }
 }

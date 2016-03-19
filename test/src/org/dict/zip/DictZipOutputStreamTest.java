@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 miurahr
+ * Copyright (C) 2016 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.zip.Checksum;
@@ -161,7 +160,7 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);
-            outFile.close();
+            instance.close();
 
             instance.finish();
             fail("Expected IOException");

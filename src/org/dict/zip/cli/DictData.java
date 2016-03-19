@@ -65,8 +65,7 @@ public class DictData {
     private DictZipOutputStream dout;
     private DictZipHeader header;
 
-    private long targetSize = 0;
-    private int bufLen = 65536;
+    private int bufLen = 58315;
 
     /**
      * Default constructor for reader.
@@ -179,36 +178,36 @@ public class DictData {
         if (opsMode.equals(OpsMode.WRITE)) {
             throw new IOException("Cannot decompress.");
         }
-        OutputStream unzipOut = new RandomAccessOutputStream(file, "rw");
-        byte[] buf = new byte[bufLen];
-        din.seek(start);
-        if (size == 0) {
-            int len;
-            while ((len = din.read(buf, 0, bufLen)) > 0) {
-                unzipOut.write(buf, 0, len);
-            }
-        } else {
-            try {
+        try (OutputStream unzipOut = new RandomAccessOutputStream(file, "rw")) {
+            byte[] buf = new byte[bufLen];
+            din.seek(start);
+            if (size == 0) {
                 int len;
-                int readSize = 0;
-                while (size - readSize > 0) {
-                    if (size - readSize < bufLen) {
-                        len = din.read(buf, 0, size - readSize);
-                    } else {
-                        len = din.read(buf, 0, bufLen);
-                    }
-                    if (len > 0) {
-                        unzipOut.write(buf, 0, len);
-                        readSize += len;
-                    } else {
-                        break;
-                    }
+                while ((len = din.read(buf, 0, bufLen)) > 0) {
+                    unzipOut.write(buf, 0, len);
                 }
-            } catch (EOFException eof) {
-                // ignore it.
+            } else {
+                try {
+                    int len;
+                    int readSize = 0;
+                    while (size - readSize > 0) {
+                        if (size - readSize < bufLen) {
+                            len = din.read(buf, 0, size - readSize);
+                        } else {
+                            len = din.read(buf, 0, bufLen);
+                        }
+                        if (len > 0) {
+                            unzipOut.write(buf, 0, len);
+                            readSize += len;
+                        } else {
+                            break;
+                        }
+                    }
+                } catch (EOFException eof) {
+                    // ignore it.
+                }
             }
         }
-        unzipOut.close();
     }
 
     /**
@@ -217,6 +216,7 @@ public class DictData {
      * @throws IOException if file I/O error.
      */
     public boolean removeTarget() throws IOException {
+        targetFile = new File(targetFileName);
         return targetFile.delete();
     }
 }

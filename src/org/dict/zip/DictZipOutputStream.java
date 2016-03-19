@@ -225,6 +225,9 @@ public class DictZipOutputStream extends FilterOutputStream {
      * @throws IOException if I/O error occured.
      */
     public final void finish() throws IOException {
+        if (closed) {
+            throw new IOException("Already closed!");
+        }
         if (!def.finished()) {
             def.finish();
             while (!def.finished()) {
