@@ -17,11 +17,13 @@
  */
 package org.dict.zip.cli;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import junit.framework.TestCase;
 import org.junit.Test;
 
+import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -30,6 +32,21 @@ import org.junit.Test;
 public class DictDataTest extends TestCase {
     
     public DictDataTest() {
+    }
+
+    public static void compareBinary(File f1, File f2) throws Exception {
+        ByteArrayOutputStream d1 = new ByteArrayOutputStream();
+        FileUtils.copyFile(f1, d1);
+
+        ByteArrayOutputStream d2 = new ByteArrayOutputStream();
+        FileUtils.copyFile(f2, d2);
+
+        assertEquals(d1.size(), d2.size());
+        byte[] a1 = d1.toByteArray();
+        byte[] a2 = d2.toByteArray();
+        for (int i = 0; i < d1.size(); i++) {
+          assertEquals(a1[i], a2[i]);
+        }
     }
 
     /**
@@ -85,6 +102,7 @@ public class DictDataTest extends TestCase {
         instance.open(mode);
         instance.doZip(zippedFile);
         File resultFile = new File(testFile.getPath() + ".dz");
+        //compareBinary(resultFile, new File("test/data/test2.dict.dz.expected"));
         resultFile.deleteOnExit();
     }
 
@@ -103,6 +121,7 @@ public class DictDataTest extends TestCase {
         instance.open(DictData.OpsMode.READ);
         instance.doUnzip(file, start, size);
         File resultFile = new File("test/data/test.dict");
+        compareBinary(resultFile, new File("test/data/test.dict.expected"));
         resultFile.deleteOnExit();
     }
 
