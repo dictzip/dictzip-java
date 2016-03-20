@@ -253,10 +253,6 @@ public class DictZipOutputStream extends FilterOutputStream {
         DictZipHeader.writeHeader(header, raout);
     }
 
-    private void writeHeader(final byte[] b, final int offset) {
-        DictZipHeader.writeHeader(header, b, offset);
-    }
-
     private void writeTrailer(final byte[] b, final int offset) throws IOException {
         writeInt((int) crc.getValue(), b, offset); // CRC-32 of uncompr. data
         writeInt(def.getTotalIn(), b, offset + 4); // Number of uncompr. bytes

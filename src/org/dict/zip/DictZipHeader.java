@@ -305,35 +305,6 @@ public class DictZipHeader {
         return ((int) readUByte(in) << 8) | b;
     }
 
-    /**
-     * Skips bytes of input data blocking until all bytes are skipped.
-     * <p>
-     * Does not assume that the input stream is capable of seeking.
-     *
-     * @param in input stream to skip
-     * @param size byte number to skip
-     * @throws java.io.IOException when error in file reading.
-     */
-    public static void skipBytes(final InputStream in, final int size) throws IOException {
-        byte[] buf = new byte[BUFLEN];
-        int n = size;
-        while (n > 0) {
-            int len = in.read(buf, 0, min(n, buf.length));
-            if (len == -1) {
-                throw new EOFException();
-            }
-            n -= len;
-        }
-    }
-
-    private static int min(final int numa, final int numb) {
-        if (numa > numb) {
-            return numb;
-        } else {
-            return numa;
-        }
-    }
-
     @Override
     public final String toString() {
         StringBuilder sb = new StringBuilder();
@@ -347,27 +318,6 @@ public class DictZipHeader {
     }
 
     /**
-     * Writes GZIP member header to buffer.
-     *
-     * @param h DictZipHeader header values.
-     * @param buf buffer to write.
-     */
-    public static void writeHeader(final DictZipHeader h, final byte[] buf) {
-        writeHeader(h, buf, 0);
-    }
-
-    /**
-     * Writes GZIP member header to buffer.
-     *
-     * @param h DictZipHeader header values.
-     * @param buf buffer to write.
-     * @param offset in buffer.
-     */
-    public static void writeHeader(final DictZipHeader h, final byte[] buf, final int offset) {
-        // XXX: implement me
-    }
-
-    /**
      * Writes GZIP member header.
      *
      * @param h DictZipHeader header values.
@@ -378,35 +328,23 @@ public class DictZipHeader {
             throws IOException {
         CRC32 headerCrc = new CRC32();
         headerCrc.reset();
-        writeShort(out, GZIP_MAGIC);     // Magic number
-        out.write(Deflater.DEFLATED);    // Compression method (CM)
-        out.write(FEXTRA);               // Flags (FLG)
-        writeInt(out, 0);                // Modification time (MTIME)
-        out.write(0);                    // Extra flags (XFL)
-        out.write(0);                    // Operating system (OS)
-        writeShort(out, h.extraLength);  // extra field length
-        out.write(h.subfieldID1);
-        out.write(h.subfieldID2);        // subfield ID
-        writeShort(out, h.subfieldLength);  // extra field length
-        writeShort(out, h.subfieldVersion); // extra field length
-        writeShort(out, h.chunkLength);  // extra field length
-        writeShort(out, h.chunkCount);   // extra field length
+        ByteBuffer bb = ByteBuffer.allocate(26);
+        bb.putShort((short)GZIP_MAGIC);
+        bb.put((byte)FEXTRA);
+        bb.putInt(0);
+        bb.put((byte)0);
+        bb.put((byte)0);
+        bb.putShort((short)h.extraLength);
+        bb.put((byte)h.subfieldID1);
+        bb.put((byte)h.subfieldID2);
+        bb.putShort((short)h.subfieldLength);
+        bb.putShort((short)h.subfieldVersion);
+        bb.putShort((short)h.subfieldLength);
+        bb.putShort((short)h.subfieldVersion);
+        bb.putShort((short)h.chunkLength);
+        bb.putShort((short)h.chunkCount);
+        out.write(bb.array());
         if (h.gzipFlag.get(FHCRC)) {
-            ByteBuffer bb = ByteBuffer.allocate(22);
-            bb.putShort((short)GZIP_MAGIC);
-            bb.put((byte)FEXTRA);
-            bb.putInt(0);
-            bb.put((byte)0);
-            bb.put((byte)0);
-            bb.putShort((short)h.extraLength);
-            bb.put((byte)h.subfieldID1);
-            bb.put((byte)h.subfieldID2);
-            bb.putShort((short)h.subfieldLength);
-            bb.putShort((short)h.subfieldVersion);
-            bb.putShort((short)h.subfieldLength);
-            bb.putShort((short)h.subfieldVersion);
-            bb.putShort((short)h.chunkLength);
-            bb.putShort((short)h.chunkCount);
             headerCrc.update(bb.array());
         }
         for (int i = 0; i < h.chunkCount; i++) {
@@ -492,6 +430,14 @@ public class DictZipHeader {
         } else {
             throw new IllegalArgumentException("Index is out of boudary.");
         }
+    }
+
+    public void setGzipFlag(final int flag, final boolean val) {
+        gzipFlag.set(flag, val);
+    }
+
+    public BitSet getGzipFlag() {
+        return gzipFlag;
     }
 
     /**
