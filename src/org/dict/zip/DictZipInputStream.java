@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
 package org.dict.zip;
 
 import java.io.ByteArrayInputStream;
@@ -25,6 +26,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.text.MessageFormat;
 
 import java.util.zip.CRC32;
 import java.util.zip.Inflater;
@@ -39,9 +41,20 @@ import java.util.zip.InflaterInputStream;
 public class DictZipInputStream extends InflaterInputStream {
 
     /**
+     * DictZip Header.
+     */
+    private DictZipHeader header = null;
+
+    /**
      * CRC-32 for uncompressed data.
      */
     private CRC32 crc = new CRC32();
+
+    private long crcVal = 0;
+    private long totalLength = 0;
+    private long compLength = 0;
+
+    private int offset = 0;
 
     /**
      * Indicates end of input stream.
@@ -54,7 +67,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * @param in the input stream
      * @exception IOException if an I/O error has occurred
      */
-    public DictZipInputStream(final InputStream in) throws IOException {
+    public DictZipInputStream(final RandomAccessInputStream in) throws IOException {
         this(in, 512);
     }
 
@@ -65,10 +78,9 @@ public class DictZipInputStream extends InflaterInputStream {
      * @param size the input buffer size
      * @exception IOException if an I/O error has occurred
      */
-    public DictZipInputStream(final InputStream in, final int size) throws IOException {
+    public DictZipInputStream(final RandomAccessInputStream in, final int size) throws IOException {
         super(in, new Inflater(true), size);
-                //readHeader();
-        //crc.reset();
+        header = readHeader();
     }
 
     /**
@@ -76,6 +88,7 @@ public class DictZipInputStream extends InflaterInputStream {
      *
      * @exception IOException if an I/O error has occurred
      */
+    @Override
     public final void close() throws IOException {
         inf.end();
         in.close();
@@ -93,18 +106,19 @@ public class DictZipInputStream extends InflaterInputStream {
      * reached
      * @exception IOException if an I/O error has occurred or the compressed input data is corrupt
      */
+    @Override
     public final int read(final byte[] buf, final int off, final int size) throws IOException {
         if (eos) {
             return -1;
         }
-        int len = super.read(buf, off, size);
-        if (len == -1) {
+        int readLen = super.read(buf, off, size);
+        if (readLen == -1) {
             //readTrailer();
             eos = true;
         } else {
-            crc.update(buf, off, len);
+            crc.update(buf, off, readLen);
         }
-        return len;
+        return readLen;
     }
 
     /**
@@ -144,16 +158,56 @@ public class DictZipInputStream extends InflaterInputStream {
      * @exception IOException if an I/O error has occurred.
      */
     public final DictZipHeader readHeader() throws IOException {
-        DictZipHeader header = new DictZipHeader();
-        header.readHeader(header, in, crc);
-        crc.reset();
+        if (header == null) {
+            header = DictZipHeader.readHeader(in, crc);
+            crc.reset();
+        }
         return header;
     }
 
+    public void seek(long next) throws IOException {
+        if (in instanceof RandomAccessInputStream) {
+            RandomAccessInputStream rain = (RandomAccessInputStream) in;
+            offset = header.getOffset(next);
+            long pos = header.getPosition(next);
+            rain.seek(pos);
+        } else {
+            throw new IOException("Illegal type of InputStream.");
+        }
+    }
+
     /**
-     * Reads GZIP member trailer.
+     * Return CRC value set to gzip trailer.
+     * @return CRC value.
+     * @throws IOException if I/O error.
      */
-    private void readTrailer() throws IOException {
+    public long getCrc() throws IOException {
+        if (totalLength == 0) {
+            readTrailer();
+        }
+        return crcVal; 
+    }
+
+    /**
+     * Return length value set to gzip trailer.
+     * @return data length.
+     * @throws IOException if I/O error.
+     */
+    public long getLength() throws IOException {
+        if (totalLength == 0) {
+            readTrailer();
+        }
+        return totalLength;
+    }
+
+    public long getCompLength() throws IOException {
+        if (totalLength == 0) {
+            readTrailer();
+        }
+        return compLength;
+    }
+
+    private void checkTrailer() throws IOException {
         InputStream in = this.in;
         int num = inf.getRemaining();
         if (num > 0) {
@@ -161,16 +215,33 @@ public class DictZipInputStream extends InflaterInputStream {
                     new ByteArrayInputStream(buf, len - num, num), in);
         }
         long val = crc.getValue();
-        long crcVal = readUInt(in);
-        if (crcVal != val) {
-            throw new IOException("Incorrect CRC");
+        long crcValue = readUInt(in);
+        if (crcValue != val) {
+            throw new IOException(MessageFormat
+                    .format("Incorrect CRC: Computed CRC = %8x / From input %8x", val, crcValue));
         }
         long total = inf.getTotalOut();
         long trailerTotal = readUInt(in);
-        //System.out.println("Computed CRC = "+v+" / From input "+crcVal);
-        //System.out.println("Computed size = "+total+" / From input "+trailerTotal);
         if (trailerTotal != total) {
-            throw new IOException("False number of uncompressed bytes");
+            throw new IOException(MessageFormat
+                    .format("False number of uncompressed bytes: Computed size =%d / From input %d",
+                            total, trailerTotal));
+        }
+    }
+
+    /**
+     * Reads GZIP member trailer.
+     * @throws java.io.IOException If file I/O error
+     */
+    public void readTrailer() throws IOException {
+        if (in instanceof RandomAccessInputStream) {
+            RandomAccessInputStream rain = (RandomAccessInputStream) in;
+            compLength = rain.getLength();
+            rain.seek(compLength - 8);
+        crcVal = readUInt(rain);
+        totalLength = readUInt(rain);
+        } else {
+            throw new IOException("Illegal type of InputStream.");
         }
     }
 

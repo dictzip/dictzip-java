@@ -1,0 +1,4 @@
+#!/bin/bash
+# readlink follows any symbolic links to get the real file
+APPPATH=`dirname "$(readlink -nf $0)"`
+java -cp "${APPPATH}/commons-codecs-1.10.jar,${APPPATH}/java-getopt-1.1.0.jar,${APPPATH}/dictzip.jar" org.dict.zip.Main $*

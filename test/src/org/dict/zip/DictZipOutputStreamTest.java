@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 miurahr
+ * Copyright (C) 2016 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,9 +25,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.util.zip.Checksum;
 
 /**
@@ -63,8 +62,9 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
         System.out.println("close");
         byte byteArray[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         try {
-            FileOutputStream outFile = new FileOutputStream(
-                    File.createTempFile("DictZipOutCon", ".txt"));
+            File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+            RandomAccessOutputStream outFile = new RandomAccessOutputStream(
+                    new RandomAccessFile(testOutFile, "rw"));
             TestDictZipOutputStream outDictZip = new TestDictZipOutputStream(outFile, byteArray.length);
             outDictZip.close();
             int r = 0;
@@ -88,8 +88,9 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
     public void testDeflate() throws Exception {
         System.out.println("deflate");
         byte byteArray[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
-        FileOutputStream outFile = new FileOutputStream(
-                File.createTempFile("DictZipOutCon", ".txt"));
+        File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+        RandomAccessOutputStream outFile = new RandomAccessOutputStream(
+                    new RandomAccessFile(testOutFile, "rw"));
         TestDictZipOutputStream instance = new TestDictZipOutputStream(outFile, byteArray.length);
         instance.deflate();
     }
@@ -103,8 +104,9 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
         byte b[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         int off = 0;
         int len = 0;
-        FileOutputStream outFile = new FileOutputStream(
-                File.createTempFile("DictZipOutCon", ".txt"));
+        File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+            RandomAccessOutputStream outFile = new RandomAccessOutputStream(
+                    new RandomAccessFile(testOutFile, "rw"));
         TestDictZipOutputStream instance = new TestDictZipOutputStream(outFile, 512, 100);
         instance.write(b, off, len);
     }
@@ -117,10 +119,10 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
         System.out.println("write");
         int b = 100;
         TestDictZipOutputStream instance = null;
-        FileOutputStream outFile = null;
         try {
-            outFile = new FileOutputStream(
-                    File.createTempFile("DictZipOutCon", ".txt"));
+            File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+            RandomAccessOutputStream outFile = new RandomAccessOutputStream(
+                    new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);
             instance.write(b);
         } catch (Exception e) {
@@ -136,10 +138,10 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
         System.out.println("finish");
         byte byteArray[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         TestDictZipOutputStream instance = null;
-        FileOutputStream outFile = null;
         try {
-            outFile = new FileOutputStream(
-                    File.createTempFile("DictZipOutCon", ".txt"));
+            File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+            RandomAccessOutputStream outFile = new RandomAccessOutputStream(
+                    new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);
             instance.finish();
             int r = 0;
@@ -154,10 +156,11 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
             fail("an IO error occured while trying to find the output file or creating DictZip constructor");
         }
         try {
-            outFile = new FileOutputStream(
-                    File.createTempFile("DictZipOutCon", ".txt"));
+            File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+            RandomAccessOutputStream outFile = new RandomAccessOutputStream(
+                    new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);
-            outFile.close();
+            instance.close();
 
             instance.finish();
             fail("Expected IOException");
@@ -171,11 +174,11 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
      */
     class TestDictZipOutputStream extends DictZipOutputStream {
 
-        TestDictZipOutputStream(OutputStream out, long dataSize) throws IOException {
+        TestDictZipOutputStream(RandomAccessOutputStream out, long dataSize) throws IOException {
             super(out, dataSize);
         }
 
-        TestDictZipOutputStream(OutputStream out, int size, long dataSize) throws IOException {
+        TestDictZipOutputStream(RandomAccessOutputStream out, int size, long dataSize) throws IOException {
             super(out, size, dataSize);
         }
 

@@ -61,21 +61,6 @@ public class DictZipHeaderTest extends TestCase {
      * @throws java.lang.Exception if file I/O error occurd.
      */
     @Test
-    public void testReadHeader_3args() throws Exception {
-        System.out.println("readHeader");
-        RandomAccessInputStream in = new RandomAccessInputStream(dataFile, "r");
-        CRC32 crc = new CRC32();
-        DictZipHeader header = new DictZipHeader();
-        header.readHeader(header, in, crc);
-        assertEquals(expResult(), header.toString());
-    }
-
-    /**
-     * Test of readHeader method, of class DictZipHeader.
-     *
-     * @throws java.lang.Exception if file I/O error occurd.
-     */
-    @Test
     public void testReadHeader_NonGZip() throws Exception {
         System.out.println("readHeader");
         byte b[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
