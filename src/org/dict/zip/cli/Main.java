@@ -18,6 +18,7 @@
 
 package org.dict.zip.cli;
 
+import java.io.File;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.io.IOException;
@@ -48,28 +49,26 @@ public final class Main {
         }
         for (String fName: commandLine.getTargetFiles()) {
             try {
-            DictData dict = new DictData(fName);
-            if (commandLine.options.isList()) {
-                commandLine.options.setKeep(true);
-                dict.open(DictData.OpsMode.READ);
-                dict.printHeader();
-                dict.close();
-            } else if (commandLine.options.isDecompress()) {
-                String extractFile = DictZipUtils.uncompressedFileName(fName);
-                dict.open(DictData.OpsMode.READ);
-                long start = commandLine.options.getStart();
-                int size = commandLine.options.getSize();
-                dict.doUnzip(extractFile, start, size);
-                dict.close();
-            } else { // compression.
-                String zippedFile = DictZipUtils.compressedFileName(fName);
-                dict.open(DictData.OpsMode.WRITE);
-                dict.doZip(zippedFile);
-                dict.close();
-            }
-            if (!commandLine.options.isKeep()) {
-                dict.removeTarget();
-            }
+                DictData dict;
+                if (commandLine.options.isList()) {
+                    commandLine.options.setKeep(true);
+                    dict = new DictData(fName, null);
+                    dict.printHeader();
+                } else if (commandLine.options.isDecompress()) {
+                    String extractFile = DictZipUtils.uncompressedFileName(fName);
+                    long start = commandLine.options.getStart();
+                    int size = commandLine.options.getSize();
+                    dict = new DictData(extractFile, fName);
+                    dict.doUnzip(start, size);
+                } else { // compression.
+                    String zippedFile = DictZipUtils.compressedFileName(fName);
+                    dict = new DictData(fName, zippedFile);
+                    dict.doZip();
+                }
+                if (!commandLine.options.isKeep()) {
+                    File targetFile = new File(fName);
+                    targetFile.delete();
+                }
             } catch (IOException ex) {
                 System.err.println(messages.getString("main.io.error"));
                 System.err.println(ex.getLocalizedMessage());

@@ -89,7 +89,7 @@ public class DictZipOutputStream extends FilterOutputStream {
     public DictZipOutputStream(final RandomAccessOutputStream out, final int level,
             final int buflen, final long size) throws IOException,
             IllegalArgumentException {
-        this(out, new Deflater(level, true), buflen, size);
+        this(out, new Deflater(level, true), buflen, size, level);
         usesDefaultDeflater = true;
     }
 
@@ -99,11 +99,12 @@ public class DictZipOutputStream extends FilterOutputStream {
      * @param defl custom deflater class, should be child of Deflater class.
      * @param inBufferSize size of buffer to write.
      * @param size total data of test file.
+     * @param level compression level.
      * @throws IOException if I/O error occored.
      * @throws IllegalArgumentException if parameter is invalid.
      */
     public DictZipOutputStream(final RandomAccessOutputStream out, final Deflater defl,
-            final int inBufferSize, final long size) throws IOException,
+            final int inBufferSize, final long size, final int level) throws IOException,
             IllegalArgumentException {
         super(out);
         if (out == null || defl == null) {
@@ -123,6 +124,25 @@ public class DictZipOutputStream extends FilterOutputStream {
         crc = new CRC32();
 
         header = new DictZipHeader(dataSize, inBufferSize);
+        header.setMtime((long)System.currentTimeMillis()/1000);
+        if (usesDefaultDeflater) {
+            switch(level) {
+                case Deflater.DEFAULT_COMPRESSION:
+                    header.setExtraFlag(DictZipHeader.CompressionLevel.DEFAULT_COMPRESSION);
+                    defl.setLevel(level);
+                    break;
+                case Deflater.BEST_COMPRESSION:
+                    header.setExtraFlag(DictZipHeader.CompressionLevel.BEST_COMPRESSION);
+                    defl.setLevel(level);
+                    break;
+                case Deflater.BEST_SPEED:
+                    header.setExtraFlag(DictZipHeader.CompressionLevel.BEST_SPEED);
+                    defl.setLevel(level);
+                    break;
+                default:
+                    defl.setLevel(Deflater.DEFAULT_COMPRESSION);
+            }
+        }
         writeHeader(out);
         crc.reset();
         cindex = 0;
@@ -275,4 +295,9 @@ public class DictZipOutputStream extends FilterOutputStream {
         b[offset] = (byte) (s & 0xff); // low byte
         b[offset + 1] = (byte) ((s >> 8) & 0xff); // high byte
     }
+
+    public DictZipHeader getHeader() {
+        return header;
+    }
+
 }

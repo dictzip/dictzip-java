@@ -50,42 +50,14 @@ public class DictDataTest extends TestCase {
     }
 
     /**
-     * Test of open method, of class DictData.
-     * @throws java.lang.Exception if file open failed.
-     */
-    @Test
-    public void testOpen() throws Exception {
-        System.out.println("open");
-        DictData.OpsMode mode = DictData.OpsMode.WRITE;
-        File testFile = File.createTempFile("DictZipDictDataTest", ".txt");
-        String targetFileName = testFile.getPath();
-        DictData instance = new DictData(targetFileName);
-        instance.open(mode);
-        testFile.deleteOnExit();
-    }
-
-    /**
      * Test of printHeader method, of class DictData
      * @throws java.lang.Exception if file operation failed.
      */
     @Test
     public void testPrintHeader() throws Exception {
         System.out.println("printHeader");
-        DictData instance = new DictData("test/data/test.dict.dz");
-        instance.open(DictData.OpsMode.READ);
+        DictData instance = new DictData("test/data/test.dict.dz", null);
         instance.printHeader();
-    }
-
-    /**
-     * Test of close method, of class DictData.
-     * @throws java.lang.Exception if file operation failed.
-     */
-    @Test
-    public void testClose() throws Exception {
-        System.out.println("close");
-        DictData instance = new DictData("test/data/test.dict.dz");
-        instance.open(DictData.OpsMode.READ);
-        instance.close();
     }
 
     /**
@@ -95,12 +67,10 @@ public class DictDataTest extends TestCase {
     @Test
     public void testDoZip() throws Exception {
         System.out.println("doZip");
-        DictData.OpsMode mode = DictData.OpsMode.WRITE;
         File testFile = new File("test/data/test2.dict");
         String zippedFile = DictZipUtils.compressedFileName(testFile.getPath());
-        DictData instance = new DictData(testFile.getPath());
-        instance.open(mode);
-        instance.doZip(zippedFile);
+        DictData instance = new DictData(testFile.getPath(), zippedFile);
+        instance.doZip();
         File resultFile = new File(testFile.getPath() + ".dz");
         //compareBinary(resultFile, new File("test/data/test2.dict.dz.expected"));
         resultFile.deleteOnExit();
@@ -117,26 +87,10 @@ public class DictDataTest extends TestCase {
         String file = DictZipUtils.uncompressedFileName(dzFile);
         long start = 0L;
         int size = 0;
-        DictData instance = new DictData(dzFile);
-        instance.open(DictData.OpsMode.READ);
-        instance.doUnzip(file, start, size);
+        DictData instance = new DictData(file, dzFile);
+        instance.doUnzip(start, size);
         File resultFile = new File("test/data/test.dict");
         compareBinary(resultFile, new File("test/data/test.dict.expected"));
         resultFile.deleteOnExit();
     }
-
-    /**
-     * Test of removeTarget method, of class DictData.
-     * @throws java.lang.Exception
-     */
-    @Test
-    public void testRemoveTarget() throws Exception {
-        System.out.println("removeTarget");
-        File testFile = File.createTempFile("DictZipTest", ".txt");
-        DictData instance = new DictData(testFile.getPath());
-        boolean expResult = true;
-        boolean result = instance.removeTarget();
-        assertEquals(expResult, result);
-    }
-    
 }

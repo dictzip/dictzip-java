@@ -48,65 +48,28 @@ public class DictData {
     static ResourceBundle messages = ResourceBundle.getBundle("org/dict/zip/cli/Bundle",
             Locale.getDefault());
 
-    private final String targetFileName;
-
-    private File targetFile;
-    private RandomAccessFile targetRaFile;
-
-    /**
-     * Operation mode (WRITE or READ).
-     */
-    public enum OpsMode { WRITE, READ };
-
-    private OpsMode opsMode;
-    private RandomAccessInputStream in;
-    private DictZipInputStream din;
-    private RandomAccessOutputStream out;
-    private DictZipOutputStream dout;
-    private DictZipHeader header;
-
-    private int bufLen = 58315;
+    private final String originalFileName;
+    private final String compressedFileName;
+    private final int bufLen = 58315;
 
     /**
      * Default constructor for reader.
-     * @param targetFileName to handle
+     * @param originalFileName to handle
      */
-    public DictData(final String targetFileName) {
-        this.targetFileName = targetFileName;
-    }
-
-    /**
-     * Open target(.dz) file on mode.
-     *
-     * @param mode READ or WRITE
-     * @throws IOException if file I/O error.
-     * @throws FileNotFoundException if specified file is not exist for read.
-     */
-    public void open(final OpsMode mode) throws IOException, FileNotFoundException  {
-        targetFile = new File(targetFileName);
-        opsMode = mode;
-        if (mode.equals(OpsMode.READ)) {
-            targetRaFile = new RandomAccessFile(targetFile, "r");
-            in = new RandomAccessInputStream(targetRaFile);
-            din = new DictZipInputStream(in);
-        } else if (mode.equals(OpsMode.WRITE)) {
-            
-            //targetRaFile = new RandomAccessFile(targetFile, "rw");
-            //out = new RandomAccessOutputStream(targetRaFile);
-        } else {
-            // Not come here.
-            throw new IllegalArgumentException("Unknown file I/O mode");
-        }
+    public DictData(final String originalFileName, String compressedFileName) {
+        this.originalFileName = originalFileName;
+        this.compressedFileName = compressedFileName;
     }
 
     public void printHeader() throws IOException {
-        if (opsMode.equals(OpsMode.WRITE)) {
-            throw new IOException("Cannot read header.");
-        }
+        File targetFile = new File(originalFileName);
+        RandomAccessFile targetRaFile = new RandomAccessFile(targetFile, "r");
+        RandomAccessInputStream in = new RandomAccessInputStream(targetRaFile);
+        DictZipInputStream din = new DictZipInputStream(in);
         long uncomp = din.getLength();
         long comp = din.getCompLength();
         long crc = din.getCrc();
-        header = din.readHeader();
+        DictZipHeader header = din.readHeader();
         String type = header.getType();
         int chunkLength = header.getChunkLength();
         int chunkCount = header.getChunkCount();
@@ -121,64 +84,34 @@ public class DictData {
     }
 
     /**
-     * Close opened file.
-     * @throws IOException if file I/O error.
-     */
-    public void close() throws IOException {
-        if (opsMode.equals(OpsMode.READ)) {
-            din.close();
-            in.close();
-        } else {
-            dout.close();
-            out.close();
-        }
-        targetRaFile.close();
-    }
-
-    /**
      * Do compression.
-     * @param zippedFile
      * @throws IOException if file I/O error.
      */
-    public void doZip(String zippedFile) throws IOException {
-        if (opsMode == null) {
-            throw new IOException("Not opened.");
-        }
-        if (opsMode.equals(OpsMode.READ)) {
-            throw new IOException("Cannot compress.");
-        }
-        targetRaFile = new RandomAccessFile(zippedFile, "rws");
-        out = new RandomAccessOutputStream(targetRaFile);
-        long size = targetFile.length();
-        FileInputStream ins = new FileInputStream(targetFile);
+    public void doZip() throws IOException {
         byte[] buf = new byte[bufLen];
-        dout = new DictZipOutputStream(out, bufLen, size);
-        try {
+        File originalFile = new File(originalFileName);
+        try (FileInputStream ins = new FileInputStream(originalFile);
+             DictZipOutputStream dout = new DictZipOutputStream(new RandomAccessOutputStream(new 
+                    RandomAccessFile(compressedFileName, "rws")), bufLen, originalFile.length())) {
             int len;
             while ((len = ins.read(buf, 0, bufLen)) > 0) {
                 dout.write(buf, 0, len);
             }
         } catch (EOFException eof) {
-            // ignore it.
+                // ignore it.
         }
-        dout.close();
     }
 
     /**
      * Do uncompression.
-     * @param file save extracted data to
      * @param start start offset of data
      * @param size size to retrieve
      * @throws IOException if file I/O error.
      */
-    public void doUnzip(String file, long start, int size) throws IOException {
-        if (opsMode == null) {
-            throw new IOException("Not opened.");
-        }
-        if (opsMode.equals(OpsMode.WRITE)) {
-            throw new IOException("Cannot decompress.");
-        }
-        try (OutputStream unzipOut = new RandomAccessOutputStream(file, "rw")) {
+    public void doUnzip(long start, int size) throws IOException {
+        try (  DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
+                        RandomAccessFile(new File(compressedFileName), "r")));
+                OutputStream unzipOut = new RandomAccessOutputStream(originalFileName, "rw")) {
             byte[] buf = new byte[bufLen];
             din.seek(start);
             if (size == 0) {
@@ -208,15 +141,5 @@ public class DictData {
                 }
             }
         }
-    }
-
-    /**
-     * Remove file set to target file.
-     * @return result of operation.
-     * @throws IOException if file I/O error.
-     */
-    public boolean removeTarget() throws IOException {
-        targetFile = new File(targetFileName);
-        return targetFile.delete();
     }
 }

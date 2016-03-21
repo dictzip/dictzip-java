@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.BitSet;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
@@ -49,7 +50,7 @@ public class DictZipHeader {
     private static final int GZIPFLAG_SIZE = 16;
     private final BitSet gzipFlag = new BitSet(GZIPFLAG_SIZE);
     private OperatingSystem headerOS = OperatingSystem.FAT;
-    private CompressionFlag extraFlag;
+    private CompressionLevel extraFlag;
     private long[] offsets;
     private int extraLength;
     private byte subfieldID1;
@@ -108,7 +109,7 @@ public class DictZipHeader {
             throw new IllegalArgumentException("data size is out of DictZip range.");
         }
         gzipFlag.set(FEXTRA);
-        extraFlag = CompressionFlag.NORMAL;
+        extraFlag = CompressionLevel.DEFAULT_COMPRESSION;
         /*
          * Extra Field
          * +---+---+---+---+==================================+
@@ -205,11 +206,11 @@ public class DictZipHeader {
         h.mtime = readUInt(in);
         int compFlg = readUByte(in);
         if (compFlg == 0x02) {
-            h.extraFlag = CompressionFlag.BEST;
+            h.extraFlag = CompressionLevel.BEST_COMPRESSION;
         } else if (compFlg == 0x04) {
-            h.extraFlag = CompressionFlag.FASTEST;
+            h.extraFlag = CompressionLevel.BEST_SPEED;
         } else if (compFlg == 0x00) {
-            h.extraFlag = CompressionFlag.NORMAL;
+            h.extraFlag = CompressionLevel.DEFAULT_COMPRESSION;
         } else {
             throw new IOException("Corrupt GZIP header");
         }
@@ -328,17 +329,16 @@ public class DictZipHeader {
             throws IOException {
         CRC32 headerCrc = new CRC32();
         headerCrc.reset();
-        ByteBuffer bb = ByteBuffer.allocate(26);
+        ByteBuffer bb = ByteBuffer.allocate(22).order(ByteOrder.LITTLE_ENDIAN);
         bb.putShort((short)GZIP_MAGIC);
-        bb.put((byte)FEXTRA);
-        bb.putInt(0);
-        bb.put((byte)0);
+        bb.put((byte)Deflater.DEFLATED);
+        bb.put(h.gzipFlag.toByteArray()[0]);
+        bb.putInt((int)h.mtime);
+        bb.put((byte)h.extraFlag.value);
         bb.put((byte)0);
         bb.putShort((short)h.extraLength);
         bb.put((byte)h.subfieldID1);
         bb.put((byte)h.subfieldID2);
-        bb.putShort((short)h.subfieldLength);
-        bb.putShort((short)h.subfieldVersion);
         bb.putShort((short)h.subfieldLength);
         bb.putShort((short)h.subfieldVersion);
         bb.putShort((short)h.chunkLength);
@@ -496,7 +496,7 @@ public class DictZipHeader {
         return headerOS;
     }
 
-    public void setExtraFlag(CompressionFlag flag) {
+    public void setExtraFlag(CompressionLevel flag) {
         this.extraFlag = flag;
     }
 
@@ -515,11 +515,11 @@ public class DictZipHeader {
         return headerLength;
     }
 
-    public enum CompressionFlag {
-        NORMAL(0), BEST(2), FASTEST(4);
+    public enum CompressionLevel {
+        DEFAULT_COMPRESSION(0), BEST_COMPRESSION(2), BEST_SPEED(4);
         private int value;
 
-        private CompressionFlag(int value) {
+        private CompressionLevel(int value) {
             this.value = value;
         }
     }
