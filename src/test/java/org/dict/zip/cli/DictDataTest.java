@@ -56,7 +56,7 @@ public class DictDataTest extends TestCase {
     @Test
     public void testPrintHeader() throws Exception {
         System.out.println("printHeader");
-        DictData instance = new DictData("test/data/test.dict.dz", null);
+        DictData instance = new DictData("build/test/classes/data/test.dict.dz", null);
         instance.printHeader();
     }
 
@@ -67,7 +67,7 @@ public class DictDataTest extends TestCase {
     @Test
     public void testDoZip() throws Exception {
         System.out.println("doZip");
-        File testFile = new File("test/data/test2.dict");
+        File testFile = new File("build/test/classes/data/test2.dict");
         String zippedFile = DictZipUtils.compressedFileName(testFile.getPath());
         DictData instance = new DictData(testFile.getPath(), zippedFile);
         instance.doZip();
@@ -83,14 +83,14 @@ public class DictDataTest extends TestCase {
     @Test
     public void testDoUnzip() throws Exception {
         System.out.println("doUnzip");
-        String dzFile = "test/data/test.dict.dz";
+        String dzFile = "build/test/classes/data/test.dict.dz";
         String file = DictZipUtils.uncompressedFileName(dzFile);
         long start = 0L;
         int size = 0;
         DictData instance = new DictData(file, dzFile);
         instance.doUnzip(start, size);
-        File resultFile = new File("test/data/test.dict");
-        compareBinary(resultFile, new File("test/data/test.dict.expected"));
+        File resultFile = new File("build/test/classes/data/test.dict");
+        compareBinary(resultFile, new File("build/test/classes/data/test.dict.expected"));
         resultFile.deleteOnExit();
     }
 }

@@ -6,9 +6,11 @@
             <name>dictzip</name>
             <source-roots>
                 <root id="src.dir"/>
+                <root id="src.resources.dir" name="リソース"/>
             </source-roots>
             <test-roots>
                 <root id="test.src.dir"/>
+                <root id="test.resources.dir" name="テスト・リソース"/>
             </test-roots>
         </data>
     </configuration>

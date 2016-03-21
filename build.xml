@@ -10,7 +10,7 @@
 <project name="dictzip" default="default" basedir=".">
     <description>Builds, tests, and runs the project dictzip.</description>
     <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
-      classpath="test/lib/checkstyle-6.13-all.jar"/>
+      classpath="lib/checkstyle-6.13-all.jar"/>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -113,16 +113,16 @@
     <mkdir dir="dist2"/>
     <!-- Create temporary Version.properties with current revision -->
     <tempfile property="temp.version.props" destdir="dist2" deleteonexit="true"/>
-    <copy file="src/org/dict/zip/Version.properties" tofile="${temp.version.props}"/>
+    <copy file="src/main/resources/org/dict/zip/Version.properties" tofile="${temp.version.props}"/>
     <propertyfile file="${temp.version.props}">
       <entry key="revision" value="${repo.revision}"/>
     </propertyfile>
     <!-- Build zip -->
     <zip destfile="dist2/dictzip_${version}_${revision}_Source.zip">
       <fileset dir="."
-          includes="doc/** lib/** nbproject/** src/** test/** build.xml"
+          includes="doc/** lib/** nbproject/** src/** build.xml"
           excludes="**/nbproject/private/** **/build/** **/dist/** src/**/Version.properties" />
-      <zipfileset file="${temp.version.props}" fullpath="src/org/dict/zip/Version.properties"/>
+      <zipfileset file="${temp.version.props}" fullpath="src/main/resources/org/dict/zip/Version.properties"/>
     </zip>
   </target>
 
@@ -130,7 +130,7 @@
   <target name="-post-compile-test" depends="checkstyle"/>
 
   <target name="-pre-jar">
-    <jar compress="${jar.compress}" index="${jar.index}" jarfile="dist/dictzip-libs.jar">
+    <jar compress="${jar.compress}" index="${jar.index}" jarfile="dist/dictzip-lib.jar">
       <fileset dir="${build.classes.dir}" excludes="**/cli/*,**/cli/"/>
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>

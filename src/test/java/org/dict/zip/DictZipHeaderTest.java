@@ -20,7 +20,6 @@ package org.dict.zip;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.zip.CRC32;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -30,7 +29,7 @@ import org.junit.Test;
  */
 public class DictZipHeaderTest extends TestCase {
 
-    private final String dataFile = "test/data/test.dict.dz";
+    private final String dataFile = "build/test/classes/data/test.dict.dz";
 
     private String expResult() {
         StringBuilder sb = new StringBuilder();

@@ -2,4 +2,4 @@
 /dist
 /nbproject/private
 .jacocoverage
-/test/data/test2.dict.dz
+/src/test/resources/data/test2.dict.dz

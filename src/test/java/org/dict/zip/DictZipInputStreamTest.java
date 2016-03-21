@@ -31,7 +31,7 @@ import org.junit.Test;
  */
 public class DictZipInputStreamTest extends TestCase {
 
-    private final String dataFile = "test/data/test.dict.dz";
+    private final String dataFile = "build/test/classes/data/test.dict.dz";
     private RandomAccessInputStream in;
     private DictZipInputStream din;
     private DictZipHeader header;

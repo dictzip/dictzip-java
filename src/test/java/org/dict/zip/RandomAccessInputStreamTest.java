@@ -30,7 +30,7 @@ import org.junit.Test;
  */
 public class RandomAccessInputStreamTest extends TestCase {
 
-    private final String dataFile = "test/data/test.dict.dz";
+    private final String dataFile = "build/test/classes/data/test.dict.dz";
 
     /**
      * Test of available method, of class RandomAccessInputStream.
