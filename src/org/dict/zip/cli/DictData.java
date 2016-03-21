@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.zip.Deflater;
 
 
 import org.dict.zip.DictZipHeader;
@@ -91,8 +92,8 @@ public class DictData {
         byte[] buf = new byte[bufLen];
         File originalFile = new File(originalFileName);
         try (FileInputStream ins = new FileInputStream(originalFile);
-             DictZipOutputStream dout = new DictZipOutputStream(new RandomAccessOutputStream(new 
-                    RandomAccessFile(compressedFileName, "rws")), bufLen, originalFile.length())) {
+             DictZipOutputStream dout = new DictZipOutputStream(
+                    new RandomAccessOutputStream(new RandomAccessFile(compressedFileName, "rws")), bufLen, originalFile.length(), Deflater.BEST_COMPRESSION)) {
             int len;
             while ((len = ins.read(buf, 0, bufLen)) > 0) {
                 dout.write(buf, 0, len);
@@ -142,4 +143,5 @@ public class DictData {
             }
         }
     }
+
 }

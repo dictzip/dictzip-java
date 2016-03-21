@@ -335,7 +335,7 @@ public class DictZipHeader {
         bb.put(h.gzipFlag.toByteArray()[0]);
         bb.putInt((int)h.mtime);
         bb.put((byte)h.extraFlag.value);
-        bb.put((byte)0);
+        bb.put((byte)h.headerOS.value);
         bb.putShort((short)h.extraLength);
         bb.put((byte)h.subfieldID1);
         bb.put((byte)h.subfieldID2);
