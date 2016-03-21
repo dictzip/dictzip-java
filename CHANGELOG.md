@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Broken output features in previous releases.
 
-## [0.02] - 2016-03-06
+## [0.0.2] - 2016-03-06
 ### Added
 - Readme document.
 
