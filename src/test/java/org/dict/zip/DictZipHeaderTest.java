@@ -1,4 +1,6 @@
 /*
+ * DictZip Library test.
+ *
  * Copyright (C) 2016 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +26,8 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 /**
- *
- * @author miurahr
+ * Test for DictZip Header.
+ * @author Hiroshi Miura
  */
 public class DictZipHeaderTest extends TestCase {
 

@@ -1,4 +1,6 @@
 /*
+ * DictZip library test.
+ *
  * Copyright (C) 2016 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
@@ -15,6 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
 package org.dict.zip.cli;
 
 import java.io.ByteArrayOutputStream;
@@ -26,8 +29,8 @@ import org.junit.Test;
 import org.apache.commons.io.FileUtils;
 
 /**
- *
- * @author miurahr
+ * DictData test.
+ * @author Hiroshi Miura
  */
 public class DictDataTest extends TestCase {
     
