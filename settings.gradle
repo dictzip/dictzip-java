@@ -1,0 +1,2 @@
+rootProject.name = 'dictzip'
+include 'dictzip-lib', 'dictzip-cli'

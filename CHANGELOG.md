@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Changed
+- Now this is a Gradle project.
+- Reorganize file structures on Maven rules.
+- We have now dictzip-lib and dictzip-cli subprojects.
 
 ## [0.5.0] - 2016-03-21
 ### Added
