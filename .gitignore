@@ -5,3 +5,4 @@ build
 .idea
 .jacocoverage
 test2.dict.dz
+gradle.properties
