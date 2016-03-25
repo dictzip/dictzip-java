@@ -1,0 +1,38 @@
+// common settings
+subprojects {
+  apply plugin: 'java'
+  apply plugin: 'jacoco'
+  apply plugin: 'checkstyle'
+
+  sourceCompatibility = '1.7'
+  targetCompatibility = '1.7'
+  [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+  [compileJava, compileTestJava]*.options*.bootClasspath = "$JDK7_HOME/jre/lib/rt.jar"
+  checkstyle {
+    config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+    toolVersion = '6.16.1'
+  }
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+  }
+}
+
+project(':dictzip-lib') {}
+
+project(':dictzip-cli') {
+  apply plugin: 'application'
+  mainClassName = 'org.dict.zip.cli.Main'
+  applicationName = 'DictZip'
+
+  dependencies {
+    compile project(':dictzip-lib'),
+       'commons-codec:commons-codec:1.10',
+       'gnu.getopt:java-getopt:1.0.13'
+    testCompile 'commons-io:commons-io:2.4'
+  }
+}

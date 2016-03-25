@@ -1,5 +1,8 @@
-/build
+build
 /dist
 /nbproject/private
+.gradle
+.idea
 .jacocoverage
-/test/data/test2.dict.dz
+test2.dict.dz
+gradle.properties
