@@ -20,16 +20,17 @@
 package org.dict.zip;
 
 import java.io.IOException;
-import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test of DictZipInputStream.
  * @author Hiroshi Miura
  */
-public class DictZipInputStreamTest extends TestCase {
+public class DictZipInputStreamTest {
 
     private final String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
     private RandomAccessInputStream in;
@@ -41,7 +42,6 @@ public class DictZipInputStreamTest extends TestCase {
      * @throws Exception
      */
     @Before
-    @Override
     public void setUp() throws Exception {
         in = new RandomAccessInputStream(dataFile, "r");
         din = new DictZipInputStream(in);
@@ -52,7 +52,6 @@ public class DictZipInputStreamTest extends TestCase {
      * @throws Exception if I/O error occured.
      */
     @After
-    @Override
     public void tearDown() throws Exception {
         din.close();
         in.close();

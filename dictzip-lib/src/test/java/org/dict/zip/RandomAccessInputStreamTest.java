@@ -20,15 +20,16 @@
 
 package org.dict.zip;
 
-import junit.framework.TestCase;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * Test for project.
  *
  * @author Hiroshi Miura
  */
-public class RandomAccessInputStreamTest extends TestCase {
+public class RandomAccessInputStreamTest {
 
     private final String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
 
@@ -101,9 +102,8 @@ public class RandomAccessInputStreamTest extends TestCase {
         System.out.println("markSupported");
         try {
             RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
-            boolean expResult = true;
             boolean result = instance.markSupported();
-            assertEquals(expResult, result);
+            assertTrue(result);
         } catch (Exception ex) {
             fail("get exception.");
         }

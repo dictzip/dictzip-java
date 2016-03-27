@@ -71,7 +71,10 @@ public final class Main {
                 }
                 if (!commandLine.options.isKeep()) {
                     File targetFile = new File(fName);
-                    targetFile.delete();
+                    if (!targetFile.delete()) {
+                        System.err.println(messages.getString("main.delete.error"));
+                        System.exit(2);
+                    }
                 }
             } catch (IOException ex) {
                 System.err.println(messages.getString("main.io.error"));

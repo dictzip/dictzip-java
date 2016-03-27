@@ -23,6 +23,7 @@ import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -133,32 +134,46 @@ public class CommandLine {
                     System.out.println();
                     System.out.println(getString("help.license"));
                     break;
-                    //cdfhklLe:E:s:S:tvVD:p:P
                 case 'e':
                     arg = g.getOptarg();
                     options.setSize(Integer.getInteger(arg));
+                    break;
                 case 'E':
                     arg = g.getOptarg();
                     options.setSize(Base64.decodeInteger(Base64.decodeBase64(arg)).intValue());
+                    break;
+                case 's':
+                    arg = g.getOptarg();
+                    options.setStart(Integer.getInteger(arg));
+                    break;
+                case 'S':
+                    arg = g.getOptarg();
+                    options.setStart(Base64.decodeInteger(Base64.decodeBase64(arg)).intValue());
+                    break;
+                case 't':
+                    // FIXME: not implement yet
+                    break;
+                case 'v':
+                    System.out.println(AppConsts.getNameAndVersion());
+                    System.out.println(MessageFormat.format(getString("help.copyright.template"),
+                            AppConsts.YEAR, AppConsts.AUTHORS));
+                    System.out.println();
+                    break;
                 case ':':
                     System.out.println("Doh! You need an argument for option "
                             + (char) g.getOptopt());
                     break;
-
                 case '?':
                     System.out.println("The option '" + (char) g.getOptopt()
                             + "' is not valid");
                     return 1;
-
                 default:
                     System.out.println("getopt() returned " + c);
                     break;
             }
         }
         //
-        for (int i = g.getOptind(); i < argv.length; i++) {
-            targetFiles.add(argv[i]);
-        }
+        targetFiles.addAll(Arrays.asList(argv).subList(g.getOptind(), argv.length));
         return 0;
     }
 }

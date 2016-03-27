@@ -31,11 +31,14 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.zip.Checksum;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 /**
  * DictZipOutputStream test.
  * @author Hiroshi Miura
  */
-public class DictZipOutputStreamTest extends junit.framework.TestCase {
+public class DictZipOutputStreamTest {
 
     public DictZipOutputStreamTest() {
     }
@@ -120,7 +123,7 @@ public class DictZipOutputStreamTest extends junit.framework.TestCase {
     public void testWrite_int() {
         System.out.println("write");
         int b = 100;
-        TestDictZipOutputStream instance = null;
+        TestDictZipOutputStream instance;
         try {
             File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(

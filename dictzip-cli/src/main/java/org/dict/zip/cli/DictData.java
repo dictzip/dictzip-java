@@ -51,7 +51,7 @@ public class DictData {
 
     private final String originalFileName;
     private final String compressedFileName;
-    private final int bufLen = 58315;
+    private final static int bufLen = 58315;
 
     /**
      * Default constructor for reader.
@@ -65,23 +65,26 @@ public class DictData {
     public void printHeader() throws IOException {
         File targetFile = new File(originalFileName);
         RandomAccessFile targetRaFile = new RandomAccessFile(targetFile, "r");
-        RandomAccessInputStream in = new RandomAccessInputStream(targetRaFile);
-        DictZipInputStream din = new DictZipInputStream(in);
-        long uncomp = din.getLength();
-        long comp = din.getCompLength();
-        long crc = din.getCrc();
-        DictZipHeader header = din.readHeader();
-        String type = header.getType();
-        int chunkLength = header.getChunkLength();
-        int chunkCount = header.getChunkCount();
-        Date mtime = new Date(header.getMtime() * 1000);
-        String filename = header.getFilename();
-        Format timeFormatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss");
-        System.out.println(messages.getString("dictzip.header.title"));
-        System.out.print(String.format("%s\t%08x\t%s\t", type, crc, timeFormatter.format(mtime)));
-        System.out.print(String.format("%6d\t%d\t%d\t  %d\t", chunkCount, chunkLength, comp,
-                uncomp));
-        System.out.println(String.format("%3.1f%%\t%s", (100.0 * comp) / uncomp, filename));
+        try (RandomAccessInputStream in = new RandomAccessInputStream(targetRaFile);
+             DictZipInputStream din = new DictZipInputStream(in);) {
+            long uncomp = din.getLength();
+            long comp = din.getCompLength();
+            long crc = din.getCrc();
+            DictZipHeader header = din.readHeader();
+            String type = header.getType();
+            int chunkLength = header.getChunkLength();
+            int chunkCount = header.getChunkCount();
+            Date mtime = new Date(header.getMtime() * 1000);
+            String filename = header.getFilename();
+            Format timeFormatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss");
+            System.out.println(messages.getString("dictzip.header.title"));
+            System.out.print(String.format("%s\t%08x\t%s\t", type, crc, timeFormatter.format(mtime)));
+            System.out.print(String.format("%6d\t%d\t%d\t  %d\t", chunkCount, chunkLength, comp,
+                    uncomp));
+            System.out.println(String.format("%3.1f%%\t%s", (100.0 * comp) / uncomp, filename));
+        } catch (RuntimeException ex) {
+            throw ex;
+        }
     }
 
     /**
