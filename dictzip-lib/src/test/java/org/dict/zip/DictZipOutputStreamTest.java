@@ -20,44 +20,20 @@
 
 package org.dict.zip;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.testng.Assert.*;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.zip.Checksum;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * DictZipOutputStream test.
  * @author Hiroshi Miura
  */
 public class DictZipOutputStreamTest {
-
-    public DictZipOutputStreamTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     /**
      * Test of close method, of class DictZipOutputStream.
@@ -78,11 +54,9 @@ public class DictZipOutputStreamTest {
             } catch (IOException e) {
                 r = 1;
             }
-            assertEquals(
-                    "DictZip instance can still be used after close is called", 1,
-                    r);
+            assertEquals(1, r, "DictZip instance can still be used after close is called");
         } catch (IOException e) {
-            fail("an IO error occured while trying to find the output file or creating DictZip constructor");
+            fail("an IO error occurred while trying to find the output file or creating DictZip constructor");
         }
     }
 
@@ -155,8 +129,7 @@ public class DictZipOutputStreamTest {
             } catch (Exception ex) {
                 r = 1;
             }
-            assertEquals("DictZip instance can still be used after finish is called",
-                    1, r);
+            assertEquals(1, r, "DictZip instance can still be used after finish is called");
         } catch (Exception ex) {
             fail("an IO error occured while trying to find the output file or creating DictZip constructor");
         }

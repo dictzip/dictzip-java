@@ -19,12 +19,13 @@
  */
 package org.dict.zip;
 
-import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.testng.Assert.*;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.io.IOException;
+
 
 /**
  * Test of DictZipInputStream.
@@ -41,7 +42,7 @@ public class DictZipInputStreamTest {
      * Open output stream.
      * @throws Exception
      */
-    @Before
+    @BeforeTest
     public void setUp() throws Exception {
         in = new RandomAccessInputStream(dataFile, "r");
         din = new DictZipInputStream(in);
@@ -51,7 +52,7 @@ public class DictZipInputStreamTest {
      * Close output stream.
      * @throws Exception if I/O error occured.
      */
-    @After
+    @AfterTest
     public void tearDown() throws Exception {
         din.close();
         in.close();

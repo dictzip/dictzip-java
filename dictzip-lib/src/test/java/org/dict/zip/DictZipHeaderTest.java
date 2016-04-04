@@ -19,13 +19,13 @@
  */
 package org.dict.zip;
 
+import static org.testng.Assert.*;
+import org.testng.annotations.Test;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test for DictZip Header.
@@ -76,7 +76,7 @@ public class DictZipHeaderTest {
             // expected
             r = true;
         }
-        assertTrue("IOException Expected and got", r);
+        assertTrue(r, "IOException Expected and got");
     }
 
     /**
@@ -99,6 +99,6 @@ public class DictZipHeaderTest {
             // expected
             r = true;
         }
-        assertTrue("IOException Expected and got", r);
+        assertTrue(r, "IOException Expected and got");
     }
 }
