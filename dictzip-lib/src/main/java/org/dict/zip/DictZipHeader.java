@@ -21,6 +21,7 @@
 
 package org.dict.zip;
 
+import javax.xml.stream.events.Comment;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.BitSet;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
@@ -60,8 +62,9 @@ public class DictZipHeader {
     private int chunkLength;
     private int chunkCount;
     private long mtime;
-    private String filename = null;
-    private String comment = null;
+    private String filename;
+    private String comment;
+    private static final Charset CHARSET = Charset.forName("ISO-8859-1");
 
     /**
      * GZIP magic number & flag bits.
@@ -132,6 +135,8 @@ public class DictZipHeader {
         // Calculate total length
         extraLength = subfieldLength + 4;
         headerLength = DICTZIP_HEADER_LEN + extraLength;
+        filename = "";
+        comment = "";
     }
 
     private void initOffsets() {
@@ -357,18 +362,18 @@ public class DictZipHeader {
         }
         if (h.gzipFlag.get(FNAME)) {
             if (h.filename != null) {
-                out.write(h.filename.getBytes());
+                out.write(h.filename.getBytes(CHARSET));
                 if (h.gzipFlag.get(FHCRC)) {
-                    headerCrc.update(h.filename.getBytes());
+                    headerCrc.update(h.filename.getBytes(CHARSET));
                 }
             }
             out.write(0);
         }
         if (h.gzipFlag.get(FCOMMENT)) {
             if (h.comment != null) {
-                out.write(h.comment.getBytes());
+                out.write(h.comment.getBytes(CHARSET));
                 if (h.gzipFlag.get(FHCRC)) {
-                    headerCrc.update(h.comment.getBytes());
+                    headerCrc.update(h.comment.getBytes(CHARSET));
                 }
             }
             out.write(0);
@@ -505,9 +510,16 @@ public class DictZipHeader {
     }
 
     public void setFilename(String filename) {
-        if (filename != null && !filename.isEmpty()) {
+        if (filename != null) {
             this.filename = filename;
             gzipFlag.set(FNAME);
+        }
+    }
+
+    public void setComment(String comment) {
+        if (comment != null) {
+            this.comment = comment;
+            gzipFlag.set(FCOMMENT);
         }
     }
 
