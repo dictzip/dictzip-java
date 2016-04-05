@@ -51,7 +51,7 @@ public class DictZipOutputStream extends FilterOutputStream {
     private long dataSize;
     private DictZipHeader header;
     private boolean usesDefaultDeflater = false;
-    private static final int bufLen = 58315;
+    private static final int BUF_LEN = 58315;
 
     /**
      * Constructor.
@@ -62,7 +62,7 @@ public class DictZipOutputStream extends FilterOutputStream {
      */
     public DictZipOutputStream(final RandomAccessOutputStream out, final long size)
             throws IOException, IllegalArgumentException {
-        this(out, bufLen, size);
+        this(out, BUF_LEN, size);
     }
 
     /**
@@ -119,14 +119,14 @@ public class DictZipOutputStream extends FilterOutputStream {
         }
 
         this.def = defl;
-        int outBufferSize = (int) ((inBufferSize + 12) * 1.1); 
+        int outBufferSize = (int) ((inBufferSize + 12) * 1.1);
         buf = new byte[outBufferSize];
         this.dataSize = size;
         crc = new CRC32();
 
         header = new DictZipHeader(dataSize, inBufferSize);
-        header.setMtime((long)System.currentTimeMillis()/1000);
-        switch(level) {
+        header.setMtime((long) System.currentTimeMillis() / 1000);
+        switch (level) {
             case Deflater.DEFAULT_COMPRESSION:
                 header.setExtraFlag(DictZipHeader.CompressionLevel.DEFAULT_COMPRESSION);
                 defl.setLevel(level);
@@ -270,7 +270,7 @@ public class DictZipOutputStream extends FilterOutputStream {
         out.write(trailer);
     }
 
-    private void writeHeader(RandomAccessOutputStream raout) throws IOException {
+    private void writeHeader(final RandomAccessOutputStream raout) throws IOException {
         DictZipHeader.writeHeader(header, raout);
     }
 

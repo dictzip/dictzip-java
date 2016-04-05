@@ -22,26 +22,26 @@ package org.dict.zip;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import junit.framework.TestCase;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for DictZip Header.
  * @author Hiroshi Miura
  */
-public class DictZipHeaderTest extends TestCase {
+public class DictZipHeaderTest {
 
     private final String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
 
     private String expResult() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\nHeader length = 49");
-        sb.append("\nSubfield ID = RA");
-        sb.append("\nSubfield length = 20");
-        sb.append("\nSubfield version = 1");
-        sb.append("\nChunk length = 58315");
-        sb.append("\nNumber of chunks = 7");
-        return sb.toString();
+        return "\nHeader length = 49" +
+                "\nSubfield ID = RA" +
+                "\nSubfield length = 20" +
+                "\nSubfield version = 1" +
+                "\nChunk length = 58315" +
+                "\nNumber of chunks = 7";
     }
 
     /**

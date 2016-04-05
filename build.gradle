@@ -3,6 +3,7 @@ subprojects {
   apply plugin: 'java'
   apply plugin: 'jacoco'
   apply plugin: 'checkstyle'
+  apply plugin: 'findbugs'
 
   sourceCompatibility = '1.7'
   targetCompatibility = '1.7'
@@ -10,7 +11,18 @@ subprojects {
   [compileJava, compileTestJava]*.options*.bootClasspath = "$JDK7_HOME/jre/lib/rt.jar"
   checkstyle {
     config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+    ignoreFailures = true
     toolVersion = '6.16.1'
+  }
+
+  // Force prevent checkstyle/findbugs on Test.
+  task checkstyleTest(overwrite: true) << {}
+  task findbugsTest(overwrite: true) << {}
+  tasks.withType(FindBugs) {
+    reports {
+      xml.enabled = false
+      html.enabled = true
+    }
   }
 
   repositories {

@@ -21,7 +21,6 @@ package org.dict.zip.cli;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
@@ -46,42 +45,51 @@ import org.dict.zip.RandomAccessOutputStream;
  */
 public class DictData {
 
-    static ResourceBundle messages = ResourceBundle.getBundle("org/dict/zip/cli/Bundle",
-            Locale.getDefault());
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
+            .getBundle("org/dict/zip/cli/Bundle", Locale.getDefault());
 
     private final String originalFileName;
     private final String compressedFileName;
-    private final int bufLen = 58315;
+    private static final int BUF_LEN = 58315;
 
     /**
      * Default constructor for reader.
      * @param originalFileName to handle
+     * @param compressedFileName to handle
      */
-    public DictData(final String originalFileName, String compressedFileName) {
+    public DictData(final String originalFileName, final String compressedFileName) {
         this.originalFileName = originalFileName;
         this.compressedFileName = compressedFileName;
     }
 
+    /**
+     * Print header information to STDOUT.
+     * @throws IOException when stdout is terminated.
+     */
     public void printHeader() throws IOException {
         File targetFile = new File(originalFileName);
         RandomAccessFile targetRaFile = new RandomAccessFile(targetFile, "r");
-        RandomAccessInputStream in = new RandomAccessInputStream(targetRaFile);
-        DictZipInputStream din = new DictZipInputStream(in);
-        long uncomp = din.getLength();
-        long comp = din.getCompLength();
-        long crc = din.getCrc();
-        DictZipHeader header = din.readHeader();
-        String type = header.getType();
-        int chunkLength = header.getChunkLength();
-        int chunkCount = header.getChunkCount();
-        Date mtime = new Date(header.getMtime() * 1000);
-        String filename = header.getFilename();
-        Format timeFormatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss");
-        System.out.println(messages.getString("dictzip.header.title"));
-        System.out.print(String.format("%s\t%08x\t%s\t", type, crc, timeFormatter.format(mtime)));
-        System.out.print(String.format("%6d\t%d\t%d\t  %d\t", chunkCount, chunkLength, comp,
-                uncomp));
-        System.out.println(String.format("%3.1f%%\t%s", (100.0 * comp) / uncomp, filename));
+        try (RandomAccessInputStream in = new RandomAccessInputStream(targetRaFile);
+             DictZipInputStream din = new DictZipInputStream(in);) {
+            long uncomp = din.getLength();
+            long comp = din.getCompLength();
+            long crc = din.getCrc();
+            DictZipHeader header = din.readHeader();
+            String type = header.getType();
+            int chunkLength = header.getChunkLength();
+            int chunkCount = header.getChunkCount();
+            Date mtime = new Date(header.getMtime() * 1000);
+            String filename = header.getFilename();
+            Format timeFormatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss");
+            System.out.println(RESOURCE_BUNDLE.getString("dictzip.header.title"));
+            System.out.print(String.format("%s\t%08x\t%s\t", type, crc,
+                    timeFormatter.format(mtime)));
+            System.out.print(String.format("%6d\t%d\t%d\t  %d\t", chunkCount, chunkLength, comp,
+                    uncomp));
+            System.out.println(String.format("%3.1f%%\t%s", (100.0 * comp) / uncomp, filename));
+        } catch (RuntimeException ex) {
+            throw ex;
+        }
     }
 
     /**
@@ -89,13 +97,14 @@ public class DictData {
      * @throws IOException if file I/O error.
      */
     public void doZip() throws IOException {
-        byte[] buf = new byte[bufLen];
+        byte[] buf = new byte[BUF_LEN];
         File originalFile = new File(originalFileName);
         try (FileInputStream ins = new FileInputStream(originalFile);
              DictZipOutputStream dout = new DictZipOutputStream(
-                    new RandomAccessOutputStream(new RandomAccessFile(compressedFileName, "rws")), bufLen, originalFile.length(), Deflater.BEST_COMPRESSION)) {
+                    new RandomAccessOutputStream(new RandomAccessFile(compressedFileName, "rws")),
+                     BUF_LEN, originalFile.length(), Deflater.BEST_COMPRESSION)) {
             int len;
-            while ((len = ins.read(buf, 0, bufLen)) > 0) {
+            while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
                 dout.write(buf, 0, len);
             }
         } catch (EOFException eof) {
@@ -109,15 +118,15 @@ public class DictData {
      * @param size size to retrieve
      * @throws IOException if file I/O error.
      */
-    public void doUnzip(long start, int size) throws IOException {
-        try (  DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
+    public void doUnzip(final long start, final int size) throws IOException {
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
                         RandomAccessFile(new File(compressedFileName), "r")));
                 OutputStream unzipOut = new RandomAccessOutputStream(originalFileName, "rw")) {
-            byte[] buf = new byte[bufLen];
+            byte[] buf = new byte[BUF_LEN];
             din.seek(start);
             if (size == 0) {
                 int len;
-                while ((len = din.read(buf, 0, bufLen)) > 0) {
+                while ((len = din.read(buf, 0, BUF_LEN)) > 0) {
                     unzipOut.write(buf, 0, len);
                 }
             } else {
@@ -125,10 +134,10 @@ public class DictData {
                     int len;
                     int readSize = 0;
                     while (size - readSize > 0) {
-                        if (size - readSize < bufLen) {
+                        if (size - readSize < BUF_LEN) {
                             len = din.read(buf, 0, size - readSize);
                         } else {
-                            len = din.read(buf, 0, bufLen);
+                            len = din.read(buf, 0, BUF_LEN);
                         }
                         if (len > 0) {
                             unzipOut.write(buf, 0, len);

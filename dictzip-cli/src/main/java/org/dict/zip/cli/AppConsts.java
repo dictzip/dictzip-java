@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
  * Application specific constants.
  * @author Hiroshi Miura
  */
-public class AppConsts {
+public final class AppConsts {
     static final String VERSION = ResourceBundle.getBundle("org/dict/zip/Version")
             .getString("version");
     static final String UPDATE = ResourceBundle.getBundle("org/dict/zip/Version")
@@ -34,17 +34,17 @@ public class AppConsts {
     static final String REVISION = ResourceBundle.getBundle("org/dict/zip/Version")
             .getString("revision");
 
-    static final ResourceBundle _messages = ResourceBundle.getBundle("org/dict/zip/cli/Bundle",
-            Locale.getDefault());
+    static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
+            .getBundle("org/dict/zip/cli/Bundle", Locale.getDefault());
 
-    static final String NAME = _messages.getString("application.name");
+    static final String NAME = RESOURCE_BUNDLE.getString("application.name");
     static final String BRANDING = "";
     static final String YEAR = "2016";
     static final String AUTHORS = "Hiroshi Miura";
     static final String LICENSE = "GPLv2+";
 
     private static String getString(final String key) {
-        return _messages.getString(key);
+        return RESOURCE_BUNDLE.getString(key);
     }
 
     static String getNameAndVersion() {
@@ -58,7 +58,11 @@ public class AppConsts {
     }
 
     static String getApplicationName() {
-        return BRANDING.isEmpty() ? NAME : NAME + " " + BRANDING;
+        if (BRANDING.isEmpty()) {
+            return NAME;
+        } else {
+            return NAME + " " + BRANDING;
+        }
     }
 
     private AppConsts() {

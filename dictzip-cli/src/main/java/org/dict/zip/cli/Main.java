@@ -38,7 +38,7 @@ public final class Main {
     private static ResourceBundle messages = ResourceBundle.getBundle(
             "org/dict/zip/cli/Bundle", Locale.getDefault());
 
-    private static final CommandLine commandLine = new CommandLine();
+    private static CommandLine commandLine = new CommandLine();
 
     /**
      * main method.
@@ -71,7 +71,10 @@ public final class Main {
                 }
                 if (!commandLine.options.isKeep()) {
                     File targetFile = new File(fName);
-                    targetFile.delete();
+                    if (!targetFile.delete()) {
+                        System.err.println(messages.getString("main.delete.error"));
+                        System.exit(2);
+                    }
                 }
             } catch (IOException ex) {
                 System.err.println(messages.getString("main.io.error"));

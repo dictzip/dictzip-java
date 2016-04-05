@@ -24,8 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
 
-import junit.framework.TestCase;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.commons.io.FileUtils;
 
@@ -33,7 +33,7 @@ import org.apache.commons.io.FileUtils;
  * DictData test.
  * @author Hiroshi Miura
  */
-public class DictDataTest extends TestCase {
+public class DictDataTest {
     
     public DictDataTest() {
     }

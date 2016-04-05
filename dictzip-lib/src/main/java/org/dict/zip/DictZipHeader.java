@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.BitSet;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
@@ -60,8 +61,9 @@ public class DictZipHeader {
     private int chunkLength;
     private int chunkCount;
     private long mtime;
-    private String filename = null;
-    private String comment = null;
+    private String filename;
+    private String comment;
+    private static final Charset CHARSET = Charset.forName("ISO-8859-1");
 
     /**
      * GZIP magic number & flag bits.
@@ -132,6 +134,8 @@ public class DictZipHeader {
         // Calculate total length
         extraLength = subfieldLength + 4;
         headerLength = DICTZIP_HEADER_LEN + extraLength;
+        filename = "";
+        comment = "";
     }
 
     private void initOffsets() {
@@ -330,19 +334,19 @@ public class DictZipHeader {
         CRC32 headerCrc = new CRC32();
         headerCrc.reset();
         ByteBuffer bb = ByteBuffer.allocate(22).order(ByteOrder.LITTLE_ENDIAN);
-        bb.putShort((short)GZIP_MAGIC);
-        bb.put((byte)Deflater.DEFLATED);
+        bb.putShort((short) GZIP_MAGIC);
+        bb.put((byte) Deflater.DEFLATED);
         bb.put(h.gzipFlag.toByteArray()[0]);
-        bb.putInt((int)h.mtime);
-        bb.put((byte)h.extraFlag.value);
-        bb.put((byte)h.headerOS.value);
-        bb.putShort((short)h.extraLength);
-        bb.put((byte)h.subfieldID1);
-        bb.put((byte)h.subfieldID2);
-        bb.putShort((short)h.subfieldLength);
-        bb.putShort((short)h.subfieldVersion);
-        bb.putShort((short)h.chunkLength);
-        bb.putShort((short)h.chunkCount);
+        bb.putInt((int) h.mtime);
+        bb.put((byte) h.extraFlag.value);
+        bb.put((byte) h.headerOS.value);
+        bb.putShort((short) h.extraLength);
+        bb.put((byte) h.subfieldID1);
+        bb.put((byte) h.subfieldID2);
+        bb.putShort((short) h.subfieldLength);
+        bb.putShort((short) h.subfieldVersion);
+        bb.putShort((short) h.chunkLength);
+        bb.putShort((short) h.chunkCount);
         out.write(bb.array());
         if (h.gzipFlag.get(FHCRC)) {
             headerCrc.update(bb.array());
@@ -352,29 +356,29 @@ public class DictZipHeader {
         }
         if (h.gzipFlag.get(FHCRC)) {
             for (int i = 0; i < h.chunkCount; i++) {
-                headerCrc.update(ByteBuffer.allocate(2).putShort((short)h.chunks[i]).array());
+                headerCrc.update(ByteBuffer.allocate(2).putShort((short) h.chunks[i]).array());
             }
         }
         if (h.gzipFlag.get(FNAME)) {
             if (h.filename != null) {
-                out.write(h.filename.getBytes());
+                out.write(h.filename.getBytes(CHARSET));
                 if (h.gzipFlag.get(FHCRC)) {
-                    headerCrc.update(h.filename.getBytes());
+                    headerCrc.update(h.filename.getBytes(CHARSET));
                 }
             }
             out.write(0);
         }
         if (h.gzipFlag.get(FCOMMENT)) {
             if (h.comment != null) {
-                out.write(h.comment.getBytes());
+                out.write(h.comment.getBytes(CHARSET));
                 if (h.gzipFlag.get(FHCRC)) {
-                    headerCrc.update(h.comment.getBytes());
+                    headerCrc.update(h.comment.getBytes(CHARSET));
                 }
             }
             out.write(0);
         }
         if (h.gzipFlag.get(FHCRC)) {
-            writeShort(out, (int)headerCrc.getValue());
+            writeShort(out, (int) headerCrc.getValue());
         }
     }
 
@@ -407,6 +411,7 @@ public class DictZipHeader {
      *
      * @param start total offset bytes.
      * @return offset in the chunk.
+     * @throws IllegalArgumentException when index is out of boundary.
      */
     public final int getOffset(final long start) throws IllegalArgumentException {
         long off = start % this.chunkLength;
@@ -422,20 +427,30 @@ public class DictZipHeader {
      *
      * @param start total offset bytes.
      * @return chunk position.
+     * @throws IllegalArgumentException when index is out of boundary.
      */
     public final long getPosition(final long start) throws IllegalArgumentException {
         long idx = start / this.chunkLength;
         if (idx < Integer.MAX_VALUE) {
             return this.offsets[(int) idx];
         } else {
-            throw new IllegalArgumentException("Index is out of boudary.");
+            throw new IllegalArgumentException("Index is out of boundary.");
         }
     }
 
+    /**
+     * Set Gzip flag field.
+     * @param flag flag index
+     * @param val flag value true or false.
+     */
     public void setGzipFlag(final int flag, final boolean val) {
         gzipFlag.set(flag, val);
     }
 
+    /**
+     * Get gzip flag as bitset.
+     * @return flag as BitSet value.
+     */
     public BitSet getGzipFlag() {
         return gzipFlag;
     }
@@ -488,48 +503,117 @@ public class DictZipHeader {
         }
     }
 
-    public void setHeaderOS(OperatingSystem os) {
+    /**
+     * Set OS field of header.
+     * @param os Operating System
+     */
+    public void setHeaderOS(final OperatingSystem os) {
         this.headerOS = os;
     }
 
+    /**
+     * Get OS field.
+     * @return OS field value.
+     */
     public OperatingSystem getHeaderOS() {
         return headerOS;
     }
 
-    public void setExtraFlag(CompressionLevel flag) {
+    /**
+     * Set extra flag.
+     * @param flag compression level.
+     */
+    public void setExtraFlag(final CompressionLevel flag) {
         this.extraFlag = flag;
     }
 
-    public void setMtime(long mtime) {
+    /**
+     * Set mtime field.
+     * @param mtime modification time.
+     */
+    public void setMtime(final long mtime) {
         this.mtime = mtime;
     }
 
-    public void setFilename(String filename) {
-        if (filename != null && !filename.isEmpty()) {
+    /**
+     * Set filename field.
+     * <P>
+     *     filename should be in ISO-8859-1 charset.
+     * </P>
+     * @param filename name to set.
+     */
+    public void setFilename(final String filename) {
+        if (filename != null) {
             this.filename = filename;
             gzipFlag.set(FNAME);
         }
     }
 
+    /**
+     * Set comment field.
+     * <p>
+     *     comment should be in ISO-8859-1 charset.
+     * </p>
+     * @param comment comment string.
+     */
+    public void setComment(final String comment) {
+        if (comment != null) {
+            this.comment = comment;
+            gzipFlag.set(FCOMMENT);
+        }
+    }
+
+    /**
+     * Get header length.
+     * @return header length
+     */
     public int getHeaderLength() {
         return headerLength;
     }
 
+    /**
+     * Compression levels.
+     */
     public enum CompressionLevel {
+        /**
+         * 0. Default compression level
+         * 2. Best compression level
+         * 4. Speed compression level
+         */
         DEFAULT_COMPRESSION(0), BEST_COMPRESSION(2), BEST_SPEED(4);
         private int value;
 
-        private CompressionLevel(int value) {
+        CompressionLevel(final int value) {
             this.value = value;
         }
     }
 
+    /**
+     * Operating systems.
+     */
     public enum OperatingSystem {
+        /**
+         * 0. MS-DOS FAT
+         * 1. AMIGA
+         * 2. DEC VMS
+         * 3. UNIX
+         * 4. IBM VM/CMS
+         * 5. ATARI
+         * 6. HPFS
+         * 7. MAC
+         * 8. Z System
+         * 9. CP/M
+         * 10. TOPS
+         * 11. Microsoft NTFS
+         * 12. QDOS
+         * 13. ACORN
+         * 255. Unknown operating systems
+         */
         FAT(0), AMIGA(1), VMS(2), UNIX(3), VMCMS(4), ATARI(5), HPFS(6), MAC(7), ZSYS(8),
         CPM(9), TOPS(10), NTFS(11), QDOS(12), ACORN(13), UNKNOWN(255);
         private int value;
 
-        private OperatingSystem(int value) {
+        OperatingSystem(final int value) {
             this.value = value;
         }
     }
