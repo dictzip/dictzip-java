@@ -38,7 +38,7 @@ public final class Main {
     private static ResourceBundle messages = ResourceBundle.getBundle(
             "org/dict/zip/cli/Bundle", Locale.getDefault());
 
-    private static final CommandLine commandLine = new CommandLine();
+    private static CommandLine commandLine = new CommandLine();
 
     /**
      * main method.

@@ -165,7 +165,12 @@ public class DictZipInputStream extends InflaterInputStream {
         return header;
     }
 
-    public void seek(long next) throws IOException {
+    /**
+     * Seek to a raw index next.
+     * @param next a raw index
+     * @throws IOException when instance is not a RandomAccessInputStream.
+     */
+    public void seek(final long next) throws IOException {
         if (in instanceof RandomAccessInputStream) {
             RandomAccessInputStream rain = (RandomAccessInputStream) in;
             offset = header.getOffset(next);
@@ -185,7 +190,7 @@ public class DictZipInputStream extends InflaterInputStream {
         if (totalLength == 0) {
             readTrailer();
         }
-        return crcVal; 
+        return crcVal;
     }
 
     /**
@@ -200,6 +205,11 @@ public class DictZipInputStream extends InflaterInputStream {
         return totalLength;
     }
 
+    /**
+     * Get total length of compressed data.
+     * @return total length
+     * @throws IOException when I/O error at trailer reading.
+     */
     public long getCompLength() throws IOException {
         if (totalLength == 0) {
             readTrailer();
@@ -207,6 +217,10 @@ public class DictZipInputStream extends InflaterInputStream {
         return compLength;
     }
 
+    /**
+     * Check gzip member trailer; CRC and length.
+     * @throws IOException when CRC error or total length error.
+     */
     private void checkTrailer() throws IOException {
         InputStream in = this.in;
         int num = inf.getRemaining();

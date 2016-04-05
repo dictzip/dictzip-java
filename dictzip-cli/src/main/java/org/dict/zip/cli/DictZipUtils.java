@@ -22,7 +22,7 @@ package org.dict.zip.cli;
  * Utility class.
  * @author Hiroshi Miura
  */
-public class DictZipUtils {
+public final class DictZipUtils {
 
     /**
      * Return filename that is good for uncompressed output.
@@ -32,7 +32,7 @@ public class DictZipUtils {
      * @param name input filename.
      * @return output filename.
      */
-    protected static String uncompressedFileName(String name){
+    protected static String uncompressedFileName(final String name) {
         String result;
         if (name.endsWith(".dz") || name.endsWith(".gz")) {
             result = name.substring(0, name.length() - 3);
@@ -41,15 +41,18 @@ public class DictZipUtils {
         }
         return result;
     }
-    
+
     /**
      * Return file name for compressed output.
      * @param name input file name.
      * @return output filename.
      */
-    protected static String compressedFileName(String name) {
+    protected static String compressedFileName(final String name) {
         return name + ".dz";
     }
 
+    /**
+     * Utility class should not be instantiated.
+     */
     private DictZipUtils() { }
 }

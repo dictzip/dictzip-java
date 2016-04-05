@@ -43,7 +43,7 @@ public class CommandLine {
     protected final List<String> targetFiles = new ArrayList<String>();
 
     private static String getString(final String key) {
-        return AppConsts._messages.getString(key);
+        return AppConsts.RESOURCE_BUNDLE.getString(key);
     }
 
     protected List<String> getTargetFiles() {
