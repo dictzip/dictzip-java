@@ -124,6 +124,7 @@ public class DictZipInputStream extends InflaterInputStream {
             for (int i = 0; i < copyLen; i++) {
                 buf[off + i] = tmpBuf[offset + i];
             }
+            offset = 0;
         }
         if (readLen == -1) {
             eos = true;
