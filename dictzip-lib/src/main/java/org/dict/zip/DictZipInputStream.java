@@ -32,6 +32,7 @@ import java.util.zip.CRC32;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+
 /**
  * DictZipInputStream.
  *
@@ -54,6 +55,7 @@ public class DictZipInputStream extends InflaterInputStream {
     private long totalLength = 0;
     private long compLength = 0;
 
+    private int bufferSize;
     private int offset = 0;
 
     /**
@@ -81,6 +83,7 @@ public class DictZipInputStream extends InflaterInputStream {
     public DictZipInputStream(final RandomAccessInputStream in, final int size) throws IOException {
         super(in, new Inflater(true), size);
         header = readHeader();
+        bufferSize = size;
     }
 
     /**
@@ -111,9 +114,18 @@ public class DictZipInputStream extends InflaterInputStream {
         if (eos) {
             return -1;
         }
-        int readLen = super.read(buf, off, size);
+        int readLen;
+        if (offset == 0) {
+            readLen = super.read(buf, off, size);
+        } else {
+            byte[] tmpBuf = new byte[Math.min(offset + size, bufferSize - off)];
+            readLen = super.read(tmpBuf, 0, Math.min(offset + size, bufferSize - off));
+            int copyLen = Math.min(readLen - offset, size);
+            for (int i = 0; i < copyLen; i++) {
+                buf[off + i] = tmpBuf[offset + i];
+            }
+        }
         if (readLen == -1) {
-            //readTrailer();
             eos = true;
         } else {
             crc.update(buf, off, readLen);
