@@ -577,10 +577,16 @@ public class DictZipHeader {
     public enum CompressionLevel {
         /**
          * 0. Default compression level
+         */
+        DEFAULT_COMPRESSION(0),
+        /**
          * 2. Best compression level
+         */
+        BEST_COMPRESSION(2),
+        /**
          * 4. Speed compression level
          */
-        DEFAULT_COMPRESSION(0), BEST_COMPRESSION(2), BEST_SPEED(4);
+        BEST_SPEED(4);
         private int value;
 
         CompressionLevel(final int value) {
@@ -590,27 +596,83 @@ public class DictZipHeader {
 
     /**
      * Operating systems.
+     * <li>{@link #FAT}</li>
+     * <li>{@link #AMIGA}</li>
+     * <li>{@link #VMS}</li>
+     * <li>{@link #UNIX}</li>
+     * <li>{@link #VMCMS}</li>
+     * <li>{@link #ATARI}</li>
+     * <li>{@link #HPFS}</li>
+     * <li>{@link #MAC}</li>
+     * <li>{@link #ZSYS}</li>
+     * <li>{@link #CPM}</li>
+     * <li>{@link #TOPS}</li>
+     * <li>{@link #NTFS}</li>
+     * <li>{@link #QDOS}</li>
+     * <li>{@link #ACORN}</li>
+     * <li>{@link #UNKNOWN}</li>
      */
     public enum OperatingSystem {
         /**
          * 0. MS-DOS FAT
+         */
+        FAT(0),
+        /**
          * 1. AMIGA
+         */
+        AMIGA(1),
+        /**
          * 2. DEC VMS
+         */
+        VMS(2),
+        /**
          * 3. UNIX
+         */
+        UNIX(3),
+        /**
          * 4. IBM VM/CMS
+         */
+        VMCMS(4),
+        /**
          * 5. ATARI
+         */
+        ATARI(5),
+        /**
          * 6. HPFS
+         */
+        HPFS(6),
+        /**
          * 7. MAC
+         */
+        MAC(7),
+        /**
          * 8. Z System
+         */
+        ZSYS(8),
+        /**
          * 9. CP/M
+         */
+        CPM(9),
+        /**
          * 10. TOPS
+         */
+        TOPS(10),
+        /**
          * 11. Microsoft NTFS
+         */
+        NTFS(11),
+        /**
          * 12. QDOS
+         */
+        QDOS(12),
+        /**
          * 13. ACORN
+         */
+        ACORN(13),
+        /**
          * 255. Unknown operating systems
          */
-        FAT(0), AMIGA(1), VMS(2), UNIX(3), VMCMS(4), ATARI(5), HPFS(6), MAC(7), ZSYS(8),
-        CPM(9), TOPS(10), NTFS(11), QDOS(12), ACORN(13), UNKNOWN(255);
+        UNKNOWN(255);
         private int value;
 
         OperatingSystem(final int value) {
