@@ -30,15 +30,35 @@ forking source and send modification as a Pull Request.
 It is recommended to post an issue before sending a patch.
 
 
-## Copyrights
+## Dependencies
 
-Copyright (C) 2001-2004 JDictd project.
+DictZip library does not depend on any project without Java standard libraries.
+
+DictZip CLI utility depends on some libraries.
+
+### Runtime depenency
+
+- java-getopts library(GPLv2+)
+- Apache commons codec library(Apache2)
+
+### Test dependency
+
+- TestNG framework(Apache2)
+- Apache commons IO library(Apache2)
+
+
+## Copyrights and License
+
+DictZip library for Java and command line utility.
+
+Copyright (C) 2001-2004 Ho Ngoc Duc
 Copyright (C) 2016 Hiroshi Miura
 
-Some part of DictZip library code is come from a part of abandoned jdictd on java
+Some part of this program code are come from a part of abandoned jdictd on java
 by JDictd project.
 
+DictZip command line utility is distributed under the terms of GNU General
+Public License Version 3 or (at your option) any later version.
 
-## license
-
-Dictributed by GPL-2 and later.
+DictZip library is distributed under the terms of the GNU General Public License
+Version 2 or (at your option) any later version.
