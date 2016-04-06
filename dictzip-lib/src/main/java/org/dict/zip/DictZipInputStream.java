@@ -1,7 +1,7 @@
 /*
  * DictZip library.
  *
- * Copyright (C) 2001-2004 JDictd project.
+ * Copyright (C) 2001-2004 Ho Ngoc Duc
  * Copyright (C) 2016 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
