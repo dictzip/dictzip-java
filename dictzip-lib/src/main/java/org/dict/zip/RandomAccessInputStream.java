@@ -39,14 +39,14 @@ public class RandomAccessInputStream extends InputStream {
     /**
      * Construct RandomAccessInputStream from file.
      *
-     * @param inFile RamdomAccessFile
+     * @param inFile RandomAccessFile
      */
     public RandomAccessInputStream(final RandomAccessFile inFile) {
         this.in = inFile;
     }
 
     /**
-     * Construct RamdonAccessInputStream from filename.
+     * Construct RandomAccessInputStream from filename.
      *
      * @param file to read with random access.
      * @param mode open mode.
