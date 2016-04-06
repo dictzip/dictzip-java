@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - [#8] Support -# --fast --best option in CLI.
 
 ### Changed
+- [#3] License changed to GPL2++classpath(lib) exception and GPL3(CLI)
 - We have now dictzip-lib and dictzip-cli subprojects.
 - Target jars become dictzip-lib.jar and dictzip-cli.jar
 - [#2] Now this is a Gradle project.
