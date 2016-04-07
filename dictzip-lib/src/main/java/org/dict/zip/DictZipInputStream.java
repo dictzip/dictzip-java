@@ -36,7 +36,7 @@ import java.util.zip.InflaterInputStream;
 /**
  * DictZipInputStream.
  *
- * @author jdictd project
+ * @author Ho Ngoc Duc
  * @author Hiroshi Miura
  */
 public class DictZipInputStream extends InflaterInputStream {

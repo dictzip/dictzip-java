@@ -37,7 +37,7 @@ import java.util.zip.Deflater;
 /**
  * DictZip header structure and handler.
  *
- * @author jdictd project
+ * @author Ho Ngoc Duc
  * @author Hiroshi Miura
  */
 public class DictZipHeader {

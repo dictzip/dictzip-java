@@ -27,7 +27,7 @@ import java.io.RandomAccessFile;
 /**
  * RandomAccessInputStream.
  *
- * @author jdictd project
+ * @author Ho Ngoc Duc
  * @author Hiroshi Miura
  */
 public class RandomAccessInputStream extends InputStream {
