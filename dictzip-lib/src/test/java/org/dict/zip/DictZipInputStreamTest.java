@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 
 /**
@@ -59,9 +60,7 @@ public class DictZipInputStreamTest {
     }
 
     private synchronized void getDZHeader(DictZipInputStream din) throws IOException {
-        if (header == null) {
-            header = din.readHeader();
-        }
+        header = din.readHeader();
     }
 
     /**
@@ -70,16 +69,30 @@ public class DictZipInputStreamTest {
     @Test
     public void testRead() throws Exception {
         System.out.println("read");
-        int start = 1;
         int len = 10;
         getDZHeader(din);
-        int off = header.getOffset(start);
-        long pos = header.getPosition(start);
-        in.seek(pos);
-        byte[] buf = new byte[off + len];
-        int expResult = len;
-        int result = din.read(buf, off, len);
-        assertEquals(expResult, result);
+        byte[] buf = new byte[len];
+        byte[] expResult = {0x70, 0x72, (byte) 0xc3, (byte) 0xa9, 0x70, 0x2e, 0x20, 0x3a, 0x20, 0x2b};
+        din.read(buf, 0, len);
+        assertTrue(Arrays.equals(expResult, buf));
+    }
+
+    /**
+     * Test of read method, of class DictZipInputStream.
+     */
+    @Test
+    public void testRead_with_seek() throws Exception {
+        System.out.println("read with seek");
+        int start = 0x20;
+        int len = 10;
+        getDZHeader(din);
+        din.seek(start);
+        byte[] buf = new byte[len];
+        byte[] expResult = {
+            0x61, 0x70, 0x72, (byte) 0xc3, (byte) 0xa8, 0x73, 0x20, 0x75, 0x6e, 0x20
+        };
+        din.read(buf, 0, len);
+        assertTrue(Arrays.equals(buf, expResult));
     }
 
     /**

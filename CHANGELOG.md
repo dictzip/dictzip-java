@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file.
 - README: add build procedure, contribution and copyright.
 - Coding style checks by checkstyle 6.16.1
 
+### Fixed
+- [#7] Fix DictZipInputStream.seek().Previous all releases are broken.
+
 ## [0.5.0] - 2016-03-21
 ### Added
 - Command line tool subproject.

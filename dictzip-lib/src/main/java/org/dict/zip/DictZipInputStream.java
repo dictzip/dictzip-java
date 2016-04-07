@@ -114,22 +114,35 @@ public class DictZipInputStream extends InflaterInputStream {
         if (eos) {
             return -1;
         }
+        if (buf == null) {
+            throw new NullPointerException();
+        } else if (off < 0 || size < 0 || size > buf.length - off || off >= buf.length ) {
+            throw new IndexOutOfBoundsException();
+        } else if (size == 0) {
+            return 0;
+        }
         int readLen;
         if (offset == 0) {
             readLen = super.read(buf, off, size);
+            if (readLen == -1) {
+                eos = true;
+            } else {
+                crc.update(buf, off, readLen);
+            }
         } else {
-            byte[] tmpBuf = new byte[Math.min(offset + size, bufferSize - off)];
-            readLen = super.read(tmpBuf, 0, Math.min(offset + size, bufferSize - off));
-            int copyLen = Math.min(readLen - offset, size);
-            for (int i = 0; i < copyLen; i++) {
-                buf[off + i] = tmpBuf[offset + i];
+            byte[] tmpBuf = new byte[Math.min(offset + size, offset + buf.length - off)];
+            readLen = super.read(tmpBuf, 0, tmpBuf.length);
+            readLen -= offset;
+            if (readLen < 0) {
+                eos = true;
+                readLen = -1;
+            } else {
+                for (int i = 0; i < readLen; i++) {
+                    buf[off + i] = tmpBuf[offset + i];
+                }
+                crc.update(buf, off, readLen);
             }
             offset = 0;
-        }
-        if (readLen == -1) {
-            eos = true;
-        } else {
-            crc.update(buf, off, readLen);
         }
         return readLen;
     }
@@ -189,6 +202,7 @@ public class DictZipInputStream extends InflaterInputStream {
             offset = header.getOffset(next);
             long pos = header.getPosition(next);
             rain.seek(pos);
+            inf.reset();
         } else {
             throw new IOException("Illegal type of InputStream.");
         }
