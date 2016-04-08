@@ -7,9 +7,10 @@ All notable changes to this project will be documented in this file.
   You need to copy to gradle.properties and edit its configuration.
 
 ### Changed
-- Now this is a Gradle project.
-- Reorganize file structures on Maven rules.
 - We have now dictzip-lib and dictzip-cli subprojects.
+- Target jars become dictzip-lib.jar and dictzip-cli.jar
+- [#2] Now this is a Gradle project.
+- Reorganize file structures on Maven rules.
 - Command script by Gradle.
 - Delete external libraries. Now gradle will download it.
 - README: add build procedure, contribution and copyright.
@@ -17,10 +18,11 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - [#7] Fix DictZipInputStream.seek().Previous all releases are broken.
+- [#5] Fix coding styles and potential problematic codes.
 
 ## [0.5.0] - 2016-03-21
 ### Added
-- Command line tool subproject.
+- [#1] Command line tool subproject.
 - CHANGELOG.md file.
 
 ### Changed
