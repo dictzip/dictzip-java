@@ -72,15 +72,16 @@ public class DictData {
         RandomAccessFile targetRaFile = new RandomAccessFile(targetFile, "r");
         try (RandomAccessInputStream in = new RandomAccessInputStream(targetRaFile);
              DictZipInputStream din = new DictZipInputStream(in);) {
+            // These three parameters are able to get only from din.
             long uncomp = din.getLength();
             long comp = din.getCompLength();
             long crc = din.getCrc();
-            DictZipHeader header = din.readHeader();
-            String type = header.getType();
-            int chunkLength = header.getChunkLength();
-            int chunkCount = header.getChunkCount();
-            Date mtime = new Date(header.getMtime() * 1000);
-            String filename = header.getFilename();
+            // Get header parameters.
+            String type = din.getType();
+            int chunkLength = din.getChunkLength();
+            int chunkCount = din.getChunkCount();
+            Date mtime = new Date(din.getMtime() * 1000);
+            String filename = din.getFilename();
             Format timeFormatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss");
             System.out.println(RESOURCE_BUNDLE.getString("dictzip.header.title"));
             System.out.print(String.format("%s\t%08x\t%s\t", type, crc,

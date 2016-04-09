@@ -157,24 +157,4 @@ public class DictZipInputStreamTest {
         assertEquals(din.getCrc(), 0x024d1f37);
         assertEquals(din.getLength(), 383783);
     }
-
-   /**
-     * Test of readHeader method, of class DictZipInputStream.
-     * @throws java.lang.Exception
-     */
-    @Test
-    public void testReadHeader() throws Exception {
-        System.out.println("readHeader");
-        header = din.readHeader();
-        StringBuilder sb = new StringBuilder();
-        sb.append("\nHeader length = 49");
-        sb.append("\nSubfield ID = RA");
-        sb.append("\nSubfield length = 20");
-        sb.append("\nSubfield version = 1");
-        sb.append("\nChunk length = 58315");
-        sb.append("\nNumber of chunks = 7");
-        String expResult = sb.toString();
-        assertEquals(header.toString(), expResult);
-    }
-
 }

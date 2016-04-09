@@ -181,7 +181,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * @return header object.
      * @exception IOException if an I/O error has occurred.
      */
-    public final DictZipHeader readHeader() throws IOException {
+    private final DictZipHeader readHeader() throws IOException {
         if (header == null) {
             header = DictZipHeader.readHeader(in, crc);
             crc.reset();
@@ -240,6 +240,26 @@ public class DictZipInputStream extends InflaterInputStream {
             readTrailer();
         }
         return compLength;
+    }
+
+    public String getType() throws IOException {
+        return header.getType();
+    }
+
+    public int getChunkLength() throws IOException {
+        return header.getChunkLength();
+    }
+
+    public int getChunkCount() throws IOException {
+        return header.getChunkCount();
+    }
+
+    public long getMtime() throws IOException {
+        return header.getMtime();
+    }
+
+    public String getFilename() throws IOException {
+        return header.getFilename();
     }
 
     /**
