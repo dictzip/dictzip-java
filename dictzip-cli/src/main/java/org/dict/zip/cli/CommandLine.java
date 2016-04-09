@@ -21,6 +21,8 @@ package org.dict.zip.cli;
 import org.apache.commons.codec.binary.Base64;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
+import org.dict.zip.DictZipHeader.CompressionLevel;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +52,7 @@ public class CommandLine {
         return targetFiles;
     }
 
+    private static final int OPTS_LEN = 19;
     /**
      * Parse command line and set preferences.
      *
@@ -60,30 +63,33 @@ public class CommandLine {
         int c;
         String arg;
 
-        LongOpt[] longopts = new LongOpt[17];
+        LongOpt[] longOpts = new LongOpt[OPTS_LEN];
         StringBuffer debugLevelVal = new StringBuffer();
         StringBuffer startVal = new StringBuffer();
         StringBuffer sizeVal = new StringBuffer();
         StringBuffer preFilterName = new StringBuffer();
         StringBuffer postFilterName = new StringBuffer();
-        longopts[0] = new LongOpt("stdout", LongOpt.NO_ARGUMENT, null, 'c');
-        longopts[1] = new LongOpt("decompress", LongOpt.NO_ARGUMENT, null, 'd');
-        longopts[2] = new LongOpt("force", LongOpt.NO_ARGUMENT, null, 'f');
-        longopts[3] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-        longopts[4] = new LongOpt("keep", LongOpt.NO_ARGUMENT, null, 'k');
-        longopts[5] = new LongOpt("list", LongOpt.NO_ARGUMENT, null, 'l');
-        longopts[6] = new LongOpt("license", LongOpt.NO_ARGUMENT, null, 'L');
-        longopts[7] = new LongOpt("test", LongOpt.NO_ARGUMENT, null, 't');
-        longopts[8] = new LongOpt("verbose", LongOpt.NO_ARGUMENT, null, 'v');
-        longopts[9] = new LongOpt("version", LongOpt.NO_ARGUMENT, null, 'V');
-        longopts[10] = new LongOpt("debug", LongOpt.REQUIRED_ARGUMENT, debugLevelVal, 'D');
-        longopts[11] = new LongOpt("start", LongOpt.REQUIRED_ARGUMENT, startVal, 's');
-        longopts[12] = new LongOpt("size", LongOpt.REQUIRED_ARGUMENT, sizeVal, 'e');
-        longopts[13] = new LongOpt("Start", LongOpt.REQUIRED_ARGUMENT, startVal, 'S');
-        longopts[14] = new LongOpt("Size", LongOpt.REQUIRED_ARGUMENT, sizeVal, 'E');
-        longopts[15] = new LongOpt("pre", LongOpt.REQUIRED_ARGUMENT, preFilterName, 'p');
-        longopts[16] = new LongOpt("post", LongOpt.REQUIRED_ARGUMENT, postFilterName, 'P');
-        Getopt g = new Getopt("testprog", argv, "cdfhklLe:E:s:S:tvVD:p:P:", longopts);
+        longOpts[0] = new LongOpt("stdout", LongOpt.NO_ARGUMENT, null, 'c');
+        longOpts[1] = new LongOpt("decompress", LongOpt.NO_ARGUMENT, null, 'd');
+        longOpts[2] = new LongOpt("force", LongOpt.NO_ARGUMENT, null, 'f');
+        longOpts[3] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
+        longOpts[4] = new LongOpt("keep", LongOpt.NO_ARGUMENT, null, 'k');
+        longOpts[5] = new LongOpt("list", LongOpt.NO_ARGUMENT, null, 'l');
+        longOpts[6] = new LongOpt("license", LongOpt.NO_ARGUMENT, null, 'L');
+        longOpts[7] = new LongOpt("test", LongOpt.NO_ARGUMENT, null, 't');
+        longOpts[8] = new LongOpt("verbose", LongOpt.NO_ARGUMENT, null, 'v');
+        longOpts[9] = new LongOpt("version", LongOpt.NO_ARGUMENT, null, 'V');
+        longOpts[10] = new LongOpt("debug", LongOpt.REQUIRED_ARGUMENT, debugLevelVal, 'D');
+        longOpts[11] = new LongOpt("start", LongOpt.REQUIRED_ARGUMENT, startVal, 's');
+        longOpts[12] = new LongOpt("size", LongOpt.REQUIRED_ARGUMENT, sizeVal, 'e');
+        longOpts[13] = new LongOpt("Start", LongOpt.REQUIRED_ARGUMENT, startVal, 'S');
+        longOpts[14] = new LongOpt("Size", LongOpt.REQUIRED_ARGUMENT, sizeVal, 'E');
+        longOpts[15] = new LongOpt("pre", LongOpt.REQUIRED_ARGUMENT, preFilterName, 'p');
+        longOpts[16] = new LongOpt("post", LongOpt.REQUIRED_ARGUMENT, postFilterName, 'P');
+        longOpts[17] = new LongOpt("fast", LongOpt.NO_ARGUMENT, null, '1');
+        longOpts[18] = new LongOpt("best", LongOpt.NO_ARGUMENT, null, '9');
+        assert(longOpts.length == OPTS_LEN);
+        Getopt g = new Getopt("dictzip", argv, "cdfhklLe:E:s:S:tvVD:p:P:169", longOpts);
         g.setOpterr(false); // We'll do our own error handling
         //
         while ((c = g.getopt()) != -1) {
@@ -100,9 +106,18 @@ public class CommandLine {
                     arg = g.getOptarg();
                     System.out.println("I know this, but pretend I didn't");
                     System.out.println("We picked option "
-                            + longopts[g.getLongind()].getName()
+                            + longOpts[g.getLongind()].getName()
                             + " with value "
                             + ((arg != null) ? arg : "null"));
+                    break;
+                case '1':
+                    options.setLevel(CompressionLevel.BEST_SPEED);
+                    break;
+                case '6':
+                    options.setLevel(CompressionLevel.DEFAULT_COMPRESSION);
+                    break;
+                case '9':
+                    options.setLevel(CompressionLevel.BEST_COMPRESSION);
                     break;
                 case 'c':
                     options.setStdout(true);
