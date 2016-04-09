@@ -32,8 +32,6 @@ import java.util.zip.CRC32;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
-import static org.dict.zip.DictZipFileUtils.readUInt;
-
 
 /**
  * DictZipInputStream.
@@ -248,7 +246,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * Check gzip member trailer; CRC and length.
      * @throws IOException when CRC error or total length error.
      */
-    private void checkTrailer() throws IOException {
+    public void checkTrailer() throws IOException {
         InputStream in = this.in;
         int num = inf.getRemaining();
         if (num > 0) {
@@ -256,13 +254,13 @@ public class DictZipInputStream extends InflaterInputStream {
                     new ByteArrayInputStream(buf, len - num, num), in);
         }
         long val = crc.getValue();
-        long crcValue = readUInt(in);
+        long crcValue = DictZipFileUtils.readUInt(in);
         if (crcValue != val) {
             throw new IOException(MessageFormat
                     .format("Incorrect CRC: Computed CRC = %8x / From input %8x", val, crcValue));
         }
         long total = inf.getTotalOut();
-        long trailerTotal = readUInt(in);
+        long trailerTotal = DictZipFileUtils.readUInt(in);
         if (trailerTotal != total) {
             throw new IOException(MessageFormat
                     .format("False number of uncompressed bytes: Computed size =%d / From input %d",
@@ -279,8 +277,8 @@ public class DictZipInputStream extends InflaterInputStream {
             RandomAccessInputStream rain = (RandomAccessInputStream) in;
             compLength = rain.getLength();
             rain.seek(compLength - 8);
-            crcVal = readUInt(rain);
-            totalLength = readUInt(rain);
+            crcVal = DictZipFileUtils.readUInt(rain);
+            totalLength = DictZipFileUtils.readUInt(rain);
         } else {
             throw new IOException("Illegal type of InputStream.");
         }
