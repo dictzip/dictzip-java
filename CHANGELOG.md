@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [0.6.0] - 2016-4-10
 ### Add
 - gradle.properties.template
   You need to copy to gradle.properties and edit its configuration.
@@ -17,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - Delete external libraries. Now gradle will download it.
 - README: add build procedure, contribution and copyright.
 - Coding style checks by checkstyle 6.16.1
+- DictZip header information API through DictZipInputStream.
 
 ### Fixed
 - [#7] Fix DictZipInputStream.seek().Previous all releases are broken.
@@ -43,4 +46,5 @@ All notable changes to this project will be documented in this file.
 - Start project.
 
 [Unreleased]: https://github.com/miurahr/dictzip-java/compare/v0.5.0...HEAD
+[0.6.0]: https://github.com/miurahr/dictzip-java/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/miurahr/dictzip-java/compare/v0.0.2...v0.5.0
