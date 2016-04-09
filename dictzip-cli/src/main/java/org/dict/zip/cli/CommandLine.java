@@ -105,7 +105,7 @@ public class CommandLine {
                             + ((arg != null) ? arg : "null"));
                     break;
                 case 'c':
-                    options.setStdoutput(true);
+                    options.setStdout(true);
                     break;
                 case 'd':
                     options.setDecompress(true);

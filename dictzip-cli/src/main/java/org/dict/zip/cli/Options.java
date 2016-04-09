@@ -28,7 +28,7 @@ public class Options {
     private boolean force = false;
     private boolean keep = false;
     private boolean list = false;
-    private boolean stdoutput = false;
+    private boolean stdout = false;
     private boolean test = false;
     private boolean verbose = false;
     private boolean debugVerbose = false;
@@ -39,7 +39,7 @@ public class Options {
      * Whether -d option is spedified.
      * @return true if -d option is specified.
      */
-    public boolean isDecompress() {
+    boolean isDecompress() {
         return decompress;
     }
 
@@ -47,23 +47,23 @@ public class Options {
      * Set -d option.
      * @param decompress true if -d option is specified.
      */
-    public void setDecompress(final boolean decompress) {
+    void setDecompress(final boolean decompress) {
         this.decompress = decompress;
     }
 
     /**
-     * Whether -f/--force option is spedified.
-     * @return true if -f option is spefified.
+     * Whether -f/--force option is specified.
+     * @return true if -f option is specified.
      */
-    public boolean isForce() {
+    boolean isForce() {
         return force;
     }
 
     /**
      * Set -f/--force option.
-     * @param force true if -f option is spefified.
+     * @param force true if -f option is specified.
      */
-    public void setForce(final boolean force) {
+    void setForce(final boolean force) {
         this.force = force;
     }
 
@@ -71,7 +71,7 @@ public class Options {
      * Whether -k/--keep is specified or not.
      * @return true if -k is specified
      */
-    public boolean isKeep() {
+    boolean isKeep() {
         return keep;
     }
 
@@ -79,7 +79,7 @@ public class Options {
      * Set -k/--keep option.
      * @param keep true if -k is specified.
      */
-    public void setKeep(final boolean keep) {
+    void setKeep(final boolean keep) {
         this.keep = keep;
     }
 
@@ -87,7 +87,7 @@ public class Options {
      * Whether -l/--list option is specified.
      * @return true if -l specified.
      */
-    public boolean isList() {
+    boolean isList() {
         return list;
     }
 
@@ -95,7 +95,7 @@ public class Options {
      * Set -l option.
      * @param list true if -l option is specified.
      */
-    public void setList(final boolean list) {
+    void setList(final boolean list) {
         this.list = list;
     }
 
@@ -103,23 +103,23 @@ public class Options {
      * Whther -c option is specified.
      * @return true if -l option is specified.
      */
-    public boolean isStdoutput() {
-        return stdoutput;
+    boolean isStdout() {
+        return stdout;
     }
 
     /**
      * Set -c option.
-     * @param stdoutput true when -c option specified.
+     * @param stdout true when -c option specified.
      */
-    public void setStdoutput(final boolean stdoutput) {
-        this.stdoutput = stdoutput;
+    void setStdout(final boolean stdout) {
+        this.stdout = stdout;
     }
 
     /**
      * Whether -t/--test option specified.
      * @return true if -t specified.
      */
-    public boolean isTest() {
+    boolean isTest() {
         return test;
     }
 
@@ -127,7 +127,7 @@ public class Options {
      * Set -t option.
      * @param test true if -t specified.
      */
-    public void setTest(final boolean test) {
+    void setTest(final boolean test) {
         this.test = test;
     }
 
@@ -135,7 +135,7 @@ public class Options {
      * Whether -v/--verbose option specified.
      * @return true if -v specified.
      */
-    public boolean isVerbose() {
+    boolean isVerbose() {
         return verbose;
     }
 
@@ -143,7 +143,7 @@ public class Options {
      * Set -v option.
      * @param verbose true if -v option specified.
      */
-    public void setVerbose(final boolean verbose) {
+    void setVerbose(final boolean verbose) {
         this.verbose = verbose;
     }
 
@@ -151,7 +151,7 @@ public class Options {
      * Whether -Dverbose/--debug=verbose specified.
      * @return true if -Dverbose specified.
      */
-    public boolean isDebugVerbose() {
+    boolean isDebugVerbose() {
         return debugVerbose;
     }
 
@@ -159,7 +159,7 @@ public class Options {
      * Set -Dverbose/--debug=verbose specified.
      * @param debugVerbose true if specified.
      */
-    public void setDebugVerbose(final boolean debugVerbose) {
+    void setDebugVerbose(final boolean debugVerbose) {
         this.debugVerbose = debugVerbose;
     }
 
@@ -167,7 +167,7 @@ public class Options {
      * Get value of -s/--start option.
      * @return Value of -s/--start option. If not specified, return 0.
      */
-    public long getStart() {
+    long getStart() {
         return start;
     }
 
@@ -175,7 +175,7 @@ public class Options {
      * Set value of start option.
      * @param start value of start option.
      */
-    public void setStart(final long start) {
+    void setStart(final long start) {
         this.start = start;
     }
 
@@ -183,7 +183,7 @@ public class Options {
      * Get value of -S/--size option.
      * @return value of size option.
      */
-    public int getSize() {
+    int getSize() {
         return size;
     }
 
@@ -191,7 +191,7 @@ public class Options {
      * Set value of size option.
      * @param size value of size option.
      */
-    public void setSize(final int size) {
+    void setSize(final int size) {
         this.size = size;
     }
 }
