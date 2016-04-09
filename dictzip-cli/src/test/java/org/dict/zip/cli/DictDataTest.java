@@ -26,6 +26,7 @@ import java.io.File;
 import java.net.URL;
 
 import org.dict.zip.DictZipHeader;
+import org.dict.zip.DictZipFileUtils;
 
 import org.testng.annotations.Test;
 
@@ -61,7 +62,7 @@ public class DictDataTest {
         instance.doZip(DictZipHeader.CompressionLevel.DEFAULT_COMPRESSION);
         File resultFile = new File(testFile + ".dz");
         File expectFile = new File(this.getClass().getResource("/test_dozip.dict.dz.expected").getFile());
-        assertTrue(StaticUtils.isFileBinaryEquals(resultFile, expectFile, 10, 512));
+        assertTrue(DictZipFileUtils.isFileBinaryEquals(resultFile, expectFile, 10, 512));
         resultFile.deleteOnExit();
     }
 
@@ -79,7 +80,7 @@ public class DictDataTest {
         File resultFile = new File(zippedFile);
         File expectFile = new File(this.getClass().getResource("/test_dozip.dict.dz.expected.best")
                  .getFile());
-        assertTrue(StaticUtils.isFileBinaryEquals(resultFile, expectFile, 10, 512));
+        assertTrue(DictZipFileUtils.isFileBinaryEquals(resultFile, expectFile, 10, 512));
         resultFile.deleteOnExit();
     }
 
@@ -97,7 +98,7 @@ public class DictDataTest {
         File resultFile = new File(zippedFile);
         File expectFile = new File(this.getClass().getResource("/test_dozip.dict.dz.expected.fast")
                  .getFile());
-        assertTrue(StaticUtils.isFileBinaryEquals(resultFile, expectFile, 10, 512));
+        assertTrue(DictZipFileUtils.isFileBinaryEquals(resultFile, expectFile, 10, 512));
         resultFile.deleteOnExit();
     }
 
@@ -118,7 +119,7 @@ public class DictDataTest {
         URL resultUrl = this.getClass().getResource("/test.dict");
         File resultFile = new File(resultUrl.getFile());
         URL expectedUrl = this.getClass().getResource("/test.dict.expected");
-        assertTrue(StaticUtils.isFileBinaryEquals(resultFile, new File(expectedUrl.getFile())));
+        assertTrue(DictZipFileUtils.isFileBinaryEquals(resultFile, new File(expectedUrl.getFile())));
         resultFile.deleteOnExit();
     }
 }

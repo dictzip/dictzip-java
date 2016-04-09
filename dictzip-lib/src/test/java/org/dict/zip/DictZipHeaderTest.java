@@ -53,10 +53,49 @@ public class DictZipHeaderTest {
         System.out.println("readHeader");
         String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
-        assertEquals(toStringExpResult(), result.toString());
+        assertEquals(result.toString(), toStringExpResult());
     }
 
     /**
+     * Test of readHeader method, of class DictZipHeader.
+     *
+     * @throws java.lang.Exception if file I/O error occurred.
+     */
+    @Test
+    public void testReadHeader_type() throws Exception {
+        System.out.println("readHeader");
+        String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
+        DictZipHeader result = DictZipHeader.readHeader(dataFile);
+        assertEquals(result.getType(), "dzip");
+    }
+
+    /**
+     * Test of readHeader method, of class DictZipHeader.
+     *
+     * @throws java.lang.Exception if file I/O error occurred.
+     */
+    @Test
+    public void testReadHeader_filename() throws Exception {
+        System.out.println("readHeader");
+        String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
+        DictZipHeader result = DictZipHeader.readHeader(dataFile);
+        assertEquals(result.getFilename(), "results.dict");
+    }
+
+    /**
+     * Test of readHeader method, of class DictZipHeader.
+     *
+     * @throws java.lang.Exception if file I/O error occurred.
+     */
+    @Test
+    public void testReadHeader_chunkCount() throws Exception {
+        System.out.println("readHeader");
+        String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
+        DictZipHeader result = DictZipHeader.readHeader(dataFile);
+        assertEquals(result.getChunkCount(), 7);
+    }
+
+   /**
      * Test of readHeader method, of class DictZipHeader.
      *
      * @throws java.lang.Exception if file I/O error occurred.
@@ -185,7 +224,7 @@ public class DictZipHeaderTest {
         DictZipHeader.writeHeader(header, outFile);
         outFile.close();
         String expectedHeader = this.getClass().getResource("/test.header.dz").getFile();
-        assertTrue(TestUtils.isFileBinaryEquals(testFile, new File(expectedHeader), 6, 46));
+        assertTrue(DictZipFileUtils.isFileBinaryEquals(testFile, new File(expectedHeader), 6, 46));
         testFile.deleteOnExit();
     }
 }

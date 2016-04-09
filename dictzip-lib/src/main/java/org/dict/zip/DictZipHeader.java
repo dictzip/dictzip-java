@@ -21,7 +21,6 @@
 
 package org.dict.zip;
 
-import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -192,23 +191,23 @@ public class DictZipHeader {
         crc.reset();
 
         // Check header magic
-        if (readUShort(in) != GZIP_MAGIC) {
+        if (DictZipFileUtils.readUShort(in) != GZIP_MAGIC) {
             throw new IOException("Not in GZIP format");
         }
         // Check compression method
-        if (readUByte(in) != Deflater.DEFLATED) {
+        if (DictZipFileUtils.readUByte(in) != Deflater.DEFLATED) {
             throw new IOException("Unsupported compression method");
         }
         // Read flags
-        int flg = readUByte(in);
+        int flg = DictZipFileUtils.readUByte(in);
         for (int i = 0; i < GZIPFLAG_SIZE; i++) {
             int testbit = 1 << i;
             if ((flg & testbit) == testbit) {
                 h.gzipFlag.set(i);
             }
         }
-        h.mtime = readUInt(in);
-        int compFlg = readUByte(in);
+        h.mtime = DictZipFileUtils.readUInt(in);
+        int compFlg = DictZipFileUtils.readUByte(in);
         if (compFlg == 0x02) {
             h.extraFlag = CompressionLevel.BEST_COMPRESSION;
         } else if (compFlg == 0x04) {
@@ -218,7 +217,7 @@ public class DictZipHeader {
         } else {
             throw new IOException("Corrupt GZIP header");
         }
-        int hos = readUByte(in);
+        int hos = DictZipFileUtils.readUByte(in);
         h.headerOS = OperatingSystem.UNKNOWN;
         for (OperatingSystem os: OperatingSystem.values()) {
             if (hos == os.value) {
@@ -229,24 +228,24 @@ public class DictZipHeader {
         h.headerLength = DICTZIP_HEADER_LEN;
         // Optional extra field
         if (h.gzipFlag.get(FEXTRA)) {
-            h.extraLength = readUShort(in);
+            h.extraLength = DictZipFileUtils.readUShort(in);
             h.headerLength += h.extraLength + 2;
-            h.subfieldID1 = (byte) readUByte(in);
-            h.subfieldID2 = (byte) readUByte(in);
-            h.subfieldLength = readUShort(in); // 2 bytes subfield length
-            h.subfieldVersion = readUShort(in); // 2 bytes subfield version
-            h.chunkLength = readUShort(in); // 2 bytes chunk length
-            h.chunkCount = readUShort(in); // 2 bytes chunk count
+            h.subfieldID1 = (byte) DictZipFileUtils.readUByte(in);
+            h.subfieldID2 = (byte) DictZipFileUtils.readUByte(in);
+            h.subfieldLength = DictZipFileUtils.readUShort(in); // 2 bytes subfield length
+            h.subfieldVersion = DictZipFileUtils.readUShort(in); // 2 bytes subfield version
+            h.chunkLength = DictZipFileUtils.readUShort(in); // 2 bytes chunk length
+            h.chunkCount = DictZipFileUtils.readUShort(in); // 2 bytes chunk count
             h.chunks = new int[h.chunkCount];
             for (int i = 0; i < h.chunkCount; i++) {
-                h.chunks[i] = readUShort(in);
+                h.chunks[i] = DictZipFileUtils.readUShort(in);
             }
         }
         // Skip optional file name
         if (h.gzipFlag.get(FNAME)) {
             StringBuilder sb = new StringBuilder();
             int ubyte;
-            while ((ubyte = readUByte(in)) != 0) {
+            while ((ubyte = DictZipFileUtils.readUByte(in)) != 0) {
                 sb.append((char) (ubyte & 0xff));
                 h.headerLength++;
             }
@@ -255,7 +254,7 @@ public class DictZipHeader {
         }
         // Skip optional file comment
         if (h.gzipFlag.get(FCOMMENT)) {
-            while (readUByte(in) != 0) {
+            while (DictZipFileUtils.readUByte(in) != 0) {
                 h.headerLength++;
             }
             h.headerLength++;
@@ -263,51 +262,12 @@ public class DictZipHeader {
         // Check optional header CRC
         if (h.gzipFlag.get(FHCRC)) {
             int v = (int) crc.getValue() & 0xffff;
-            if (readUShort(in) != v) {
+            if (DictZipFileUtils.readUShort(in) != v) {
                 throw new IOException("Corrupt GZIP header");
             }
             h.headerLength += 2;
         }
         h.initOffsets();
-    }
-
-    /**
-     * Reads unsigned byte.
-     *
-     * @param in input stream to read.
-     * @return unsigned byte value.
-     * @throws java.io.IOException when error in file reading.
-     */
-    public static int readUByte(final InputStream in) throws IOException {
-        int b = in.read();
-        if (b == -1) {
-            throw new EOFException();
-        }
-        return b;
-    }
-
-    /**
-     * Reads unsigned integer in Intel byte order.
-     *
-     * @param in input stream to read.
-     * @return unsigned integer value.
-     * @throws java.io.IOException when error in file reading.
-     */
-    public static long readUInt(final InputStream in) throws IOException {
-        long s = readUShort(in);
-        return ((long) readUShort(in) << 16) | s;
-    }
-
-    /**
-     * Reads unsigned short in Intel byte order.
-     *
-     * @param in input stream to read.
-     * @return unsigned short value.
-     * @throws java.io.IOException when error in file reading.
-     */
-    public static int readUShort(final InputStream in) throws IOException {
-        int b = readUByte(in);
-        return ((int) readUByte(in) << 8) | b;
     }
 
     @Override
@@ -352,7 +312,7 @@ public class DictZipHeader {
             headerCrc.update(bb.array());
         }
         for (int i = 0; i < h.chunkCount; i++) {
-            writeShort(out, h.chunks[i]);
+            DictZipFileUtils.writeShort(out, h.chunks[i]);
         }
         if (h.gzipFlag.get(FHCRC)) {
             for (int i = 0; i < h.chunkCount; i++) {
@@ -378,32 +338,8 @@ public class DictZipHeader {
             out.write(0);
         }
         if (h.gzipFlag.get(FHCRC)) {
-            writeShort(out, (int) headerCrc.getValue());
+            DictZipFileUtils.writeShort(out, (int) headerCrc.getValue());
         }
-    }
-
-    /**
-     * Writes integer in Intel byte order.
-     *
-     * @param out output stream to write.
-     * @param i integer to write.
-     * @throws java.io.IOException when error in file output.
-     */
-    public static void writeInt(final OutputStream out, final int i) throws IOException {
-        writeShort(out, i & 0xffff);
-        writeShort(out, (i >> 16) & 0xffff);
-    }
-
-    /**
-     * Writes short integer in Intel byte order.
-     *
-     * @param out output stream to write.
-     * @param s short integer to write.
-     * @throws java.io.IOException when error in file output.
-     */
-    public static void writeShort(final OutputStream out, final int s) throws IOException {
-        out.write(s & 0xff);
-        out.write((s >> 8) & 0xff);
     }
 
     /**

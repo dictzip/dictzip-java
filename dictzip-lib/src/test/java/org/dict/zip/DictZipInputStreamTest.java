@@ -146,7 +146,7 @@ public class DictZipInputStreamTest {
         sb.append("\nChunk length = 58315");
         sb.append("\nNumber of chunks = 7");
         String expResult = sb.toString();
-        assertEquals(expResult, header.toString());
+        assertEquals(header.toString(), expResult);
     }
 
 }

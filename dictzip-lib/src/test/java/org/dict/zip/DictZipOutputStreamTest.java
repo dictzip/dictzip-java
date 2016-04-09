@@ -54,7 +54,7 @@ public class DictZipOutputStreamTest {
             } catch (IOException e) {
                 r = 1;
             }
-            assertEquals(1, r, "DictZip instance can still be used after close is called");
+            assertEquals(r, 1, "DictZip instance can still be used after close is called");
         } catch (IOException e) {
             fail("an IO error occurred while trying to find the output file or creating DictZip constructor");
         }
@@ -129,7 +129,7 @@ public class DictZipOutputStreamTest {
             } catch (Exception ex) {
                 r = 1;
             }
-            assertEquals(1, r, "DictZip instance can still be used after finish is called");
+            assertEquals(r, 1, "DictZip instance can still be used after finish is called");
         } catch (Exception ex) {
             fail("an IO error occured while trying to find the output file or creating DictZip constructor");
         }

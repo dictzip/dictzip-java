@@ -41,7 +41,7 @@ public class RandomAccessInputStreamTest {
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         int expResult = 136856;
         int result = instance.available();
-        assertEquals(expResult, result);
+        assertEquals(result, expResult);
     }
 
     /**
@@ -63,7 +63,7 @@ public class RandomAccessInputStreamTest {
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         int expResult = 136856;
         int result = instance.getLength();
-        assertEquals(expResult, result);
+        assertEquals(result, expResult);
     }
 
     /**
@@ -75,7 +75,7 @@ public class RandomAccessInputStreamTest {
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         int expResult = 0;
         int result = instance.getPos();
-        assertEquals(expResult, result);
+        assertEquals(result, expResult);
     }
 
     /**
@@ -118,7 +118,7 @@ public class RandomAccessInputStreamTest {
             RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
             int expResult = 31;
             int result = instance.read();
-            assertEquals(expResult, result);
+            assertEquals(result, expResult);
         } catch (Exception ex) {
             fail("get exception.");
         }
@@ -136,7 +136,7 @@ public class RandomAccessInputStreamTest {
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         int expResult = 256;
         int result = instance.read(b, off, len);
-        assertEquals(expResult, result);
+        assertEquals(result, expResult);
     }
 
     /**
@@ -181,7 +181,7 @@ public class RandomAccessInputStreamTest {
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         long expResult = 100L;
         long result = instance.skip(n);
-        assertEquals(expResult, result);
+        assertEquals(result, expResult);
     }
 
 }

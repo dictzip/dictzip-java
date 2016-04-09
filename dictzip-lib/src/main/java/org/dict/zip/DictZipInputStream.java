@@ -32,6 +32,8 @@ import java.util.zip.CRC32;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+import static org.dict.zip.DictZipFileUtils.readUInt;
+
 
 /**
  * DictZipInputStream.
@@ -277,14 +279,10 @@ public class DictZipInputStream extends InflaterInputStream {
             RandomAccessInputStream rain = (RandomAccessInputStream) in;
             compLength = rain.getLength();
             rain.seek(compLength - 8);
-        crcVal = readUInt(rain);
-        totalLength = readUInt(rain);
+            crcVal = readUInt(rain);
+            totalLength = readUInt(rain);
         } else {
             throw new IOException("Illegal type of InputStream.");
         }
-    }
-
-    private long readUInt(final InputStream in) throws IOException {
-        return DictZipHeader.readUInt(in);
     }
 }

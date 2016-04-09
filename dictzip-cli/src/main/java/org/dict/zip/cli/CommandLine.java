@@ -42,7 +42,7 @@ public class CommandLine {
     /**
      * Target files for zip or unzip.
      */
-    protected final List<String> targetFiles = new ArrayList<String>();
+    protected final List<String> targetFiles = new ArrayList<>();
 
     private static String getString(final String key) {
         return AppConsts.RESOURCE_BUNDLE.getString(key);
