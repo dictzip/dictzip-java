@@ -443,8 +443,15 @@ public class DictZipHeader {
      * @param flag flag index
      * @param val flag value true or false.
      */
-    public void setGzipFlag(final int flag, final boolean val) {
+    private void setGzipFlag(final int flag, final boolean val) {
         gzipFlag.set(flag, val);
+    }
+
+    /**
+     * Set Header CRC flag.
+     */
+    public void setHeaderCRC(boolean val) {
+        setGzipFlag(FHCRC, val);
     }
 
     /**

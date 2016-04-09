@@ -42,7 +42,7 @@ public class RandomAccessOutputStream extends OutputStream {
     }
 
     /**
-     * Construct RamdonAccessOutputStream from filename.
+     * Construct RandomAccessOutputStream from filename.
      *
      * @param file to write with random access.
      * @param mode open mode.
