@@ -65,6 +65,7 @@ class StaticUtils {
                bufSecondInput.skip(off);
 
                long readLengthTotal = 0;
+               result = true;
                while (readLengthTotal < len) {
                   int readLength = COMP_SIZE;
                   if (len - readLengthTotal < (long) COMP_SIZE) {
@@ -72,6 +73,10 @@ class StaticUtils {
                   }
                   int lenFirst = bufFirstInput.read(firstBytes, 0, readLength);
                   int lenSecond = bufSecondInput.read(secondBytes, 0, readLength);
+                  if (lenFirst != lenSecond) {
+                     result = false;
+                     break;
+                  }
                   if ((lenFirst < 0) && (lenSecond < 0)) {
                      result = true;
                      break;
@@ -80,9 +85,11 @@ class StaticUtils {
                      byte[] a = Arrays.copyOfRange(firstBytes, 0, lenFirst);
                      byte[] b = Arrays.copyOfRange(secondBytes, 0, lenSecond);
                      if (!Arrays.equals(a, b)) {
+                        result = false;
                         break;
                      }
                   } else if (!Arrays.equals(firstBytes, secondBytes)) {
+                     result = false;
                      break;
                   }
                }
