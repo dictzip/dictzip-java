@@ -399,7 +399,7 @@ public class DictZipHeader {
     }
 
     /**
-     *　Return zip type, whether gzip or dzip.
+     * Return zip type, whether gzip or dzip.
      * @return type name.
      */
     public final String getType() {
