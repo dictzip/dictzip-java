@@ -6,23 +6,23 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-
- /**
+/**
  * Created by Hiroshi Miura on 16/04/09.
- * @author Hiroshi Miura
  */
-public class TestUtils {
-  /**
-    * Compare binary files. Both files must be files (not directories) and exist.
-    *
-    * @param first  - first file
-    * @param second - second file
-    * @return boolean - true if files are binery equal
-    * @throws IOException - error in function
-    */
-   static boolean isFileBinaryEquals(File first, File second) throws IOException {
-      return isFileBinaryEquals(first, second, 0, first.length());
-   }
+class DictZipFileUtils {
+    private DictZipFileUtils() {}
+
+    /**
+      * Compare binary files. Both files must be files (not directories) and exist.
+      *
+      * @param first  - first file
+      * @param second - second file
+      * @return boolean - true if files are binery equal
+      * @throws IOException - error in function
+      */
+     static boolean isFileBinaryEquals(File first, File second) throws IOException {
+        return isFileBinaryEquals(first, second, 0, first.length());
+     }
 
     /**
     * Compare binary files (for test). Both files must be files (not directories) and exist.
@@ -113,10 +113,4 @@ public class TestUtils {
 
       return result;
    }
-
-   /**
-    * TestUtils is static utility class.
-    * It should not be instantiated.
-    */
-   private TestUtils() {}
 }
