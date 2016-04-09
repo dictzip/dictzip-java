@@ -20,40 +20,21 @@
 
 package org.dict.zip.cli;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
 
+import org.dict.zip.DictZipHeader;
+
 import org.testng.annotations.Test;
 
-import org.apache.commons.io.FileUtils;
 
 /**
  * DictData test.
  * @author Hiroshi Miura
  */
 public class DictDataTest {
-    
-    public DictDataTest() {
-    }
-
-    public static void compareBinary(File f1, File f2) throws Exception {
-        ByteArrayOutputStream d1 = new ByteArrayOutputStream();
-        FileUtils.copyFile(f1, d1);
-
-        ByteArrayOutputStream d2 = new ByteArrayOutputStream();
-        FileUtils.copyFile(f2, d2);
-
-        assertEquals(d1.size(), d2.size());
-        byte[] a1 = d1.toByteArray();
-        byte[] a2 = d2.toByteArray();
-        for (int i = 0; i < d1.size(); i++) {
-          assertEquals(a1[i], a2[i]);
-        }
-    }
-
     /**
      * Test of printHeader method, of class DictData
      * @throws java.lang.Exception if file operation failed.
@@ -74,12 +55,49 @@ public class DictDataTest {
     @Test
     public void testDoZip() throws Exception {
         System.out.println("doZip");
-        String testFile = this.getClass().getResource("/test2.dict").getFile();
+        String testFile = this.getClass().getResource("/test_dozip.dict").getFile();
         String zippedFile = DictZipUtils.compressedFileName(testFile);
         DictData instance = new DictData(testFile, zippedFile);
-        instance.doZip();
+        instance.doZip(DictZipHeader.CompressionLevel.DEFAULT_COMPRESSION);
         File resultFile = new File(testFile + ".dz");
-        //compareBinary(resultFile, new File("test/data/test2.dict.dz.expected"));
+        File expectFile = new File(this.getClass().getResource("/test_dozip.dict.dz.expected").getFile());
+        assertTrue(StaticUtils.isFileBinaryEquals(resultFile, expectFile, 10, 512));
+        resultFile.deleteOnExit();
+    }
+
+    /**
+     * Test of doUnzip method, of class DictData.
+     * @throws java.lang.Exception if file operation failed.
+     */
+    @Test
+    public void testDoZip_best() throws Exception {
+        System.out.println("doZip_best");
+        String testFile = this.getClass().getResource("/test_dozip.dict").getFile();
+        String zippedFile = testFile + "_best.dz";
+        DictData instance = new DictData(testFile, zippedFile);
+        instance.doZip(DictZipHeader.CompressionLevel.BEST_COMPRESSION);
+        File resultFile = new File(zippedFile);
+        File expectFile = new File(this.getClass().getResource("/test_dozip.dict.dz.expected.best")
+                 .getFile());
+        assertTrue(StaticUtils.isFileBinaryEquals(resultFile, expectFile, 10, 512));
+        resultFile.deleteOnExit();
+    }
+
+    /**
+     * Test of doUnzip method, of class DictData.
+     * @throws java.lang.Exception if file operation failed.
+     */
+    @Test
+    public void testDoZip_fast() throws Exception {
+        System.out.println("doZip_fast");
+        String testFile = this.getClass().getResource("/test_dozip.dict").getFile();
+        String zippedFile = testFile + "_fast.dz";
+        DictData instance = new DictData(testFile, zippedFile);
+        instance.doZip(DictZipHeader.CompressionLevel.BEST_SPEED);
+        File resultFile = new File(zippedFile);
+        File expectFile = new File(this.getClass().getResource("/test_dozip.dict.dz.expected.fast")
+                 .getFile());
+        assertTrue(StaticUtils.isFileBinaryEquals(resultFile, expectFile, 10, 512));
         resultFile.deleteOnExit();
     }
 
@@ -100,7 +118,7 @@ public class DictDataTest {
         URL resultUrl = this.getClass().getResource("/test.dict");
         File resultFile = new File(resultUrl.getFile());
         URL expectedUrl = this.getClass().getResource("/test.dict.expected");
-        compareBinary(resultFile, new File(expectedUrl.getFile()));
+        assertTrue(StaticUtils.isFileBinaryEquals(resultFile, new File(expectedUrl.getFile())));
         resultFile.deleteOnExit();
     }
 }

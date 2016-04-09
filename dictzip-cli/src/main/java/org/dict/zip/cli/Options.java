@@ -18,6 +18,8 @@
 
 package org.dict.zip.cli;
 
+import org.dict.zip.DictZipHeader.CompressionLevel;
+
 /**
  *
  * @author Hiroshi Miura
@@ -34,6 +36,8 @@ public class Options {
     private boolean debugVerbose = false;
     private long start = 0;
     private int size = 0;
+    private CompressionLevel level = CompressionLevel.DEFAULT_COMPRESSION;
+
 
     /**
      * Whether -d option is spedified.
@@ -193,5 +197,13 @@ public class Options {
      */
     public void setSize(final int size) {
         this.size = size;
+    }
+
+    CompressionLevel getLevel() {
+        return level;
+    }
+
+    void setLevel(CompressionLevel level) {
+        this.level = level;
     }
 }

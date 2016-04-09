@@ -22,6 +22,8 @@
 
 package org.dict.zip.cli;
 
+import org.dict.zip.DictZipHeader.CompressionLevel;
+
 import java.io.File;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -66,8 +68,9 @@ public final class Main {
                     dict.doUnzip(start, size);
                 } else { // compression.
                     String zippedFile = DictZipUtils.compressedFileName(fName);
+                    CompressionLevel level = commandLine.options.getLevel();
                     dict = new DictData(fName, zippedFile);
-                    dict.doZip();
+                    dict.doZip(level);
                 }
                 if (!commandLine.options.isKeep()) {
                     File targetFile = new File(fName);

@@ -33,6 +33,7 @@ import java.util.zip.Deflater;
 
 
 import org.dict.zip.DictZipHeader;
+import org.dict.zip.DictZipHeader.CompressionLevel;
 import org.dict.zip.DictZipInputStream;
 import org.dict.zip.DictZipOutputStream;
 import org.dict.zip.RandomAccessInputStream;
@@ -95,14 +96,28 @@ public class DictData {
     /**
      * Do compression.
      * @throws IOException if file I/O error.
+     * @param level
      */
-    public void doZip() throws IOException {
+    public void doZip(CompressionLevel level) throws IOException {
+        int defLevel;
         byte[] buf = new byte[BUF_LEN];
         File originalFile = new File(originalFileName);
+        switch (level) {
+            case BEST_COMPRESSION:
+                defLevel = Deflater.BEST_COMPRESSION;
+                break;
+            case BEST_SPEED:
+                defLevel = Deflater.BEST_SPEED;
+                break;
+            case DEFAULT_COMPRESSION:
+            default:
+                defLevel = Deflater.DEFAULT_COMPRESSION;
+                break;
+        }
         try (FileInputStream ins = new FileInputStream(originalFile);
              DictZipOutputStream dout = new DictZipOutputStream(
                     new RandomAccessOutputStream(new RandomAccessFile(compressedFileName, "rws")),
-                     BUF_LEN, originalFile.length(), Deflater.BEST_COMPRESSION)) {
+                     BUF_LEN, originalFile.length(), defLevel)) {
             int len;
             while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
                 dout.write(buf, 0, len);
