@@ -55,7 +55,6 @@ public class DictZipInputStream extends InflaterInputStream {
     private long totalLength = 0;
     private long compLength = 0;
 
-    private int bufferSize;
     private int offset = 0;
 
     /**
@@ -83,7 +82,6 @@ public class DictZipInputStream extends InflaterInputStream {
     public DictZipInputStream(final RandomAccessInputStream in, final int size) throws IOException {
         super(in, new Inflater(true), size);
         header = readHeader();
-        bufferSize = size;
     }
 
     /**
@@ -116,7 +114,7 @@ public class DictZipInputStream extends InflaterInputStream {
         }
         if (buf == null) {
             throw new NullPointerException();
-        } else if (off < 0 || size < 0 || size > buf.length - off || off >= buf.length ) {
+        } else if (off < 0 || size < 0 || size > buf.length - off || off >= buf.length) {
             throw new IndexOutOfBoundsException();
         } else if (size == 0) {
             return 0;
