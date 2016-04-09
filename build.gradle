@@ -49,6 +49,5 @@ project(':dictzip-cli') {
     compile project(':dictzip-lib'),
        'commons-codec:commons-codec:1.10',
        'gnu.getopt:java-getopt:1.0.13'
-    testCompile 'commons-io:commons-io:2.4'
   }
 }
