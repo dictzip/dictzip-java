@@ -10,7 +10,7 @@ import java.util.Arrays;
  * Created by Hiroshi Miura on 16/04/09.
  * @author Hiroshi Miura
  */
-public class StaticUtils {
+class StaticUtils {
    /**
     * Compare binary files. Both files must be files (not directories) and exist.
     *
@@ -19,7 +19,7 @@ public class StaticUtils {
     * @return boolean - true if files are binery equal
     * @throws IOException - error in function
     */
-   public static boolean isFileBinaryEquals(File first, File second) throws IOException {
+   static boolean isFileBinaryEquals(File first, File second) throws IOException {
       return isFileBinaryEquals(first, second, 0, first.length());
    }
 
