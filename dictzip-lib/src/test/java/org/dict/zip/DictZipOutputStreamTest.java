@@ -44,6 +44,7 @@ public class DictZipOutputStreamTest {
         byte byteArray[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         try {
             File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+            testOutFile.deleteOnExit();
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
             TestDictZipOutputStream outDictZip = new TestDictZipOutputStream(outFile, byteArray.length);
@@ -68,6 +69,7 @@ public class DictZipOutputStreamTest {
         System.out.println("deflate");
         byte byteArray[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+        testOutFile.deleteOnExit();
         RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
         TestDictZipOutputStream instance = new TestDictZipOutputStream(outFile, byteArray.length);
@@ -84,7 +86,8 @@ public class DictZipOutputStreamTest {
         int off = 0;
         int len = 0;
         File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
-            RandomAccessOutputStream outFile = new RandomAccessOutputStream(
+        testOutFile.deleteOnExit();
+        RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
         TestDictZipOutputStream instance = new TestDictZipOutputStream(outFile, 512, 100);
         instance.write(b, off, len);
@@ -100,6 +103,7 @@ public class DictZipOutputStreamTest {
         TestDictZipOutputStream instance;
         try {
             File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+            testOutFile.deleteOnExit();
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);
@@ -119,6 +123,7 @@ public class DictZipOutputStreamTest {
         TestDictZipOutputStream instance = null;
         try {
             File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+            testOutFile.deleteOnExit();
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);
@@ -135,6 +140,7 @@ public class DictZipOutputStreamTest {
         }
         try {
             File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
+            testOutFile.deleteOnExit();
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);

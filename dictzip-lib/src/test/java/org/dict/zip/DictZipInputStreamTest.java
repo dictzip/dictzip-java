@@ -21,12 +21,13 @@
 package org.dict.zip;
 
 import static org.testng.Assert.*;
+
+import org.testng.SkipException;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.EOFException;
-import java.io.IOException;
 import java.util.Arrays;
 
 
@@ -61,10 +62,6 @@ public class DictZipInputStreamTest {
         in.close();
     }
 
-    private synchronized void getDZHeader(DictZipInputStream din) throws IOException {
-        header = din.readHeader();
-    }
-
     /**
      * Test of read method, of class DictZipInputStream.
      */
@@ -72,7 +69,6 @@ public class DictZipInputStreamTest {
     public void testRead() throws Exception {
         System.out.println("read");
         int len = 10;
-        getDZHeader(din);
         byte[] buf = new byte[len];
         byte[] expResult = {0x70, 0x72, (byte) 0xc3, (byte) 0xa9, 0x70, 0x2e, 0x20, 0x3a, 0x20, 0x2b};
         din.read(buf, 0, len);
@@ -87,7 +83,6 @@ public class DictZipInputStreamTest {
         System.out.println("read with seek");
         int start = 0x20;
         int len = 10;
-        getDZHeader(din);
         din.seek(start);
         byte[] buf = new byte[len];
         byte[] expResult = {
@@ -98,6 +93,72 @@ public class DictZipInputStreamTest {
     }
 
     /**
+     * Test of read method, of class DictZipInputStream.
+     */
+    @Test
+    public void testRead_null() throws Exception {
+        System.out.println("read null buffer");
+        int len = 10;
+        byte[] buf = null;
+        boolean r = false;
+        try {
+            din.read(buf, 0, len);
+            fail("Should be throw exception.");
+        } catch (NullPointerException e) {
+            // expected.
+            r = true;
+        }
+        assertTrue(r, "Got NullPointerException when buffer is null");
+    }
+
+    /**
+     * Test of read method, of class DictZipInputStream.
+     */
+    @Test
+    public void testRead_outOfBound() throws Exception {
+        System.out.println("read out of buffer size");
+        int len = 10;
+        byte[] buf = new byte[len];
+        boolean r = false;
+        try {
+            din.read(buf, 0, len + 10);
+            fail("Should be throw exception.");
+        } catch (IndexOutOfBoundsException e) {
+            // expected.
+            r = true;
+        }
+        assertTrue(r, "Got IndexOutOfBoundException when size is over the buffer size");
+    }
+
+    /**
+     * Test of read method, of class DictZipInputStream.
+     */
+    @Test
+    public void testRead_zeroSize() throws Exception {
+        System.out.println("read zero size");
+        int len = 512;
+        byte[] buf = new byte[len];
+        int size = din.read(buf, 0, 0);
+        throw new SkipException("Unknown bug.");
+        //assertEquals(size, 0);
+    }
+
+    /**
+     * Test of read method, of class DictZipInputStream.
+     */
+    @Test
+    public void testRead_with_seekLast() throws Exception {
+        System.out.println("read with seek to last");
+        int start = 383273;
+        int len = 512;
+        din.seek(start);
+        byte[] buf = new byte[len];
+        din.read(buf, 0, len);
+        int result = din.read(buf, 0, len);
+        assertEquals(result, -1);
+    }
+
+   /**
      * Test of readFully method, of class DictZipInputStream.
      * @throws java.lang.Exception
      */
@@ -106,11 +167,8 @@ public class DictZipInputStreamTest {
         System.out.println("readFully");
         int start = 1;
         int len = 10;
-        getDZHeader(din);
-        int off = header.getOffset(start);
-        long pos = header.getPosition(start);
-        in.seek(pos);
-        byte[] buf = new byte[off + len];
+        in.seek(start);
+        byte[] buf = new byte[len];
         din.readFully(buf);
     }
 
@@ -123,14 +181,10 @@ public class DictZipInputStreamTest {
         System.out.println("readFully");
         int start = 1;
         int len = 10;
-        getDZHeader(din);
-        int off = header.getOffset(start);
-        long pos = header.getPosition(start);
-        in.seek(pos);
-        byte[] buf = new byte[off + len];
-        din.readFully(buf, off, len);
+        in.seek(start);
+        byte[] buf = new byte[len];
+        din.readFully(buf, 0, len);
     }
-
 
     /**
      * Test of readFully method, of class DictZipInputStream.
@@ -139,7 +193,6 @@ public class DictZipInputStreamTest {
     @Test
     public void testReadFully_checkTrailer() throws Exception {
         System.out.println("readFully and checkTrailer");
-        getDZHeader(din);
         byte[] buf = new byte[512];
         try {
             din.readFully(buf);

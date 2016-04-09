@@ -105,6 +105,7 @@ public class DictZipHeaderTest {
         System.out.println("readHeader / not dictzip file");
         byte b[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
+        testFile.deleteOnExit();
         FileOutputStream outFile = new FileOutputStream(testFile);
         outFile.write(b);
         outFile.close();
@@ -116,7 +117,6 @@ public class DictZipHeaderTest {
             r = true;
         }
         assertTrue(r, "IOException Expected and got");
-        testFile.deleteOnExit();
     }
 
     /**
@@ -129,6 +129,7 @@ public class DictZipHeaderTest {
         System.out.println("readHeader / wrong gzip magic");
         byte b[] = {(byte) 0x1f, (byte) 0x8b, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
+        testFile.deleteOnExit();
         FileOutputStream outFile = new FileOutputStream(testFile);
         outFile.write(b);
         outFile.close();
@@ -140,7 +141,6 @@ public class DictZipHeaderTest {
             r = true;
         }
         assertTrue(r, "IOException Expected and got");
-        testFile.deleteOnExit();
     }
 
     /**
@@ -200,6 +200,7 @@ public class DictZipHeaderTest {
         }
         assertTrue(r, "IOException Expected and got");
     }
+
     /**
      * Test of writeHeader method.
      *
@@ -224,7 +225,7 @@ public class DictZipHeaderTest {
         DictZipHeader.writeHeader(header, outFile);
         outFile.close();
         String expectedHeader = this.getClass().getResource("/test.header.dz").getFile();
-        assertTrue(DictZipFileUtils.isFileBinaryEquals(testFile, new File(expectedHeader), 6, 46));
+        assertTrue(DictZipFileUtils.isFileBinaryEquals(testFile, new File(expectedHeader), 7, 45));
         testFile.deleteOnExit();
     }
 }
