@@ -33,9 +33,7 @@ import java.io.IOException;
  */
 public class DictZipHeaderTest {
 
-    private final String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
-
-    private String expResult() {
+    private String toStringExpResult() {
         return "\nHeader length = 49" +
                 "\nSubfield ID = RA" +
                 "\nSubfield length = 20" +
@@ -47,23 +45,24 @@ public class DictZipHeaderTest {
     /**
      * Test of readHeader method, of class DictZipHeader.
      *
-     * @throws java.lang.Exception if file I/O error occurd.
+     * @throws java.lang.Exception if file I/O error occurred.
      */
     @Test
     public void testReadHeader_String() throws Exception {
         System.out.println("readHeader");
+        String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
-        assertEquals(expResult(), result.toString());
+        assertEquals(toStringExpResult(), result.toString());
     }
 
     /**
      * Test of readHeader method, of class DictZipHeader.
      *
-     * @throws java.lang.Exception if file I/O error occurd.
+     * @throws java.lang.Exception if file I/O error occurred.
      */
     @Test
     public void testReadHeader_NonGZip() throws Exception {
-        System.out.println("readHeader");
+        System.out.println("readHeader / not dictzip file");
         byte b[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
         FileOutputStream outFile = new FileOutputStream(testFile);
@@ -77,16 +76,17 @@ public class DictZipHeaderTest {
             r = true;
         }
         assertTrue(r, "IOException Expected and got");
+        testFile.deleteOnExit();
     }
 
     /**
      * Test of readHeader method, of class DictZipHeader.
      *
-     * @throws java.lang.Exception if file I/O error occurd.
+     * @throws java.lang.Exception if file I/O error occurred.
      */
     @Test
     public void testReadHeader_GZipMagic() throws Exception {
-        System.out.println("readHeader");
+        System.out.println("readHeader / wrong gzip magic");
         byte b[] = {(byte) 0x1f, (byte) 0x8b, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
         FileOutputStream outFile = new FileOutputStream(testFile);
@@ -100,5 +100,32 @@ public class DictZipHeaderTest {
             r = true;
         }
         assertTrue(r, "IOException Expected and got");
+        testFile.deleteOnExit();
+    }
+
+    /**
+     * Test of readHeader method on fast_compression level file.
+     *
+     * @throws java.lang.Exception if file I/O error occurred.
+     */
+    @Test
+    public void testReaderHeader_FastCompression() throws Exception {
+        System.out.println("readHeader of fast compression");
+        String dataFile = this.getClass().getResource("/fast.dict.dz").getFile();
+        DictZipHeader result = DictZipHeader.readHeader(dataFile);
+        assertEquals(result.getExtraFlag(), DictZipHeader.CompressionLevel.BEST_SPEED);
+    }
+
+    /**
+     * Test of readHeader method on best_compression level file.
+     *
+     * @throws java.lang.Exception if file I/O error occurred.
+     */
+    @Test
+    public void testReaderHeader_BestCompression() throws Exception {
+        System.out.println("readHeader of best compression");
+        String dataFile = this.getClass().getResource("/best.dict.dz").getFile();
+        DictZipHeader result = DictZipHeader.readHeader(dataFile);
+        assertEquals(result.getExtraFlag(), DictZipHeader.CompressionLevel.BEST_COMPRESSION);
     }
 }

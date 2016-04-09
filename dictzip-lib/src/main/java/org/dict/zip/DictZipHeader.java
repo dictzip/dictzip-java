@@ -528,6 +528,14 @@ public class DictZipHeader {
     }
 
     /**
+     * Get extra flag.
+     * @return flag compression level.
+     */
+    public CompressionLevel getExtraFlag() {
+        return extraFlag;
+    }
+
+    /**
      * Set mtime field.
      * @param mtime modification time.
      */

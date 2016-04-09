@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - gradle.properties.template
   You need to copy to gradle.properties and edit its configuration.
 - [#8] Support -# --fast --best option in CLI.
+- DictZipHeader.getExtraFlag() method.
 
 ### Changed
 - We have now dictzip-lib and dictzip-cli subprojects.
