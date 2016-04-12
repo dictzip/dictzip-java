@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.1] - 2016-4-12
+### Fixed
+- CLI: test compile error because DictZipFileUtils is package private,
+  but cli test depends on it. We add a utility method on test class.
+
 ## [0.6.0] - 2016-4-10
 ### Add
 - gradle.properties.template

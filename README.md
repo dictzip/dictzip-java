@@ -52,10 +52,10 @@ DictZip CLI utility depends on some libraries.
 DictZip library for Java and command line utility.
 
 Copyright (C) 2001-2004 Ho Ngoc Duc
+
 Copyright (C) 2016 Hiroshi Miura
 
-Some part of this program code are come from a part of abandoned jdictd on java
-by JDictd project.
+Some part of this program are come from a part of jdictd 1.5 on java.
 
 DictZip command line utility is distributed under the terms of GNU General
 Public License Version 3 or (at your option) any later version.
