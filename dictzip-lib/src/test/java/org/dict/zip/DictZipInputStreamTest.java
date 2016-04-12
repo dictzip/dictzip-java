@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.EOFException;
+import java.io.IOException;
 import java.util.Arrays;
 
 
@@ -191,8 +192,8 @@ public class DictZipInputStreamTest {
      * @throws java.lang.Exception
      */
     @Test
-    public void testReadFully_checkTrailer() throws Exception {
-        System.out.println("readFully and checkTrailer");
+    public void testReadFully_readTrailer() throws IOException {
+        System.out.println("readFully and readTrailer");
         byte[] buf = new byte[512];
         try {
             din.readFully(buf);
@@ -210,4 +211,5 @@ public class DictZipInputStreamTest {
         assertEquals(din.getCrc(), 0x024d1f37);
         assertEquals(din.getLength(), 383783);
     }
+
 }
