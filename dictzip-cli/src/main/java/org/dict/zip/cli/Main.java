@@ -25,6 +25,8 @@ package org.dict.zip.cli;
 import org.dict.zip.DictZipHeader.CompressionLevel;
 
 import java.io.File;
+import java.text.MessageFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.io.IOException;
@@ -42,6 +44,48 @@ public final class Main {
 
     private static CommandLine commandLine = new CommandLine();
 
+    private static void showHelp() {
+        System.out.println(AppConsts.getNameAndVersion());
+        System.out.println(MessageFormat.format(DictZipUtils.getString("help.copyright.template"),
+                AppConsts.YEAR, AppConsts.AUTHORS));
+        System.out.println();
+        System.out.println(MessageFormat.format(DictZipUtils.getString("help.message"),
+                AppConsts.NAME));
+    }
+
+    private static void doList(String fName) throws IOException {
+        DictData dict;
+        dict = new DictData(fName, null);
+        dict.printHeader();
+    }
+
+    private static void doUnZip(String fName) throws IOException {
+        DictData dict;
+        String extractFile = DictZipUtils.uncompressedFileName(fName);
+        long start = commandLine.options.getStart();
+        int size = commandLine.options.getSize();
+        dict = new DictData(extractFile, fName);
+        dict.doUnzip(start, size);
+        if (!commandLine.options.isKeep()) {
+            File targetFile = new File(fName);
+            if (!targetFile.delete()) {
+                System.err.println(messages.getString("main.delete.error"));
+                System.exit(2);
+            }
+        }
+        if (!commandLine.options.isKeep()) {
+            deleteTarget(fName);
+        }
+    }
+
+    private static void deleteTarget(String fName) {
+       File targetFile = new File(fName);
+        if (!targetFile.delete()) {
+            System.err.println(messages.getString("main.delete.error"));
+            System.exit(2);
+        }
+    }
+
     /**
      * main method.
      *
@@ -53,37 +97,36 @@ public final class Main {
         if (res != 0) {
             System.exit(res);
         }
-        for (String fName: commandLine.getTargetFiles()) {
-            try {
-                DictData dict;
-                if (commandLine.options.isList()) {
-                    commandLine.options.setKeep(true);
-                    dict = new DictData(fName, null);
-                    dict.printHeader();
-                } else if (commandLine.options.isDecompress()) {
-                    String extractFile = DictZipUtils.uncompressedFileName(fName);
-                    long start = commandLine.options.getStart();
-                    int size = commandLine.options.getSize();
-                    dict = new DictData(extractFile, fName);
-                    dict.doUnzip(start, size);
-                } else { // compression.
-                    String zippedFile = DictZipUtils.compressedFileName(fName);
-                    CompressionLevel level = commandLine.options.getLevel();
+        try {
+            DictData dict;
+            List<String> target = commandLine.getTargetFiles();
+            if (commandLine.options.isList()) {
+                if (target.size() != 1) {
+                    showHelp();
+                    System.exit(1);
+                }
+                doList(target.get(0));
+            } else if (commandLine.options.isDecompress()) {
+                if (target.size() != 1) {
+                    showHelp();
+                    System.exit(1);
+                }
+                doUnZip(target.get(0));
+             } else { // compression.
+                CompressionLevel level = commandLine.options.getLevel();
+                String zippedFile = DictZipUtils.compressedFileName(target.get(0));
+                for (String fName : target) {
                     dict = new DictData(fName, zippedFile);
                     dict.doZip(level);
-                }
-                if (!commandLine.options.isKeep()) {
-                    File targetFile = new File(fName);
-                    if (!targetFile.delete()) {
-                        System.err.println(messages.getString("main.delete.error"));
-                        System.exit(2);
+                    if (!commandLine.options.isKeep()) {
+                        deleteTarget(fName);
                     }
                 }
-            } catch (IOException ex) {
-                System.err.println(messages.getString("main.io.error"));
-                System.err.println(ex.getLocalizedMessage());
-                System.exit(1);
             }
+        } catch (IOException ex) {
+            System.err.println(messages.getString("main.io.error"));
+            System.err.println(ex.getLocalizedMessage());
+            System.exit(1);
         }
         System.exit(0);
     }

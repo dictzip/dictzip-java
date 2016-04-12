@@ -51,6 +51,11 @@ public final class DictZipUtils {
         return name + ".dz";
     }
 
+
+    protected static String getString(final String key) {
+        return AppConsts.RESOURCE_BUNDLE.getString(key);
+    }
+
     /**
      * Utility class should not be instantiated.
      */
