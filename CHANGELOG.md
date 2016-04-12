@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Changed
+- README: there is no test dependency for commons-io.
 
 ## [0.6.1] - 2016-4-12
 ### Fixed
