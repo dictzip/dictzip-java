@@ -515,6 +515,14 @@ public class DictZipHeader {
     }
 
     /**
+     * Get member length.
+     * @return gzip member length
+     */
+    public long getMemberLength() {
+        return (long) offsets[chunkCount - 1] + chunks[chunkCount - 1] + 8 + 2;
+    }
+
+    /**
      * Get header length.
      * @return header length
      */

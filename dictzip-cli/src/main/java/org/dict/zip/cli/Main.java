@@ -22,6 +22,7 @@
 
 package org.dict.zip.cli;
 
+import org.dict.zip.DictZipFileUtils;
 import org.dict.zip.DictZipHeader.CompressionLevel;
 
 import java.io.File;
@@ -60,6 +61,20 @@ public final class Main {
                     commandLine.options.setKeep(true);
                     dict = new DictData(fName, null);
                     dict.printHeader();
+                } else if (commandLine.options.isTest()) {
+                    boolean result = false;
+                    try {
+                        result = DictZipFileUtils.checkDictZipInputStream(fName);
+                    } catch (IOException e) {
+                        System.err.println(e.getMessage());
+                        System.exit(2);
+                    }
+                    if (result) {
+                        System.exit(0);
+                    } else {
+                        System.err.println(messages.getString("main.test.error"));
+                        System.exit(1);
+                    }
                 } else if (commandLine.options.isDecompress()) {
                     String extractFile = DictZipUtils.uncompressedFileName(fName);
                     long start = commandLine.options.getStart();

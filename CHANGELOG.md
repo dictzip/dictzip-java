@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Add
+- Add test option for DictZip CLI.
+
 ### Changed
 - README: there is no test dependency for commons-io.
 

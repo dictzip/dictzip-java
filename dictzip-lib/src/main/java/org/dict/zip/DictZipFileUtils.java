@@ -6,7 +6,9 @@ import java.util.Arrays;
 /**
  * Created by Hiroshi Miura on 16/04/09.
  */
-class DictZipFileUtils {
+public class DictZipFileUtils {
+
+
     /**
      * Reads unsigned byte.
      *
@@ -170,6 +172,41 @@ class DictZipFileUtils {
         }
 
         return result;
+    }
+
+    /**
+     * Check gzip member stream w/ CRC and length in trailer.
+     * @throws IOException when CRC error or total length error.
+     */
+    public static boolean checkDictZipInputStream(String fileName) throws IOException {
+        boolean result;
+        try (DictZipInputStream dzin = new DictZipInputStream(new RandomAccessInputStream(fileName, "r"))) {
+            result = checkDictZipInputStream(dzin);
+            dzin.close();
+        }
+        return result;
+    }
+
+    /**
+     * Check gzip member stream w/ CRC and length in trailer.
+     * @throws IOException when CRC error or total length error.
+     */
+    public static boolean checkDictZipInputStream(DictZipInputStream in) throws IOException {
+        final int BUF_LEN = 65536;
+        byte[] tmpBuf = new byte[BUF_LEN];
+        in.seek(0);
+        long readLen = 0;
+        while (readLen < in.getLength()) {
+            int len = in.read(tmpBuf, 0, BUF_LEN);
+            if (len < 0) {
+                break;
+            }
+            readLen += len;
+        }
+        if (readLen != in.getLength()) {
+            return false;
+        }
+        return true;
     }
 
     private DictZipFileUtils() {
