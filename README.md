@@ -79,7 +79,7 @@ your version of the library, but you are not obligated to do so. If you do not w
 to do so, delete this exception statement from your version.
 
 As such, it can be used to run, create and distribute a large class of applications
-and applets. When GNU Classpath is used unmodified as the core class library
+and applets. When this library is used unmodified as the core class library
 for a virtual machine, compiler for the java languge, or for a program written
 in the java programming language it does not affect the licensing for distributing
 those programs directly.
