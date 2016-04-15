@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - README: there is no test dependency for commons-io.
 
+### Fixed
+- Check return value of InputStream.skip() method in the utility method
+  for test.
+
 ## [0.6.1] - 2016-4-12
 ### Fixed
 - CLI: test compile error because DictZipFileUtils is package private,

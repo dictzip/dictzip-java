@@ -1,6 +1,7 @@
 package org.dict.zip;
 
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.Arrays;
 
 /**
@@ -55,7 +56,7 @@ public class DictZipFileUtils {
      * @param i   integer to write.
      * @throws IOException when error in file output.
      */
-    void writeInt(final OutputStream out, final int i) throws IOException {
+    static void writeInt(final OutputStream out, final int i) throws IOException {
         writeShort(out, i & 0xffff);
         writeShort(out, (i >> 16) & 0xffff);
     }
@@ -102,6 +103,9 @@ public class DictZipFileUtils {
         if (len <= 1) {
             throw new IllegalArgumentException();
         }
+        if (off < 0) {
+            throw new IllegalArgumentException();
+        }
 
         if ((first.exists()) && (second.exists())
                 && (first.isFile()) && (second.isFile())) {
@@ -122,8 +126,24 @@ public class DictZipFileUtils {
                     byte[] firstBytes = new byte[COMP_SIZE];
                     byte[] secondBytes = new byte[COMP_SIZE];
 
-                    bufFirstInput.skip(off);
-                    bufSecondInput.skip(off);
+                    if (off > 0) {
+                        long totalSkipped = 0;
+                        while (totalSkipped < off) {
+                            long skipped = bufFirstInput.skip(off - totalSkipped);
+                            if (skipped == 0) {
+                                throw new IOException("Cannot seek offset bytes.");
+                            }
+                            totalSkipped += skipped;
+                        }
+                        totalSkipped = 0;
+                        while (totalSkipped < off) {
+                            long skipped = bufSecondInput.skip(off - totalSkipped);
+                            if (skipped == 0) {
+                                throw new IOException("Cannot seek offset bytes.");
+                            }
+                            totalSkipped += skipped;
+                        }
+                    }
 
                     long readLengthTotal = 0;
                     result = true;
