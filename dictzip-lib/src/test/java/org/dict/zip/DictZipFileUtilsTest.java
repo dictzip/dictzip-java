@@ -20,6 +20,14 @@ public class DictZipFileUtilsTest {
     }
 
     @Test
+    public void testIsFileBinaryEquals_sameCanonicalPath() throws Exception {
+        System.out.println("isFileBinaryEquals with same canonical path");
+        File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
+        File secondFile = new File(this.getClass().getResource("/test_util.txt").getFile());
+        assertTrue(DictZipFileUtils.isFileBinaryEquals(firstFile, secondFile));
+    }
+
+    @Test
     public void testIsFileBinaryEquals_false() throws Exception {
         System.out.println("isFileBinaryEquals_false");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
