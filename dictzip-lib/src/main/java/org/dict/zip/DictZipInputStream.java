@@ -21,12 +21,8 @@
 
 package org.dict.zip;
 
-import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.text.MessageFormat;
 
 import java.util.zip.CRC32;
 import java.util.zip.Inflater;
@@ -57,10 +53,22 @@ public class DictZipInputStream extends InflaterInputStream {
 
     private int offset = 0;
 
+    private static final int BUF_LEN = 4096;
+
     /**
      * Indicates end of input stream.
      */
     private boolean eos;
+
+    /**
+     * Creates a new input stream with a default buffer size from given filepath.
+     *
+     * @param filename the input filename
+     * @exception IOException if an I/O error has occurred
+     */
+    public DictZipInputStream(final String filename) throws IOException {
+        this(new RandomAccessInputStream(filename, "r"), BUF_LEN);
+    }
 
     /**
      * Creates a new input stream with a default buffer size.
@@ -69,7 +77,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * @exception IOException if an I/O error has occurred
      */
     public DictZipInputStream(final RandomAccessInputStream in) throws IOException {
-        this(in, 512);
+        this(in, BUF_LEN);
     }
 
     /**
