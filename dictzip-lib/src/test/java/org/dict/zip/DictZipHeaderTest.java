@@ -45,6 +45,9 @@ import java.io.IOException;
 
 import org.dict.zip.DictZipHeader.CompressionLevel;
 
+import static tokyo.northside.io.FileUtils2.contentEquals;
+
+
 /**
  * Test for DictZip Header.
  * @author Hiroshi Miura
@@ -254,7 +257,7 @@ public class DictZipHeaderTest {
         DictZipHeader.writeHeader(header, outFile);
         outFile.close();
         String expectedHeader = this.getClass().getResource("/test.header.dz").getFile();
-        assertTrue(DictZipFileUtils.isFileBinaryEquals(testFile, new File(expectedHeader), 7, 45));
+        assertTrue(contentEquals(testFile, new File(expectedHeader), 7, 45));
         testFile.deleteOnExit();
     }
 }

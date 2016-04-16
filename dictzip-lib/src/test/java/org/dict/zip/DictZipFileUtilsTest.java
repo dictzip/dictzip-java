@@ -5,6 +5,8 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 
+import static tokyo.northside.io.FileUtils2.contentEquals;
+
 import static org.testng.Assert.*;
 
 /**
@@ -12,43 +14,43 @@ import static org.testng.Assert.*;
  */
 public class DictZipFileUtilsTest {
     @Test
-    public void testIsFileBinaryEquals() throws Exception {
+    public void testContentEquals() throws Exception {
         System.out.println("isFileBinaryEquals");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util1.txt").getFile());
-        assertTrue(DictZipFileUtils.isFileBinaryEquals(firstFile, secondFile));
+        assertTrue(contentEquals(firstFile, secondFile));
     }
 
     @Test
-    public void testIsFileBinaryEquals_sameCanonicalPath() throws Exception {
+    public void testContentEquals_sameCanonicalPath() throws Exception {
         System.out.println("isFileBinaryEquals with same canonical path");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util.txt").getFile());
-        assertTrue(DictZipFileUtils.isFileBinaryEquals(firstFile, secondFile));
+        assertTrue(contentEquals(firstFile, secondFile));
     }
 
     @Test
-    public void testIsFileBinaryEquals_false() throws Exception {
+    public void testContentEquals_false() throws Exception {
         System.out.println("isFileBinaryEquals_false");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util2.txt").getFile());
-        assertFalse(DictZipFileUtils.isFileBinaryEquals(firstFile, secondFile));
+        assertFalse(contentEquals(firstFile, secondFile));
     }
 
     @Test
-    public void testIsFileBinaryEquals_range() throws Exception {
+    public void testContentEquals_range() throws Exception {
         System.out.println("isFileBinaryEquals_range");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util2.txt").getFile());
-        assertTrue(DictZipFileUtils.isFileBinaryEquals(firstFile, secondFile, 10, 64));
+        assertTrue(contentEquals(firstFile, secondFile, 10, 64));
     }
 
     @Test
-    public void testIsFileBinaryEquals_range_false() throws Exception {
+    public void testContentEquals_range_false() throws Exception {
         System.out.println("isFileBinaryEquals_range_false");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util2.txt").getFile());
-        assertFalse(DictZipFileUtils.isFileBinaryEquals(firstFile, secondFile, 0, 64));
+        assertFalse(contentEquals(firstFile, secondFile, 0, 64));
     }
 
     @Test

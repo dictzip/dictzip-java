@@ -26,6 +26,8 @@ subprojects {
   }
 
   repositories {
+    mavenLocal()
+    jcenter()
     mavenCentral()
   }
 
@@ -38,7 +40,11 @@ subprojects {
   }
 }
 
-project(':dictzip-lib') {}
+project(':dictzip-lib') {
+  dependencies {
+    testCompile 'tokyo.northside:northside-io:0.2.0'
+  }
+}
 
 project(':dictzip-cli') {
   apply plugin: 'application'
@@ -49,5 +55,6 @@ project(':dictzip-cli') {
     compile project(':dictzip-lib'),
        'commons-codec:commons-codec:1.10',
        'gnu.getopt:java-getopt:1.0.13'
+    testCompile 'tokyo.northside:northside-io:0.2.0'
   }
 }
