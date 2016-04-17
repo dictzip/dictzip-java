@@ -53,7 +53,7 @@ public class DictZipInputStream extends InflaterInputStream {
 
     private int offset = 0;
 
-    private static final int BUF_LEN = 4096;
+    private static final int BUF_LEN = 8192;
 
     /**
      * Indicates end of input stream.

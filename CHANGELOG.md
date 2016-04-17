@@ -9,7 +9,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - README: there is no test dependency for commons-io.
-- Default buffer size in the DictZipInputStream was changed to 4096 byte.
+- Default buffer size in the DictZipInputStream was changed to 8192 byte
+  from 512 byte as same as java.io.BufferedInputStream.
 
 ### Fixed
 - Check return value of InputStream.skip() method in the utility method
