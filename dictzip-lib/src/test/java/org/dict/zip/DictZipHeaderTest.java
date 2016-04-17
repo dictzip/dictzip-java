@@ -57,7 +57,8 @@ public class DictZipHeaderTest {
                 "\nSubfield length = 20" +
                 "\nSubfield version = 1" +
                 "\nChunk length = 58315" +
-                "\nNumber of chunks = 7";
+                "\nNumber of chunks = 7" +
+                "\nLength of member = 136856";
     }
 
     /**
@@ -67,7 +68,7 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testReadHeader_String() throws Exception {
-        System.out.println("readHeader");
+        System.out.println("readHeader toString");
         String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
         assertEquals(result.toString(), toStringExpResult());
@@ -216,6 +217,17 @@ public class DictZipHeaderTest {
             r = true;
         }
         assertTrue(r, "IOException Expected and got");
+    }
+
+    /**
+     * Test of getMemberLength method.
+     */
+    @Test
+    public void testGetMemberLength() throws Exception {
+        System.out.println("getMemberLength");
+        String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
+        DictZipHeader result = DictZipHeader.readHeader(dataFile);
+        assertEquals(result.getMemberLength(), 136856);
     }
 
     /**

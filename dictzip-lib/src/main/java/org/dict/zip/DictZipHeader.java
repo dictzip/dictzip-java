@@ -90,18 +90,15 @@ public class DictZipHeader {
     private static final int FEXTRA = 2;     // Extra field
     private static final int FNAME = 3;      // File name
     private static final int FCOMMENT = 4;  // File comment
+    private static final int INT32_LEN = 4;
+    private static final int EOS_LEN = 2;
 
     /**
      * Header fields length.
      */
-    private static final int DICTZIP_HEADER_LEN = 10;
+    private static final int GZIP_HEADER_LEN = 10;
     /* 2 bytes header magic, 1 byte compression method, 1 byte flags
      4 bytes time, 1 byte extra flags, 1 byte OS */
-
-    /**
-     * Other constants.
-     */
-    private static final int BUFLEN = 58315; // Same as C implementation
 
     /**
      * Default constructor.
@@ -149,7 +146,7 @@ public class DictZipHeader {
         chunks = new int[chunkCount];
         // Calculate total length
         extraLength = subfieldLength + 4;
-        headerLength = DICTZIP_HEADER_LEN + extraLength;
+        headerLength = GZIP_HEADER_LEN + extraLength;
         filename = "";
         comment = "";
     }
@@ -242,7 +239,7 @@ public class DictZipHeader {
                 break;
             }
         }
-        h.headerLength = DICTZIP_HEADER_LEN;
+        h.headerLength = GZIP_HEADER_LEN;
         // Optional extra field
         if (h.gzipFlag.get(FEXTRA)) {
             h.extraLength = DictZipFileUtils.readUShort(in);
@@ -296,6 +293,7 @@ public class DictZipHeader {
         sb.append("\nSubfield version = ").append(subfieldVersion);
         sb.append("\nChunk length = ").append(chunkLength);
         sb.append("\nNumber of chunks = ").append(chunkCount);
+        sb.append("\nLength of member = ").append(getMemberLength());
         return sb.toString();
     }
 
@@ -529,6 +527,16 @@ public class DictZipHeader {
             this.comment = comment;
             gzipFlag.set(FCOMMENT);
         }
+    }
+
+    /**
+     * Get member length.
+     * @return gzip member length
+     */
+    public long getMemberLength() {
+        // The member length is sum of followings
+        // offset of last chunk + size of last chunk + EOS field + CRC32 field + uncomp size field
+        return (long) offsets[chunkCount - 1] + chunks[chunkCount - 1] + EOS_LEN + INT32_LEN * 2;
     }
 
     /**

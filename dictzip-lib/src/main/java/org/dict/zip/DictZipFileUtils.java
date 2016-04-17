@@ -1,12 +1,15 @@
 package org.dict.zip;
 
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.Arrays;
 
 /**
  * Created by Hiroshi Miura on 16/04/09.
  */
-class DictZipFileUtils {
+public class DictZipFileUtils {
+
+
     /**
      * Reads unsigned byte.
      *
@@ -53,7 +56,7 @@ class DictZipFileUtils {
      * @param i   integer to write.
      * @throws IOException when error in file output.
      */
-    void writeInt(final OutputStream out, final int i) throws IOException {
+    static void writeInt(final OutputStream out, final int i) throws IOException {
         writeShort(out, i & 0xffff);
         writeShort(out, (i >> 16) & 0xffff);
     }
@@ -100,6 +103,9 @@ class DictZipFileUtils {
         if (len <= 1) {
             throw new IllegalArgumentException();
         }
+        if (off < 0) {
+            throw new IllegalArgumentException();
+        }
 
         if ((first.exists()) && (second.exists())
                 && (first.isFile()) && (second.isFile())) {
@@ -120,8 +126,24 @@ class DictZipFileUtils {
                     byte[] firstBytes = new byte[COMP_SIZE];
                     byte[] secondBytes = new byte[COMP_SIZE];
 
-                    bufFirstInput.skip(off);
-                    bufSecondInput.skip(off);
+                    if (off > 0) {
+                        long totalSkipped = 0;
+                        while (totalSkipped < off) {
+                            long skipped = bufFirstInput.skip(off - totalSkipped);
+                            if (skipped == 0) {
+                                throw new IOException("Cannot seek offset bytes.");
+                            }
+                            totalSkipped += skipped;
+                        }
+                        totalSkipped = 0;
+                        while (totalSkipped < off) {
+                            long skipped = bufSecondInput.skip(off - totalSkipped);
+                            if (skipped == 0) {
+                                throw new IOException("Cannot seek offset bytes.");
+                            }
+                            totalSkipped += skipped;
+                        }
+                    }
 
                     long readLengthTotal = 0;
                     result = true;
@@ -170,6 +192,41 @@ class DictZipFileUtils {
         }
 
         return result;
+    }
+
+    /**
+     * Check gzip member stream w/ CRC and length in trailer.
+     * @throws IOException when CRC error or total length error.
+     */
+    public static boolean checkDictZipInputStream(String fileName) throws IOException {
+        boolean result;
+        try (DictZipInputStream dzin = new DictZipInputStream(new RandomAccessInputStream(fileName, "r"))) {
+            result = checkDictZipInputStream(dzin);
+            dzin.close();
+        }
+        return result;
+    }
+
+    /**
+     * Check gzip member stream w/ CRC and length in trailer.
+     * @throws IOException when CRC error or total length error.
+     */
+    public static boolean checkDictZipInputStream(DictZipInputStream in) throws IOException {
+        final int BUF_LEN = 65536;
+        byte[] tmpBuf = new byte[BUF_LEN];
+        in.seek(0);
+        long readLen = 0;
+        while (readLen < in.getLength()) {
+            int len = in.read(tmpBuf, 0, BUF_LEN);
+            if (len < 0) {
+                break;
+            }
+            readLen += len;
+        }
+        if (readLen != in.getLength()) {
+            return false;
+        }
+        return true;
     }
 
     private DictZipFileUtils() {

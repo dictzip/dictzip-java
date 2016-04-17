@@ -2,8 +2,19 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Add
+- Add test option for DictZip CLI.
+- Add DictZipInputStream consructor that get a filename as argument.
+- More tests.
+
 ### Changed
 - README: there is no test dependency for commons-io.
+- Default buffer size in the DictZipInputStream was changed to 8192 byte
+  from 512 byte as same as java.io.BufferedInputStream.
+
+### Fixed
+- Check return value of InputStream.skip() method in the utility method
+  for test.
 
 ## [0.6.1] - 2016-4-12
 ### Fixed

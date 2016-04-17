@@ -21,12 +21,8 @@
 
 package org.dict.zip;
 
-import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.text.MessageFormat;
 
 import java.util.zip.CRC32;
 import java.util.zip.Inflater;
@@ -57,10 +53,22 @@ public class DictZipInputStream extends InflaterInputStream {
 
     private int offset = 0;
 
+    private static final int BUF_LEN = 8192;
+
     /**
      * Indicates end of input stream.
      */
     private boolean eos;
+
+    /**
+     * Creates a new input stream with a default buffer size from given filepath.
+     *
+     * @param filename the input filename
+     * @exception IOException if an I/O error has occurred
+     */
+    public DictZipInputStream(final String filename) throws IOException {
+        this(new RandomAccessInputStream(filename, "r"), BUF_LEN);
+    }
 
     /**
      * Creates a new input stream with a default buffer size.
@@ -69,7 +77,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * @exception IOException if an I/O error has occurred
      */
     public DictZipInputStream(final RandomAccessInputStream in) throws IOException {
-        this(in, 512);
+        this(in, BUF_LEN);
     }
 
     /**
@@ -82,6 +90,7 @@ public class DictZipInputStream extends InflaterInputStream {
     public DictZipInputStream(final RandomAccessInputStream in, final int size) throws IOException {
         super(in, new Inflater(true), size);
         header = readHeader();
+        readTrailer();
     }
 
     /**
@@ -263,36 +272,10 @@ public class DictZipInputStream extends InflaterInputStream {
     }
 
     /**
-     * Check gzip member trailer; CRC and length.
-     * @throws IOException when CRC error or total length error.
-     */
-    public void checkTrailer() throws IOException {
-        InputStream in = this.in;
-        int num = inf.getRemaining();
-        if (num > 0) {
-            in = new SequenceInputStream(
-                    new ByteArrayInputStream(buf, len - num, num), in);
-        }
-        long val = crc.getValue();
-        long crcValue = DictZipFileUtils.readUInt(in);
-        if (crcValue != val) {
-            throw new IOException(MessageFormat
-                    .format("Incorrect CRC: Computed CRC = %8x / From input %8x", val, crcValue));
-        }
-        long total = inf.getTotalOut();
-        long trailerTotal = DictZipFileUtils.readUInt(in);
-        if (trailerTotal != total) {
-            throw new IOException(MessageFormat
-                    .format("False number of uncompressed bytes: Computed size =%d / From input %d",
-                            total, trailerTotal));
-        }
-    }
-
-    /**
      * Reads GZIP member trailer.
      * @throws java.io.IOException If file I/O error
      */
-    public void readTrailer() throws IOException {
+    void readTrailer() throws IOException {
         if (in instanceof RandomAccessInputStream) {
             RandomAccessInputStream rain = (RandomAccessInputStream) in;
             compLength = rain.getLength();
