@@ -1,3 +1,10 @@
+plugins {
+    // github
+    id "co.riiid.gradle" version "0.4.2"
+    // bintray
+    id "com.jfrog.bintray" version "1.6"
+}
+
 // common settings
 subprojects {
   apply plugin: 'java'
@@ -5,10 +12,10 @@ subprojects {
   apply plugin: 'checkstyle'
   apply plugin: 'findbugs'
 
-  sourceCompatibility = '1.7'
-  targetCompatibility = '1.7'
+  sourceCompatibility = jdkVersion
+  targetCompatibility = jdkVersion
   [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-  [compileJava, compileTestJava]*.options*.bootClasspath = "$JDK7_HOME/jre/lib/rt.jar"
+  [compileJava, compileTestJava]*.options*.bootClasspath = "$JDK_HOME/jre/lib/rt.jar"
   checkstyle {
     config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
     ignoreFailures = true
@@ -42,6 +49,9 @@ subprojects {
   }
 }
 
+group = projectGroup
+version = projectVersion
+
 project(':dictzip-lib') {
   dependencies {
     testCompile 'tokyo.northside:northside-io:0.2.0'
@@ -59,4 +69,10 @@ project(':dictzip-cli') {
        'gnu.getopt:java-getopt:1.0.13'
     testCompile 'tokyo.northside:northside-io:0.2.0'
   }
+}
+
+if (gradle.startParameter.taskNames.contains('uploadArchives') ||
+    gradle.startParameter.taskNames.contains('bintrayUpload')  ||
+    gradle.startParameter.taskNames.contains('githubRelease)) {
+  apply from: 'build.publish.gradle'
 }

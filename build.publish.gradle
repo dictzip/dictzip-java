@@ -1,0 +1,92 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+boolean validProperty(propertyName) {
+  try { project.property(propertyName) != null }
+  catch (MissingPropertyException) { false }
+}
+assert validProperty('signing.keyId'),             'properties for signing must be provided'
+assert validProperty('signing.secretKeyRingFile'), 'properties for signing must be provided'
+assert validProperty('sonatypeUsername'),          'properties for publish must be provided'
+assert validProperty('sonatypeFullname'),          'properties for publish must be provided'
+
+String askPassword(prompt) {
+  "${System.console().readPassword(prompt)}"
+}
+ext.'signing.password' = askPassword("Enter password for PGP key ${property('signing.keyId')}: ")
+
+signing {
+  sign configurations.archives
+}
+
+bintray {
+	  user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+	  key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    configurations = ['archives']
+    pkg {
+        repo = 'maven'
+        name = 'dictzip'
+        licenses = ['GPL-3']
+        vcsUrl = projectUrl
+        labels = ['java','dictzip']
+        publicDownloadNumbers = true
+        version {
+            name = projectVersion
+            desc = projectDesc
+            vcsTag = projectTag
+        }
+    }
+}
+
+github {
+    owner = projectOwner
+    repo = 'dictzip-java'
+    token = githubToken
+    tagName = projectTag
+    targetCommitish = 'master'
+    name = projectTag
+    draft = true
+    body = projectReleaseBody
+    assets = [
+            'build/libs/dictzip-cli.jar',
+            'build/libs/dictzip-cli.jar.asc',
+            'build/libs/dictzip-lib.jar',
+            'build/libs/dictzip-lib.jar.asc',
+            'build/libs/dictzip-javadoc.jar',
+            'build/libs/dictzip-javadoc.jar.asc',
+            'build/libs/dictzip-source.jar',
+            'build/libs/dictzip-source.jar.asc'
+    ]
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository url: "file://$System.env.HOME/.m2/repository"
+        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+        pom.project {
+            name project.name
+            packaging 'jar'
+            description projectDesc
+            url projectUrl
+            version projectVersion
+            licenses {
+                license {
+                    name 'GNU General Public License version 3.0 with classpath link exception.'
+                    distribution 'repo'
+                }
+            }
+            scm {
+                url githubUrl
+                connection "scm:git:${githubUrl}"
+                developerConnection "scm:git:${githubUrl}"
+            }
+            developers {
+                developer {
+                    id 'miurahr'
+                    name 'Hiroshi Miura'
+                    email 'miurahr@linux.com'
+                }
+            }
+        }
+    }
+}
