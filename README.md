@@ -44,7 +44,7 @@ DictZip CLI utility depends on some libraries.
 ### Test dependency
 
 - TestNG framework(Apache2)
-- Apache commons IO library(Apache2)
+- Northside IO library(Apache2)
 
 
 ## Copyrights and License

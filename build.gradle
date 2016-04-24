@@ -26,8 +26,10 @@ subprojects {
   }
 
   repositories {
-    mavenLocal()
     jcenter()
+    maven {
+        url "http://dl.bintray.com/miurahr/maven"
+    }
     mavenCentral()
   }
 
