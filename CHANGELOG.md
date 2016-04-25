@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [0.7.0]
 ### Add
 - Add test option for DictZip CLI.
 - Add DictZipInputStream consructor that get a filename as argument.
@@ -64,6 +66,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/miurahr/dictzip-java/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/miurahr/dictzip-java/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/miurahr/dictzip-java/compare/v0.6.1...v0.7.0
+[0.6.1]: https://github.com/miurahr/dictzip-java/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/miurahr/dictzip-java/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/miurahr/dictzip-java/compare/v0.0.2...v0.5.0
