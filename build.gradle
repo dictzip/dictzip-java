@@ -11,6 +11,8 @@ subprojects {
   apply plugin: 'jacoco'
   apply plugin: 'checkstyle'
   apply plugin: 'findbugs'
+  apply plugin: 'co.riiid.gradle'
+  apply plugin: 'com.jfrog.bintray'
 
   sourceCompatibility = jdkVersion
   targetCompatibility = jdkVersion
@@ -47,14 +49,49 @@ subprojects {
   test {
     useTestNG()
   }
+
+  task sourceJar(type: Jar) {
+      from sourceSets.main.allSource
+      classifier = 'sources'
+  }
+
+  task javadocJar(type: Jar, dependsOn: javadoc) {
+      description 'Generate jar file that have javadoc'
+      classifier = 'javadoc'
+      from javadoc.destinationDir
+  }
+
+  artifacts {
+      archives jar
+      archives sourceJar
+      archives javadocJar
+  }
 }
 
 group = projectGroup
-version = projectVersion
 
 project(':dictzip-lib') {
   dependencies {
     testCompile 'tokyo.northside:northside-io:0.2.0'
+  }
+  version = projectVersion
+  bintray {
+      user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+      key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+      configurations = ['archives']
+      pkg {
+          repo = 'maven'
+          name = 'dictzip-lib'
+          licenses = ['GPL-2.0+CE']
+          vcsUrl = projectUrl
+          labels = ['java','dictzip']
+          publicDownloadNumbers = true
+          version {
+              name = projectVersion
+              desc = projectDesc
+              vcsTag = projectTag
+          }
+      }
   }
 }
 
@@ -69,10 +106,28 @@ project(':dictzip-cli') {
        'gnu.getopt:java-getopt:1.0.13'
     testCompile 'tokyo.northside:northside-io:0.2.0'
   }
+  version = projectVersion
+  bintray {
+      user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+      key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+      configurations = ['archives']
+      pkg {
+          repo = 'maven'
+          name = 'dictzip-cli'
+          licenses = ['GPL-3.0']
+          vcsUrl = projectUrl
+          labels = ['java','dictzip']
+          publicDownloadNumbers = true
+          version {
+              name = projectVersion
+              desc = projectDesc
+              vcsTag = projectTag
+          }
+      }
+  }
 }
 
-if (gradle.startParameter.taskNames.contains('uploadArchives') ||
-    gradle.startParameter.taskNames.contains('bintrayUpload')  ||
-    gradle.startParameter.taskNames.contains('githubRelease)) {
+if (gradle.startParameter.taskNames.contains('bintrayUpload')  ||
+    gradle.startParameter.taskNames.contains('githubRelease')) {
   apply from: 'build.publish.gradle'
 }
