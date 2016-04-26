@@ -144,9 +144,7 @@ public class DictZipInputStream extends InflaterInputStream {
                 eos = true;
                 readLen = -1;
             } else {
-                for (int i = 0; i < readLen; i++) {
-                    buf[off + i] = tmpBuf[offset + i];
-                }
+                System.arraycopy(tmpBuf, offset, buf, off, readLen);
                 crc.update(buf, off, readLen);
             }
             offset = 0;
@@ -190,7 +188,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * @return header object.
      * @exception IOException if an I/O error has occurred.
      */
-    private final DictZipHeader readHeader() throws IOException {
+    private DictZipHeader readHeader() throws IOException {
         if (header == null) {
             header = DictZipHeader.readHeader(in, crc);
             crc.reset();
@@ -251,22 +249,48 @@ public class DictZipInputStream extends InflaterInputStream {
         return compLength;
     }
 
+    /**
+     * Get type of compression.
+     *
+     * @return "DZIP" or "GZIP"
+     * @throws IOException if I/O error occurred.
+     */
     public String getType() throws IOException {
         return header.getType();
     }
 
+    /**
+     * Get length of each chunk.
+     * @return size of chunk.
+     * @throws IOException if I/O error occurred.
+     */
     public int getChunkLength() throws IOException {
         return header.getChunkLength();
     }
 
+    /**
+     * Get number of chunks.
+     * @return number of chunks.
+     * @throws IOException if I/O error occurred.
+     */
     public int getChunkCount() throws IOException {
         return header.getChunkCount();
     }
 
+    /**
+     * Get mtime in long.
+     * @return mtime in long.
+     * @throws IOException if I/O error occurred.
+     */
     public long getMtime() throws IOException {
         return header.getMtime();
     }
 
+    /**
+     * Get Filename field if exist.
+     * @return filename or null.
+     * @throws IOException if I/O error occurred.
+     */
     public String getFilename() throws IOException {
         return header.getFilename();
     }

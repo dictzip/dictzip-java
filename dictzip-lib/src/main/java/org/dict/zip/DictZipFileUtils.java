@@ -1,14 +1,18 @@
 package org.dict.zip;
 
-import java.io.*;
-import java.text.MessageFormat;
-import java.util.Arrays;
+import java.io.EOFException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 
 /**
  * Created by Hiroshi Miura on 16/04/09.
+ * @author Hiroshi Miura
  */
-public class DictZipFileUtils {
+public final class DictZipFileUtils {
 
+    static final int CHECK_BUF_LEN = 65536;
 
     /**
      * Reads unsigned byte.
@@ -75,11 +79,14 @@ public class DictZipFileUtils {
 
     /**
      * Check gzip member stream w/ CRC and length in trailer.
+     * @param filename to be checked.
+     * @return true if it is a valid dictzip file, otherwise false.
      * @throws IOException when CRC error or total length error.
      */
-    public static boolean checkDictZipInputStream(String fileName) throws IOException {
+    public static boolean checkDictZipInputStream(final String filename) throws IOException {
         boolean result;
-        try (DictZipInputStream dzin = new DictZipInputStream(new RandomAccessInputStream(fileName, "r"))) {
+        try (DictZipInputStream dzin = new DictZipInputStream(new
+                RandomAccessInputStream(filename, "r"))) {
             result = checkDictZipInputStream(dzin);
             dzin.close();
         }
@@ -88,15 +95,16 @@ public class DictZipFileUtils {
 
     /**
      * Check gzip member stream w/ CRC and length in trailer.
+     * @param in inputstream to be checked.
+     * @return true if inputstream is a valid dictzip, otherwise false.
      * @throws IOException when CRC error or total length error.
      */
-    public static boolean checkDictZipInputStream(DictZipInputStream in) throws IOException {
-        final int BUF_LEN = 65536;
-        byte[] tmpBuf = new byte[BUF_LEN];
+    public static boolean checkDictZipInputStream(final DictZipInputStream in) throws IOException {
+        byte[] tmpBuf = new byte[CHECK_BUF_LEN];
         in.seek(0);
         long readLen = 0;
         while (readLen < in.getLength()) {
-            int len = in.read(tmpBuf, 0, BUF_LEN);
+            int len = in.read(tmpBuf, 0, CHECK_BUF_LEN);
             if (len < 0) {
                 break;
             }

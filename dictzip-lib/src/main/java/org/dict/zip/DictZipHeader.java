@@ -400,8 +400,9 @@ public class DictZipHeader {
 
     /**
      * Set Header CRC flag.
+     * @param val true when set header CRC.
      */
-    public void setHeaderCRC(boolean val) {
+    public void setHeaderCRC(final boolean val) {
         setGzipFlag(FHCRC, val);
     }
 
