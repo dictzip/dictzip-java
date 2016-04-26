@@ -37,9 +37,6 @@ subprojects {
 
   repositories {
     jcenter()
-    maven {
-        url "http://dl.bintray.com/miurahr/maven"
-    }
     mavenCentral()
   }
 
@@ -57,7 +54,6 @@ subprojects {
   }
 
   task javadocJar(type: Jar, dependsOn: javadoc) {
-      description 'Generate jar file that have javadoc'
       classifier = 'javadoc'
       from javadoc.destinationDir
   }
@@ -68,7 +64,6 @@ subprojects {
       archives javadocJar
   }
 }
-
 
 project(':dictzip-lib') {
   dependencies {
@@ -87,11 +82,6 @@ project(':dictzip-lib') {
           vcsUrl = projectUrl
           labels = ['java','dictzip']
           publicDownloadNumbers = true
-          version {
-              name = projectVersion
-              desc = projectDesc
-              vcsTag = projectTag
-          }
       }
   }
 }
@@ -120,11 +110,6 @@ project(':dictzip-cli') {
           vcsUrl = projectUrl
           labels = ['java','dictzip']
           publicDownloadNumbers = true
-          version {
-              name = projectVersion
-              desc = projectDesc
-              vcsTag = projectTag
-          }
       }
   }
 }
