@@ -2,8 +2,18 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Add
+- More javadoc description. Complete for library APIs.
 
-## [0.7.0]
+### Changed
+- DictZipHeader.setHeaderCRC() argument become final.
+- DictZipFileUtils class become final.
+
+### Fixed
+- Generate Maven POM with a proper groupId.
+- DictZipInputStream: copy buffer with offset by System.copyarray().
+
+## [0.7.0] - 2016-4-25
 ### Add
 - Add test option for DictZip CLI.
 - Add DictZipInputStream consructor that get a filename as argument.
