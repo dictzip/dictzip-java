@@ -13,6 +13,7 @@ subprojects {
   apply plugin: 'findbugs'
   apply plugin: 'co.riiid.gradle'
   apply plugin: 'com.jfrog.bintray'
+  apply plugin: 'maven'
 
   sourceCompatibility = jdkVersion
   targetCompatibility = jdkVersion
@@ -68,13 +69,13 @@ subprojects {
   }
 }
 
-group = projectGroup
 
 project(':dictzip-lib') {
   dependencies {
     testCompile 'tokyo.northside:northside-io:0.2.0'
   }
   version = projectVersion
+  group = projectGroup
   bintray {
       user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
       key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
@@ -107,6 +108,7 @@ project(':dictzip-cli') {
     testCompile 'tokyo.northside:northside-io:0.2.0'
   }
   version = projectVersion
+  group = projectGroup
   bintray {
       user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
       key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
