@@ -18,7 +18,6 @@
 
 package org.dict.zip.cli;
 
-import org.apache.commons.codec.binary.Base64;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 import org.dict.zip.DictZipHeader.CompressionLevel;
@@ -82,8 +81,6 @@ public class CommandLine {
         longOpts[10] = new LongOpt("debug", LongOpt.REQUIRED_ARGUMENT, debugLevelVal, 'D');
         longOpts[11] = new LongOpt("start", LongOpt.REQUIRED_ARGUMENT, startVal, 's');
         longOpts[12] = new LongOpt("size", LongOpt.REQUIRED_ARGUMENT, sizeVal, 'e');
-        longOpts[13] = new LongOpt("Start", LongOpt.REQUIRED_ARGUMENT, startVal, 'S');
-        longOpts[14] = new LongOpt("Size", LongOpt.REQUIRED_ARGUMENT, sizeVal, 'E');
         longOpts[15] = new LongOpt("pre", LongOpt.REQUIRED_ARGUMENT, preFilterName, 'p');
         longOpts[16] = new LongOpt("post", LongOpt.REQUIRED_ARGUMENT, postFilterName, 'P');
         longOpts[17] = new LongOpt("fast", LongOpt.NO_ARGUMENT, null, '1');
@@ -153,20 +150,12 @@ public class CommandLine {
                     arg = g.getOptarg();
                     options.setSize(Integer.getInteger(arg));
                     break;
-                case 'E':
-                    arg = g.getOptarg();
-                    options.setSize(Base64.decodeInteger(Base64.decodeBase64(arg)).intValue());
-                    break;
-                case 's':
+               case 's':
                     arg = g.getOptarg();
                     options.setStart(Integer.getInteger(arg));
                     break;
-                case 'S':
-                    arg = g.getOptarg();
-                    options.setStart(Base64.decodeInteger(Base64.decodeBase64(arg)).intValue());
-                    break;
                 case 't':
-                    // FIXME: not implement yet
+                    options.setTest(true);
                     break;
                 case 'v':
                     System.out.println(AppConsts.getNameAndVersion());

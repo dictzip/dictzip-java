@@ -93,7 +93,6 @@ project(':dictzip-cli') {
 
   dependencies {
     compile project(':dictzip-lib'),
-       'commons-codec:commons-codec:1.10',
        'gnu.getopt:java-getopt:1.0.13'
     testCompile 'tokyo.northside:northside-io:0.2.0'
   }

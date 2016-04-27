@@ -169,8 +169,7 @@ Display the
 license and quit.
 .TP
 .BR \-t " or " \-\-test
-Check the compressed file integrity.  This option is not implemented.
-Instead, it will list the header information.
+Check the compressed file integrity.
 .TP
 .BR \-v " or " \-\-verbose
 Verbose. Display extra information during compression.
@@ -185,26 +184,6 @@ default is at the beginning of the file.
 .BI \-e " size\fR or " \-\-size " size"
 Specify the size of the portion of the file to decompress, using decimal
 numbers.  The default is the whole file.
-.TP
-.BI \-S " start\fR or " \-\-Start " start"
-Specify the offer to start decompression, using base64 numbers.  The
-default is at the beginning of the file.
-.TP
-.BI \-E " size\fR or " \-\-Size " start"
-Specify the size of the portion of the file to decompress, using base64
-numbers.  The default is the whole file.
-.TP
-.BI \-p " prefilter\fR or " \-\-pre " prefilter"
-Specify a shell command to execute as a filter before compression or
-decompression of a chunk.  The pre- and post-compression filters can be
-used to provide additional compression or output formatting.  The filters
-may not increase the buffer size significantly.  The pre- and
-post-compression filters were designed to provide the most general
-interface possible.
-.TP
-.BI \-P " postfilter\fR or " \-\-post " postfilter"
-Specify a shell command to execute as a filter after compression or
-decompression.
 .SH CREDITS
 .B dictzip
 was written by Rik Faith (faith@cs.unc.edu) and is distributed under the
