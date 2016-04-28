@@ -58,6 +58,7 @@ public class CommandLine {
      * @param argv command line argument
      * @return exit code, if success return 0, otherwise return exit code.
      */
+    @SuppressWarnings("checkstyle:avoidinlineconditionals")
     protected int parse(final String[] argv) {
         int c;
         String arg;
@@ -78,7 +79,7 @@ public class CommandLine {
         longOpts[10] = new LongOpt("size", LongOpt.REQUIRED_ARGUMENT, sizeVal, 'e');
         longOpts[11] = new LongOpt("fast", LongOpt.NO_ARGUMENT, null, '1');
         longOpts[12] = new LongOpt("best", LongOpt.NO_ARGUMENT, null, '9');
-        assert(longOpts.length == OPTS_LEN);
+        assert (longOpts.length == OPTS_LEN);
         Getopt g = new Getopt("dictzip", argv, "cdfhklLe:E:s:S:tvVD:p:P:169", longOpts);
         g.setOpterr(false); // We'll do our own error handling
         //

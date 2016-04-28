@@ -18,7 +18,8 @@ All notable changes to this project will be documented in this file.
 - Generate Maven POM with a proper groupId.
 - DictZipInputStream: copy buffer with offset by System.copyarray().
 - CLI: Enable -t --test functionarity.
-- CLI: fix --version not working.
+- CLI: Fix --version not working.
+- CLI: Fix all coding style warnings.
 
 ## [0.7.0] - 2016-4-25
 ### Add

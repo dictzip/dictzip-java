@@ -203,7 +203,7 @@ public class Options {
         return level;
     }
 
-    void setLevel(CompressionLevel level) {
+    void setLevel(final CompressionLevel level) {
         this.level = level;
     }
 }

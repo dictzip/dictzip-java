@@ -32,7 +32,6 @@ import java.util.ResourceBundle;
 import java.util.zip.Deflater;
 
 
-import org.dict.zip.DictZipHeader;
 import org.dict.zip.DictZipHeader.CompressionLevel;
 import org.dict.zip.DictZipInputStream;
 import org.dict.zip.DictZipOutputStream;
@@ -96,10 +95,10 @@ public class DictData {
 
     /**
      * Do compression.
+     * @param level indicate compression level from fast to best.
      * @throws IOException if file I/O error.
-     * @param level
      */
-    public void doZip(CompressionLevel level) throws IOException {
+    public void doZip(final CompressionLevel level) throws IOException {
         int defLevel;
         byte[] buf = new byte[BUF_LEN];
         File originalFile = new File(originalFileName);
