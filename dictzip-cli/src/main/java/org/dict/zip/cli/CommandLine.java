@@ -51,7 +51,7 @@ public class CommandLine {
         return targetFiles;
     }
 
-    private static final int OPTS_LEN = 19;
+    private static final int OPTS_LEN = 13;
     /**
      * Parse command line and set preferences.
      *
@@ -63,11 +63,8 @@ public class CommandLine {
         String arg;
 
         LongOpt[] longOpts = new LongOpt[OPTS_LEN];
-        StringBuffer debugLevelVal = new StringBuffer();
         StringBuffer startVal = new StringBuffer();
         StringBuffer sizeVal = new StringBuffer();
-        StringBuffer preFilterName = new StringBuffer();
-        StringBuffer postFilterName = new StringBuffer();
         longOpts[0] = new LongOpt("stdout", LongOpt.NO_ARGUMENT, null, 'c');
         longOpts[1] = new LongOpt("decompress", LongOpt.NO_ARGUMENT, null, 'd');
         longOpts[2] = new LongOpt("force", LongOpt.NO_ARGUMENT, null, 'f');
@@ -76,15 +73,11 @@ public class CommandLine {
         longOpts[5] = new LongOpt("list", LongOpt.NO_ARGUMENT, null, 'l');
         longOpts[6] = new LongOpt("license", LongOpt.NO_ARGUMENT, null, 'L');
         longOpts[7] = new LongOpt("test", LongOpt.NO_ARGUMENT, null, 't');
-        longOpts[8] = new LongOpt("verbose", LongOpt.NO_ARGUMENT, null, 'v');
-        longOpts[9] = new LongOpt("version", LongOpt.NO_ARGUMENT, null, 'V');
-        longOpts[10] = new LongOpt("debug", LongOpt.REQUIRED_ARGUMENT, debugLevelVal, 'D');
-        longOpts[11] = new LongOpt("start", LongOpt.REQUIRED_ARGUMENT, startVal, 's');
-        longOpts[12] = new LongOpt("size", LongOpt.REQUIRED_ARGUMENT, sizeVal, 'e');
-        longOpts[15] = new LongOpt("pre", LongOpt.REQUIRED_ARGUMENT, preFilterName, 'p');
-        longOpts[16] = new LongOpt("post", LongOpt.REQUIRED_ARGUMENT, postFilterName, 'P');
-        longOpts[17] = new LongOpt("fast", LongOpt.NO_ARGUMENT, null, '1');
-        longOpts[18] = new LongOpt("best", LongOpt.NO_ARGUMENT, null, '9');
+        longOpts[8] = new LongOpt("version", LongOpt.NO_ARGUMENT, null, 'v');
+        longOpts[9] = new LongOpt("start", LongOpt.REQUIRED_ARGUMENT, startVal, 's');
+        longOpts[10] = new LongOpt("size", LongOpt.REQUIRED_ARGUMENT, sizeVal, 'e');
+        longOpts[11] = new LongOpt("fast", LongOpt.NO_ARGUMENT, null, '1');
+        longOpts[12] = new LongOpt("best", LongOpt.NO_ARGUMENT, null, '9');
         assert(longOpts.length == OPTS_LEN);
         Getopt g = new Getopt("dictzip", argv, "cdfhklLe:E:s:S:tvVD:p:P:169", longOpts);
         g.setOpterr(false); // We'll do our own error handling
@@ -127,12 +120,10 @@ public class CommandLine {
                     break;
                 case 'h':
                     System.out.println(AppConsts.getNameAndVersion());
-                    System.out.println(MessageFormat.format(getString("help.copyright.template"),
-                            AppConsts.YEAR, AppConsts.AUTHORS));
+                    showCopyright();
                     System.out.println();
-                    System.out.println(MessageFormat.format(getString("help.message"),
-                            AppConsts.NAME));
-                    break;
+                    showHelp();
+                    return 1;
                 case 'k':
                     options.setKeep(true);
                     break;
@@ -141,36 +132,47 @@ public class CommandLine {
                     break;
                 case 'L':
                     System.out.println(AppConsts.getNameAndVersion());
-                    System.out.println(MessageFormat.format(getString("help.copyright.template"),
-                            AppConsts.YEAR, AppConsts.AUTHORS));
+                    showCopyright();
                     System.out.println();
                     System.out.println(getString("help.license"));
-                    break;
+                    return 1;
                 case 'e':
                     arg = g.getOptarg();
-                    options.setSize(Integer.getInteger(arg));
+                    try {
+                        options.setSize(parseNumber(arg.trim()));
+                    } catch (NumberFormatException nfe) {
+                        System.err.println(getString("commandline.error.num_format"));
+                        showHelp();
+                        return 2;
+                    }
                     break;
                case 's':
                     arg = g.getOptarg();
-                    options.setStart(Integer.getInteger(arg));
+                    try {
+                        options.setStart(parseNumber(arg.trim()));
+                    } catch (NumberFormatException nfe) {
+                        System.err.println(getString("commandline.error.num_format"));
+                        showHelp();
+                        return 2;
+                    }
                     break;
                 case 't':
                     options.setTest(true);
                     break;
                 case 'v':
                     System.out.println(AppConsts.getNameAndVersion());
-                    System.out.println(MessageFormat.format(getString("help.copyright.template"),
-                            AppConsts.YEAR, AppConsts.AUTHORS));
-                    System.out.println();
-                    break;
+                    showCopyright();
+                    return 1;
                 case ':':
-                    System.out.println("Doh! You need an argument for option "
+                    System.err.println("Doh! You need an argument for option "
                             + (char) g.getOptopt());
-                    break;
+                    showHelp();
+                    return 2;
                 case '?':
                     System.out.println("The option '" + (char) g.getOptopt()
                             + "' is not valid");
-                    return 1;
+                    showHelp();
+                    return 2;
                 default:
                     System.out.println("getopt() returned " + c);
                     break;
@@ -179,5 +181,25 @@ public class CommandLine {
         //
         targetFiles.addAll(Arrays.asList(argv).subList(g.getOptind(), argv.length));
         return 0;
+    }
+
+    private static void showCopyright() {
+        System.out.println(MessageFormat.format(getString("help.copyright.template"),
+                AppConsts.YEAR, AppConsts.AUTHORS));
+    }
+    private static void showHelp() {
+        System.out.println(MessageFormat.format(getString("help.message"),
+                AppConsts.NAME));
+    }
+
+    private static Integer parseNumber(final String arg) throws NumberFormatException {
+        if (arg.startsWith("0x")) {
+            System.err.println(arg.substring(2));
+            return Integer.parseInt(arg.substring(2), 16);
+        } else if (arg.startsWith("0")) {
+            return Integer.parseInt(arg, 8);
+        } else {
+            return Integer.parseInt(arg);
+        }
     }
 }

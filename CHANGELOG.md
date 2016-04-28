@@ -9,12 +9,15 @@ All notable changes to this project will be documented in this file.
 - DictZipHeader.setHeaderCRC() argument become final.
 - DictZipFileUtils class become final.
 - CLI: drop -S -E <base64> arugment.
+- CLI: support -s/-e hex(0xAAAA) and octet(0777) numbers.
 - CLI: update man page according to option changes.
+- Manpage description.
 
 ### Fixed
 - Generate Maven POM with a proper groupId.
 - DictZipInputStream: copy buffer with offset by System.copyarray().
 - CLI: Enable -t --test functionarity.
+- CLI: fix --version not working.
 
 ## [0.7.0] - 2016-4-25
 ### Add
