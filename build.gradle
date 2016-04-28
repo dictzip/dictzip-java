@@ -150,6 +150,7 @@ project(':dictzip-cli') {
 }
 
 task mandoc << {}
+task bintrayUpload(overwrite: true) << {}
 
 if (gradle.startParameter.taskNames.contains('bintrayUpload')  ||
     gradle.startParameter.taskNames.contains('githubRelease')) {
