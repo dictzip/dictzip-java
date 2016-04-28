@@ -51,8 +51,11 @@ public final class Main {
     public static void main(final String[] argv) {
         int res = commandLine.parse(argv);
         // If error in command line, exit with code
-        if (res != 0) {
+        if (res > 1) {
             System.exit(res);
+        } else if (res == 1) {
+            // normal exit.
+            System.exit(0);
         }
         for (String fName: commandLine.getTargetFiles()) {
             try {
