@@ -87,6 +87,7 @@ project(':dictzip-lib') {
       }
   }
   task mandoc << {}
+  task githubRelease(overwrite: true) << {}
 }
 
 project(':dictzip-cli') {
@@ -145,6 +146,7 @@ project(':dictzip-cli') {
           }
       }
   }
+  task githubRelease(overwrite: true) << {}
 }
 
 task mandoc << {}
