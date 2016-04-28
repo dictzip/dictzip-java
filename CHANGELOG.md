@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Add
+
+### Changed
+
+### Fixed
+- Gradle: github and bintray release error.
 
 ## [0.8.0] - 2015-4-29
 ### Add
