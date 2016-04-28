@@ -26,7 +26,10 @@ github {
     draft = true
     body = projectReleaseBody
     assets = [
-            'dictzip-cli/build/distributions/DictZip.zip',
-            'dictzip-lib/build/libs/dictzip-lib.jar'
+            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.tgz',
+            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.zip',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersin + '.jar',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersin + '-sources.jar',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersin + '-javadoc.jar'
     ]
 }
