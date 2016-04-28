@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     // github
     id "co.riiid.gradle" version "0.4.2"
@@ -84,6 +86,7 @@ project(':dictzip-lib') {
           publicDownloadNumbers = true
       }
   }
+  task mandoc << {}
 }
 
 project(':dictzip-cli') {
@@ -112,10 +115,40 @@ project(':dictzip-cli') {
           publicDownloadNumbers = true
       }
   }
+
+  task mandoc(type: Copy, overwrite: true) {
+    from "doc/dictzip.1.in"
+    into 'build/docs'
+    rename { String fileName ->
+        fileName.replace('dictzip.1.in', 'dictzip.1')
+    }
+    filter(ReplaceTokens, tokens: [copyright: projectYears, version: projectVersion])
+  }
+
   distTar {
     compression = Compression.GZIP
   }
+  distTar.dependsOn mandoc
+
+  distributions {
+      main {
+          baseName = 'dictzip'
+          contents {
+              from('build/docs/dictzip.1') {
+                  into 'docs/man/man1'
+              }
+              from(javadocJar) {
+                  into 'docs'
+              }
+              from(sourceJar) {
+                  into 'source'
+              }
+          }
+      }
+  }
 }
+
+task mandoc << {}
 
 if (gradle.startParameter.taskNames.contains('bintrayUpload')  ||
     gradle.startParameter.taskNames.contains('githubRelease')) {

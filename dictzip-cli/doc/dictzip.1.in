@@ -2,6 +2,7 @@
 .\" Created: Sun Jun 22 16:33:39 1997 by faith@acm.org
 .\" Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
 .\" Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
+.\" Copyright @copyright@ Hiroshi Miura
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
 .\" manual provided the copyright notice and this permission notice are
@@ -25,12 +26,10 @@
 .\" 
 .TH DICTZIP 1 "22 Jun 1997" "" ""
 .SH "NAME"
-dictzip, dictunzip \- compress (or expand) files, allowing random access
+dictzip \- compress (or expand) files, allowing random access
 .SH "SYNOPSIS"
 .nf
 .BI "dictzip [" options "] " name
-.br
-.BI "dictunzip [" options "] " name
 .fi
 .SH "DESCRIPTION"
 .B dictzip
@@ -206,16 +205,13 @@ interface possible.
 Specify a shell command to execute as a filter after compression or
 decompression.
 .SH CREDITS
-.B dictzip
-was written by Rik Faith (faith@cs.unc.edu) and is distributed under the
-terms of the GNU General Public License.  If you need to distribute under
-other terms, write to the author.
+.B dictzip(dictzip-cli java program)
+was written by Hiroshi Miura (miurahr@linux.com) and is distributed under the
+terms of the GNU General Public License version 3 or later.
 .P
-The main libraries used by this programs (zlib, regex, libmaa) are
-distributed under different terms, so you may be able to use the libraries
-for applications which are incompatible with the GPL -- please see the
-copyright notices and license information that come with the libraries for
-more information, and consult with your attorney to resolve these issues.
+The main libraries used by this programs (dictzip-lib) are
+distributed under GNU General Public License version 2 or later, plus classpath
+link exception.
 .SH "SEE ALSO"
 .BR dict (1),
 .BR dictd (8),
