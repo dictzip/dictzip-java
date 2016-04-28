@@ -8,6 +8,15 @@ is an only file for you.
 CLI is also made for example of API usage and will be a good reference.
 Also there is a javadoc of DictZip at https://miurahr.github.io/dictzip-java
 
+### from maven
+
+dictzip library is registered at JCenter repository. You can download
+from JCenter specifying as follows:
+
+```
+org.dict.zip:dictzip-lib:0.8.0
+```
+
 ## Build
 
 DictZip for java uses Gradle for build system. You can build library and CLI
@@ -20,7 +29,8 @@ $ gradle build
 You will find archive files at
 
 ```
-dictzip-cli/build/distributions/
+dictzip-cli/build/distributions/dictzip-<version>.tgz
+dictzip-cli/build/distributions/dictzip-<version>.zip
 ```
 
 ## Contribution
@@ -35,11 +45,11 @@ It is recommended to post an issue before sending a patch.
 DictZip library does not depend on any project without Java standard libraries.
 
 DictZip CLI utility depends on some libraries.
+It depends on JFrog bintray JCenter repository.
 
 ### Runtime depenency
 
 - java-getopts library(GPLv2+)
-- Apache commons codec library(Apache2)
 
 ### Test dependency
 
