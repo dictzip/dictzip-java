@@ -92,7 +92,7 @@ project(':dictzip-lib') {
 project(':dictzip-cli') {
   apply plugin: 'application'
   mainClassName = 'org.dict.zip.cli.Main'
-  applicationName = 'DictZip'
+  applicationName = 'dictzip'
 
   dependencies {
     compile project(':dictzip-lib'),

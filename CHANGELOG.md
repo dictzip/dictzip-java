@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - CLI: support -s/-e hex(0xAAAA) and octet(0777) numbers.
 - CLI: update man page according to option changes.
 - Manpage description.
+- CLI: start script is now 'dictzip' and 'dictzip.bat', all small caps.
 
 ### Fixed
 - Generate Maven POM with a proper groupId.
