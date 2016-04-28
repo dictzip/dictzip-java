@@ -112,6 +112,9 @@ project(':dictzip-cli') {
           publicDownloadNumbers = true
       }
   }
+  distTar {
+    compression = Compression.GZIP
+  }
 }
 
 if (gradle.startParameter.taskNames.contains('bintrayUpload')  ||
