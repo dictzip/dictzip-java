@@ -28,8 +28,8 @@ github {
     assets = [
             'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.tgz',
             'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.zip',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersin + '.jar',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersin + '-sources.jar',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersin + '-javadoc.jar'
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '.jar',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-sources.jar',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-javadoc.jar'
     ]
 }
