@@ -1,6 +1,8 @@
 # dictzip-java
 DictZip, GZip random access compression format(.dz), access library for Java
 
+[_![Download](https://api.bintray.com/packages/miurahr/maven/dictzip-lib/images/download.svg) ](https://bintray.com/miurahr/maven/dictzip-lib/_latestVersion)
+
 ## Usage
 
 Extract archive in directory. If you want to use just library, `dictzip-lib.jar`
