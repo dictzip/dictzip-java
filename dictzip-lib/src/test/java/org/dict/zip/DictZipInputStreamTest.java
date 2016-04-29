@@ -43,9 +43,11 @@ import org.testng.SkipException;
 import org.testng.annotations.*;
 
 import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static tokyo.northside.io.IOUtils2.contentEquals;
 
 /**
  * Test of DictZipInputStream.
@@ -95,9 +97,10 @@ public class DictZipInputStreamTest {
      * Test close of stream.
      * @throws Exception if I/O error occurred.
      */
-    @Test (dependsOnGroups = { "test" })
+    @Test (groups = "exit", dependsOnGroups = { "test" })
     public void testClose() throws Exception {
         din.close();
+        din = null;
     }
 
     /**
@@ -177,8 +180,7 @@ public class DictZipInputStreamTest {
         int len = 512;
         byte[] buf = new byte[len];
         int size = din.read(buf, 0, 0);
-        throw new SkipException("Unknown bug.");
-        //assertEquals(size, 0);
+        assertEquals(size, 0);
     }
 
     /**
@@ -289,5 +291,64 @@ public class DictZipInputStreamTest {
         assertEquals(din.getFilename(), "results.dict");
     }
 
+   /**
+     * Test readFully with large seek
+     */
+    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    public void testReadFully_seek2() throws Exception {
+        System.out.println("readFully_seek2");
+        int start = 56003;
+        int len = 195;
+        try {
+            din.seek(start);
+        } catch (IOException ioe) {
+            fail("Unexpected IOException");
+        }
+        byte[] buf = new byte[len];
+        try {
+            din.readFully(buf);
+        } catch (EOFException eofe) {
+            fail("Unexpected EOF");
+        }
+    }
 
+   /**
+     * Test with large  seek
+     */
+    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    public void testRead_seek2() throws Exception {
+        System.out.println("read_seek2");
+        int start = 56003;
+        int len = 195;
+        try {
+            din.seek(start);
+        } catch (IOException ioe) {
+            fail("Unexpected IOException");
+        }
+        byte[] buf = new byte[len];
+        int result=0;
+        try {
+            result = din.read(buf, 0, len);
+        } catch (EOFException eofe) {
+            fail("Unexpected EOF");
+        }
+        assertEquals(result, len);
+    }
+    /**
+     * Test with large seek comparison content
+     */
+    @Test (groups = "test", dependsOnMethods = { "testConstructor"})
+    public void testRead_seek3() throws Exception {
+         System.out.println("read_seek2");
+        int start = 56003;
+        int len = 195;
+        try {
+            din.seek(start);
+        } catch (IOException ioe) {
+            fail("Unexpected IOException");
+        }
+        FileInputStream in2 = new FileInputStream(this.getClass().getResource("/test.dict.expected").getFile());
+        in2.skip(start);
+        assertTrue(contentEquals(din, in2, 0, len));
+    }
 }

@@ -60,6 +60,18 @@ public class DictZipInputStream extends InflaterInputStream {
      */
     private boolean eos;
 
+    /*
+     * Super class has three protected variables.
+     * protected byte[]	buf
+     *                         Input buffer for decompression.
+     * protected Inflater	inf
+     *                         Decompressor for this stream.
+     * protected int	len
+     *                         Length of input buffer.
+     *
+     * We should not use these names in order to avoid confusion.
+     */
+
     /**
      * Creates a new input stream with a default buffer size from given filepath.
      *
@@ -109,7 +121,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * Reads uncompressed data into an array of bytes. Blocks until enough input is available for
      * decompression.
      *
-     * @param buf the buffer into which the data is read
+     * @param buffer the buffer into which the data is read
      * @param off the start offset of the data
      * @param size the maximum number of bytes read
      * @return the actual number of bytes read, or -1 if the end of the compressed input stream is
@@ -117,37 +129,42 @@ public class DictZipInputStream extends InflaterInputStream {
      * @exception IOException if an I/O error has occurred or the compressed input data is corrupt
      */
     @Override
-    public final int read(final byte[] buf, final int off, final int size) throws IOException {
+    public final int read(final byte[] buffer, final int off, final int size) throws IOException {
         if (eos) {
             return -1;
         }
-        if (buf == null) {
+        if (buffer == null) {
             throw new NullPointerException();
-        } else if (off < 0 || size < 0 || size > buf.length - off || off >= buf.length) {
+        } else if (off < 0 || size < 0 || size > buffer.length - off || off >= buffer.length) {
             throw new IndexOutOfBoundsException();
         } else if (size == 0) {
             return 0;
         }
-        int readLen;
-        if (offset == 0) {
-            readLen = super.read(buf, off, size);
-            if (readLen == -1) {
-                eos = true;
-            } else {
-                crc.update(buf, off, readLen);
-            }
-        } else {
-            byte[] tmpBuf = new byte[Math.min(offset + size, offset + buf.length - off)];
-            readLen = super.read(tmpBuf, 0, tmpBuf.length);
-            readLen -= offset;
-            if (readLen < 0) {
-                eos = true;
-                readLen = -1;
-            } else {
-                System.arraycopy(tmpBuf, offset, buf, off, readLen);
-                crc.update(buf, off, readLen);
+        // skip to offset
+        if (offset > 0) {
+            int total;
+            int len;
+            byte[] b = new byte[512];
+            for(total = 0; total < offset; total += len) {
+                len = offset - total;
+                if(len > b.length) {
+                    len = b.length;
+                }
+
+                len = super.read(b, 0, len);
+                if(len == -1) {
+                    eos = true;
+                    return -1;
+                }
             }
             offset = 0;
+        }
+        // read for buffer size.
+        int readLen = super.read(buffer, off, size);
+        if (readLen == -1) {
+            eos = true;
+        } else {
+            crc.update(buffer, off, readLen);
         }
         return readLen;
     }
@@ -155,26 +172,26 @@ public class DictZipInputStream extends InflaterInputStream {
     /**
      * Read full data.
      *
-     * @param buf the buffer into which the data is read
+     * @param buffer the buffer into which the data is read
      * @exception IOException if an I/O error has occurred or the compressed input data is corrupt
      */
-    public final void readFully(final byte[] buf) throws IOException {
-        readFully(buf, 0, buf.length);
+    public final void readFully(final byte[] buffer) throws IOException {
+        readFully(buffer, 0, buffer.length);
     }
 
     /**
      * Read full data by offset/length.
      *
-     * @param buf the buffer into which the data is read
+     * @param buffer the buffer into which the data is read
      * @param off offset
-     * @param len length
+     * @param size length
      * @exception IOException if an I/O error has occurred or the compressed input data is corrupt
      */
-    public final void readFully(final byte[] buf, final int off, final int len)
+    public final void readFully(final byte[] buffer, final int off, final int size)
             throws IOException {
         int num = 0;
-        while (num < len) {
-            int count = read(buf, off + num, len - num);
+        while (num < size) {
+            int count = read(buffer, off + num, size - num);
             if (count < 0) {
                 throw new EOFException();
             }
@@ -208,6 +225,7 @@ public class DictZipInputStream extends InflaterInputStream {
             long pos = header.getPosition(next);
             rain.seek(pos);
             inf.reset();
+            eos = false;
         } else {
             throw new IOException("Illegal type of InputStream.");
         }

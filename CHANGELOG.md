@@ -6,8 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+
+## [0.8.1] - 2015-4-29
 ### Fixed
 - Gradle: github and bintray release error.
+- [#21] fixed unexpected EOFException when readFully() called after seek().
 
 ## [0.8.0] - 2015-4-29
 ### Add
@@ -92,7 +95,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/miurahr/dictzip-java/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/miurahr/dictzip-java/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/miurahr/dictzip-java/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/miurahr/dictzip-java/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/miurahr/dictzip-java/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/miurahr/dictzip-java/compare/v0.6.0...v0.6.1
