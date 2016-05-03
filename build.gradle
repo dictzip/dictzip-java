@@ -50,6 +50,10 @@ subprojects {
     useTestNG()
   }
 
+  javadoc {
+    options.locale = 'en_US'
+  }
+
   task sourceJar(type: Jar) {
       from sourceSets.main.allSource
       classifier = 'sources'
