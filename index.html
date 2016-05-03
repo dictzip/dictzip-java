@@ -14,8 +14,9 @@
       <h1 class="project-name">Dictzip-java</h1>
       <h2 class="project-tagline">DictZip, GZip random access compression format(.dz), access library for Java</h2>
       <a href="https://github.com/miurahr/dictzip-java" class="btn">View on GitHub</a>
-      <a href="https://github.com/miurahr/dictzip-java/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/miurahr/dictzip-java/tarball/master" class="btn">Download .tar.gz</a>
+      <a href="https://github.com/miurahr/dictzip-java/zipball/master" class="btn">Download source.zip</a>
+      <a href="https://github.com/miurahr/dictzip-java/tarball/master" class="btn">Download source.tar.gz</a>
+      <a href="https://bintray.com/miurahr/maven/dictzip-lib/_latestVersion" class="btn">Download Release</a>
     </section>
 
     <section class="main-content">
@@ -25,9 +26,104 @@
 <p>DictZip, GZip random access compression format(.dz), access library for Java</p>
 
 <h1>
-<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>license</h1>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a> Usage</h1>
+<p>
+Extract archive in directory. If you want to use just library, `dictzip-lib.jar` is an only file for you. CLI is also made for example of API usage and will be a good reference.
+</p>
 
-<p>Dictributed by GPL-2 and later.</p>
+<h2>
+<a id="mvn" class="anchor" href="#mvn" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Use from maven/gradle</h2>
+
+dictzip library is registered at JCenter repository. You can download from JCenter specifying as follows:
+
+<blockquote>
+<pre>
+org.dict.zip:dictzip-lib:0.8.1
+</pre>
+</blockquote>
+
+For example on gradle,
+
+<blockquote>
+<pre>
+repository {
+    jcenter()
+}
+dependency {
+    compile 'org.dict.zip:dictzip-lib:0.8.1'
+}
+</pre>
+</blockquote>
+
+<h1>
+<a id="contribution" class="anchor" href="#contribution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contribution</h1>
+<p>
+As usual of other projects hosted on GitHub, DictZip for java also welcome
+forking source and send modification as a Pull Request.
+It is recommended to post an issue before sending a patch.
+</p>
+
+
+<h1>
+<a id="deendencies" class="anchor" href="#dependencies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dependencies</h1>
+<p>
+DictZip library does not depend on any project without Java standard libraries.
+
+DictZip CLI utility depends on some libraries.
+It depends on JFrog bintray JCenter repository.
+</p>
+<ul>
+<li> Runtime depenency
+  <ul>
+      <li> java-getopts library(GPLv2+)</li>
+   </ul>
+   </li>
+<li>Test dependency
+   <ul>
+      <li>TestNG framework(Apache2)</li>
+      <li> Northside IO library(Apache2)</li>
+   </ul>
+  </li>
+</ul>
+   
+<h1>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Copyrights and License</h1>
+
+<p>
+DictZip library for Java and command line utility.
+</p><p>
+Copyright (C) 2001-2004 Ho Ngoc Duc
+</p><p>
+Copyright (C) 2016 Hiroshi Miura
+</p><p>
+Some part of this program are come from a part of jdictd 1.5 on java.
+</p><p>
+DictZip command line utility is distributed under the terms of GNU General
+Public License Version 3 or (at your option) any later version.
+</p><p>
+DictZip library is distributed under the terms of the GNU General Public License
+Version 2 or (at your option) any later version with the following clarification
+and special exception as same as GNU classpath.
+</p><p>
+Linking this library statically or dynamically with other modules is making
+a combined work based on this library. Thus, the terms and conditions of
+the GNU General Public License cover the whole combination.
+</p><p>
+As a special exception, the copyright holders of this library give you permission
+to link this library with independent modules to produce an executable, regardless
+of the license terms of these independent modules, and to copy and distribute
+the resulting executable under terms of your choice, provided that you also meet,
+for each linked independent module, the terms and conditions of the license of
+that module. An independent module is a module which is not derived from or based on
+this library. If you modify this library, you may extend this exception to
+your version of the library, but you are not obligated to do so. If you do not wish
+to do so, delete this exception statement from your version.
+</p><p>
+As such, it can be used to run, create and distribute a large class of applications
+and applets. When this library is used unmodified as the core class library
+for a virtual machine, compiler for the java languge, or for a program written
+in the java programming language it does not affect the licensing for distributing
+those programs directly.</p>
 
 <h1> <a href="javadoc/index.html">javadoc</a> </h1>
 
