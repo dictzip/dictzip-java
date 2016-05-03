@@ -10,13 +10,13 @@ is an only file for you.
 CLI is also made for example of API usage and will be a good reference.
 Also there is a javadoc of DictZip at https://miurahr.github.io/dictzip-java
 
-### from maven
+### from maven/gradle
 
 dictzip library is registered at JCenter repository. You can download
 from JCenter specifying as follows:
 
 ```
-org.dict.zip:dictzip-lib:0.8.0
+org.dict.zip:dictzip-lib:0.8.1
 ```
 
 ## Build
