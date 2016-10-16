@@ -62,11 +62,11 @@ public class DictZipInputStream extends InflaterInputStream {
 
     /*
      * Super class has three protected variables.
-     * protected byte[]	buf
+     * protected byte[] buf
      *                         Input buffer for decompression.
-     * protected Inflater	inf
+     * protected Inflater inf
      *                         Decompressor for this stream.
-     * protected int	len
+     * protected int len
      *                         Length of input buffer.
      *
      * We should not use these names in order to avoid confusion.
@@ -145,14 +145,14 @@ public class DictZipInputStream extends InflaterInputStream {
             int total;
             int len;
             byte[] b = new byte[512];
-            for(total = 0; total < offset; total += len) {
+            for (total = 0; total < offset; total += len) {
                 len = offset - total;
-                if(len > b.length) {
+                if (len > b.length) {
                     len = b.length;
                 }
 
                 len = super.read(b, 0, len);
-                if(len == -1) {
+                if (len == -1) {
                     eos = true;
                     return -1;
                 }
