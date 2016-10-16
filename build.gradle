@@ -84,6 +84,7 @@ project(':dictzip-lib') {
       pkg {
           repo = 'maven'
           name = 'dictzip-lib'
+          userOrg = 'dictzip'
           licenses = ['GPL-2.0+CE']
           vcsUrl = projectUrl
           labels = ['java','dictzip']
@@ -113,6 +114,7 @@ project(':dictzip-cli') {
       pkg {
           repo = 'maven'
           name = 'dictzip-cli'
+          userOrg = 'dictzip'
           licenses = ['GPL-3.0']
           vcsUrl = projectUrl
           labels = ['java','dictzip']

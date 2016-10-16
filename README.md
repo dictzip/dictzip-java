@@ -1,7 +1,7 @@
 # dictzip-java
 DictZip, GZip random access compression format(.dz), access library for Java
 
-[_![Download](https://api.bintray.com/packages/miurahr/maven/dictzip-lib/images/download.svg) ](https://bintray.com/miurahr/maven/dictzip-lib/_latestVersion)
+[_![Download](https://api.bintray.com/packages/dictzip/maven/dictzip-lib/images/download.svg) ](https://bintray.com/dictzip/maven/dictzip-lib/_latestVersion)
 
 ## Usage
 
@@ -16,7 +16,7 @@ dictzip library is registered at JCenter repository. You can download
 from JCenter specifying as follows:
 
 ```
-org.dict.zip:dictzip-lib:0.8.1
+org.dict.zip:dictzip-lib:0.8.2
 ```
 
 ## Build
