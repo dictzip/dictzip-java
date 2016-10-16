@@ -257,7 +257,7 @@ public class DictZipHeaderTest {
         DictZipHeader.writeHeader(header, outFile);
         outFile.close();
         String expectedHeader = this.getClass().getResource("/test.header.dz").getFile();
-        assertTrue(contentEquals(testFile, new File(expectedHeader), 7, 45));
+        assertTrue(contentEquals(testFile, new File(expectedHeader), 8, 45));
         testFile.deleteOnExit();
     }
 }
