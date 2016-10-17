@@ -1,4 +1,5 @@
 apply plugin: 'signing'
+import groovy.swing.SwingBuilder
 
 boolean validProperty(propertyName) {
   try { project.property(propertyName) != null }
@@ -7,10 +8,27 @@ boolean validProperty(propertyName) {
 assert validProperty('signing.keyId'),             'properties for signing must be provided'
 assert validProperty('signing.secretKeyRingFile'), 'properties for signing must be provided'
 
-String askPassword(prompt) {
-  "${System.console().readPassword(prompt)}"
+def keyPass = ''
+if(System.console() == null) {
+    new SwingBuilder().edt {
+        dialog(modal: true, title: 'Enter password', alwaysOnTop: true, resizable: false, locationRelativeTo: null, pack: true, show: true) {
+            vbox { // Put everything below each other
+                label(text: "Please enter passphrase for PGP key ${property('signing.keyId')}:")
+                def input2 = passwordField()
+                button(defaultButton: true, text: 'OK', actionPerformed: {
+                    keyPass = input2.password;
+                    dispose();
+                })
+            }
+        }
+    }
+} else {
+    keyPass = System.console().readPassword("Enter password for PGP key ${property('signing.keyId')}: ")
 }
-ext.'signing.password' = askPassword("Enter password for PGP key ${property('signing.keyId')}: ")
+if (keyPass.size() <= 0) {
+    throw new InvalidUserDataException("You must enter the passwords to proceed.")
+}
+ext.'signing.password' = new String(keyPass)
 
 signing {
   sign configurations.archives

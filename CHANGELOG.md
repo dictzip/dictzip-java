@@ -3,8 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Add
+- Swing dialog for PGP signing passphrase input.
 
 ### Changed
+- Update Gradle version to 3.1
 
 ## [0.8.2] - 2016-10-16
 ### Fixed
@@ -14,12 +16,12 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Move project URL to https://www.dictzip.org/.
 
-## [0.8.1] - 2015-4-29
+## [0.8.1] - 2016-4-29
 ### Fixed
 - Gradle: github and bintray release error.
 - [#21] fixed unexpected EOFException when readFully() called after seek().
 
-## [0.8.0] - 2015-4-29
+## [0.8.0] - 2016-4-29
 ### Add
 - More javadoc description. Complete for library APIs.
 
