@@ -10,163 +10,163 @@ plugins {
 
 // common settings
 subprojects {
-  apply plugin: 'java'
-  apply plugin: 'jacoco'
-  apply plugin: 'checkstyle'
-  apply plugin: 'findbugs'
-  apply plugin: 'co.riiid.gradle'
-  apply plugin: 'com.jfrog.bintray'
-  apply plugin: 'maven'
-  apply plugin: 'signing'
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'checkstyle'
+    apply plugin: 'findbugs'
+    apply plugin: 'co.riiid.gradle'
+    apply plugin: 'com.jfrog.bintray'
+    apply plugin: 'maven'
+    apply plugin: 'signing'
 
-  sourceCompatibility = jdkVersion
-  targetCompatibility = jdkVersion
-  [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-  [compileJava, compileTestJava]*.options*.bootClasspath = "$JDK_HOME/jre/lib/rt.jar"
-  checkstyle {
-    config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
-    ignoreFailures = true
-    toolVersion = '6.16.1'
-  }
-
-  // Force prevent checkstyle/findbugs on Test.
-  task checkstyleTest(overwrite: true) << {}
-  task findbugsTest(overwrite: true) << {}
-  tasks.withType(FindBugs) {
-    reports {
-      xml.enabled = false
-      html.enabled = true
+    sourceCompatibility = jdkVersion
+    targetCompatibility = jdkVersion
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+    [compileJava, compileTestJava]*.options*.bootClasspath = "$JDK_HOME/jre/lib/rt.jar"
+    checkstyle {
+        config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+        ignoreFailures = true
+        toolVersion = '6.16.1'
     }
-  }
 
-  repositories {
-    jcenter()
-    mavenCentral()
-  }
+    // Force prevent checkstyle/findbugs on Test.
+    task checkstyleTest(overwrite: true) << {}
+    task findbugsTest(overwrite: true) << {}
+    tasks.withType(FindBugs) {
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
 
-  dependencies {
-    testCompile 'org.testng:testng:6.9.10'
-  }
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
 
-  test {
-    useTestNG()
-  }
+    dependencies {
+        testCompile 'org.testng:testng:6.9.10'
+    }
 
-  javadoc {
-    options.locale = 'en_US'
-  }
+    test {
+        useTestNG()
+    }
 
-  task sourceJar(type: Jar) {
-      from sourceSets.main.allSource
-      classifier = 'sources'
-  }
+    javadoc {
+        options.locale = 'en_US'
+    }
 
-  task javadocJar(type: Jar, dependsOn: javadoc) {
-      classifier = 'javadoc'
-      from javadoc.destinationDir
-  }
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
 
-  artifacts {
-      archives jar
-      archives sourceJar
-      archives javadocJar
-  }
-    
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives jar
+        archives sourceJar
+        archives javadocJar
+    }
+
     signing {
-      sign configurations.archives
+        sign configurations.archives
     }
 }
 
 project(':dictzip-lib') {
-  dependencies {
-    testCompile 'tokyo.northside:northside-io:0.2.0'
-  }
-  version = projectVersion
-  group = projectGroup
-  bintray {
-      user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-      key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-      configurations = ['archives']
-      pkg {
-          repo = 'maven'
-          name = 'dictzip-lib'
-          userOrg = 'dictzip'
-          licenses = ['GPL-2.0+CE']
-          vcsUrl = projectUrl
-          labels = ['java','dictzip']
-          publicDownloadNumbers = true
-      }
-  }
-  task mandoc << {}
-  task githubRelease(overwrite: true) << {}
+    dependencies {
+        testCompile 'tokyo.northside:northside-io:0.2.0'
+    }
+    version = projectVersion
+    group = projectGroup
+    bintray {
+        user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+        key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+        configurations = ['archives']
+        pkg {
+            repo = 'maven'
+            name = 'dictzip-lib'
+            userOrg = 'dictzip'
+            licenses = ['GPL-2.0+CE']
+            vcsUrl = projectUrl
+            labels = ['java','dictzip']
+            publicDownloadNumbers = true
+        }
+    }
+    task mandoc << {}
+    task githubRelease(overwrite: true) << {}
 }
 
 project(':dictzip-cli') {
-  apply plugin: 'application'
-  mainClassName = 'org.dict.zip.cli.Main'
-  applicationName = 'dictzip'
+    apply plugin: 'application'
+    mainClassName = 'org.dict.zip.cli.Main'
+    applicationName = 'dictzip'
 
-  dependencies {
-    compile project(':dictzip-lib'),
-       'gnu.getopt:java-getopt:1.0.13'
-    testCompile 'tokyo.northside:northside-io:0.2.0'
-  }
-  version = projectVersion
-  group = projectGroup
-  bintray {
-      user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-      key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-      configurations = ['archives']
-      pkg {
-          repo = 'maven'
-          name = 'dictzip-cli'
-          userOrg = 'dictzip'
-          licenses = ['GPL-3.0']
-          vcsUrl = projectUrl
-          labels = ['java','dictzip']
-          publicDownloadNumbers = true
-      }
-  }
-
-  task mandoc(type: Copy, overwrite: true) {
-    from "doc/dictzip.1.in"
-    into 'build/docs'
-    rename { String fileName ->
-        fileName.replace('dictzip.1.in', 'dictzip.1')
+    dependencies {
+        compile project(':dictzip-lib'),
+           'gnu.getopt:java-getopt:1.0.13'
+        testCompile 'tokyo.northside:northside-io:0.2.0'
     }
-    filter(ReplaceTokens, tokens: [copyright: projectYears, version: projectVersion])
-  }
+    version = projectVersion
+    group = projectGroup
+    bintray {
+        user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+        key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+        configurations = ['archives']
+        pkg {
+            repo = 'maven'
+            name = 'dictzip-cli'
+            userOrg = 'dictzip'
+            licenses = ['GPL-3.0']
+            vcsUrl = projectUrl
+            labels = ['java','dictzip']
+            publicDownloadNumbers = true
+        }
+    }
 
-  distTar {
-    compression = Compression.GZIP
-  }
-  distTar.dependsOn mandoc
+    task mandoc(type: Copy, overwrite: true) {
+        from "doc/dictzip.1.in"
+        into 'build/docs'
+        rename { String fileName ->
+            fileName.replace('dictzip.1.in', 'dictzip.1')
+        }
+        filter(ReplaceTokens, tokens: [copyright: projectYears, version: projectVersion])
+    }
 
-  distributions {
-      main {
-          baseName = 'dictzip'
-          contents {
-              from('build/docs/dictzip.1') {
-                  into 'docs/man/man1'
-              }
-              from(javadocJar) {
-                  into 'docs'
-              }
-              from(sourceJar) {
-                  into 'source'
-              }
-          }
-      }
-  }
-  task githubRelease(overwrite: true) << {}
+    distTar {
+        compression = Compression.GZIP
+    }
+    distTar.dependsOn mandoc
+
+    distributions {
+        main {
+            baseName = 'dictzip'
+            contents {
+                from('build/docs/dictzip.1') {
+                    into 'docs/man/man1'
+                }
+                from(javadocJar) {
+                    into 'docs'
+                }
+                from(sourceJar) {
+                    into 'source'
+                }
+            }
+        }
+    }
+    task githubRelease(overwrite: true) << {}
 }
 
 task mandoc << {}
 task bintrayUpload(overwrite: true) << {}
 
 boolean validProperty(propertyName) {
-  try { project.property(propertyName) != null }
-  catch (MissingPropertyException) { false }
+    try { project.property(propertyName) != null }
+    catch (MissingPropertyException) { false }
 }
 
 String askPassword(prompt) {
