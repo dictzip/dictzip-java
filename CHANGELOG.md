@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Update Gradle version to 3.1
+- Consolidate gradle build script.
+- Sign to artifact for github/bintray releases.
 
 ## [0.8.2] - 2016-10-16
 ### Fixed

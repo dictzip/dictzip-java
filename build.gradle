@@ -73,6 +73,9 @@ subprojects {
     }
 
     signing {
+        required { gradle.taskGraph.hasTask("uploadArchives") ||
+                   gradle.taskGraph.hasTask("githubRelease") ||
+                   gradle.taskGraph.hasTask("bintrayUpload")}
         sign configurations.archives
     }
 }
@@ -84,6 +87,8 @@ project(':dictzip-lib') {
     version = projectVersion
     group = projectGroup
     bintray {
+        dryRun = false
+        publish = false
         user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
         key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
         configurations = ['archives']
@@ -99,6 +104,71 @@ project(':dictzip-lib') {
     }
     task mandoc << {}
     task githubRelease(overwrite: true) << {}
+
+    install {
+        repositories.mavenInstaller {
+            pom.project {
+                name = project.name
+                packaging = 'jar'
+                description = projectDesc
+                url = projectUrl
+                version = project.version
+                licenses {
+                    license {
+                        name = licenseName
+                        url = licenseUrl
+                        distribution = 'repo'
+                    }
+                }
+                scm {
+                    url = githubUrl
+                    connection = "scm:git:${githubUrl}"
+                    developerConnection = "scm:git:${githubUrl}"
+                }
+                developers {
+                    developer {
+                        id = projectOwner
+                        name = developerName
+                        email = developerEmail
+                    }
+                }
+            }
+        }
+    }
+    // maven publish to local repository.(for test)
+    uploadArchives {
+        repositories.mavenDeployer {
+            // for local maven
+            repository url: "file://$System.env.HOME/.m2/repository"
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            pom.project {
+                name = project.name
+                packaging = 'jar'
+                description = projectDesc
+                url = projectUrl
+                version = project.version
+                licenses {
+                    license {
+                        name = licenseName
+                        url = licenseUrl
+                        distribution = 'repo'
+                    }
+                }
+                scm {
+                    url = githubUrl
+                    connection = "scm:git:${githubUrl}"
+                    developerConnection = "scm:git:${githubUrl}"
+                }
+                developers {
+                    developer {
+                        id = projectOwner
+                        name = developerName
+                        email = developerEmail
+                    }
+                }
+            }
+        }
+    }
 }
 
 project(':dictzip-cli') {
@@ -164,12 +234,38 @@ project(':dictzip-cli') {
 task mandoc << {}
 task bintrayUpload(overwrite: true) << {}
 
-boolean validProperty(propertyName) {
-    try { project.property(propertyName) != null }
-    catch (MissingPropertyException) { false }
+github {
+    owner = projectOwner
+    repo = 'dictzip-java'
+    token = githubToken
+    tagName = projectTag
+    targetCommitish = 'master'
+    name = projectTag
+    draft = true
+    body = projectReleaseBody
+    assets = [
+            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.tgz',
+            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.tgz.asc',
+            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.zip',
+            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.zip.asc',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '.jar',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '.jar.asc',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-sources.jar',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-sources.jar.asc',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-javadoc.jar',
+            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-javadoc.jar.asc'
+    ]
 }
 
+
+// askPassword - guarantee asking only once.
+ext {
+    askPassword = ''
+}
 String askPassword(prompt) {
+    if (ext.'askPassword' != '') {
+        return ext.'askPassword'
+    }
     def keyPass = ''
     if(System.console() == null) {
         new SwingBuilder().edt {
@@ -185,36 +281,20 @@ String askPassword(prompt) {
             }
         }
     } else {
+        System.console().println()
         keyPass = System.console().readPassword(prompt)
     }
     if (keyPass.size() <= 0) {
         throw new InvalidUserDataException("You must enter the passwords to proceed.")
     }
+    ext.'askPassword' = new String(keyPass)
     new String(keyPass)
 }
 
-github {
-    owner = projectOwner
-    repo = 'dictzip-java'
-    token = githubToken
-    tagName = projectTag
-    targetCommitish = 'master'
-    name = projectTag
-    draft = true
-    body = projectReleaseBody
-    assets = [
-            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.tgz',
-            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.zip',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '.jar',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-sources.jar',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-javadoc.jar'
-    ]
-}
-
-if (gradle.startParameter.taskNames.contains('bintrayUpload')  ||
-    gradle.startParameter.taskNames.contains('githubRelease')) {
-    assert validProperty('signing.keyId'),             'properties for signing must be provided'
-    assert validProperty('signing.secretKeyRingFile'), 'properties for signing must be provided'
-    ext.'signing.password' = askPassword("Enter password for PGP key ${property('signing.keyId')}: ")
-
+gradle.taskGraph.whenReady { taskGraph ->
+     if (taskGraph.allTasks.any { it instanceof Sign }) {
+        allprojects {
+            ext.'signing.password' = askPassword("Enter password for PGP key ${property('signing.keyId')}: ")
+        }
+    }
 }
