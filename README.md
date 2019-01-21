@@ -70,7 +70,7 @@ Copyright (C) 2016 Hiroshi Miura
 Some part of this program are come from a part of jdictd 1.5 on java.
 
 DictZip command line utility is distributed under the terms of GNU General
-Public License Version 3 or (at your option) any later version.
+Public License Version 2 or (at your option) any later version.
 
 DictZip library is distributed under the terms of the GNU General Public License
 Version 2 or (at your option) any later version with the following clarification
