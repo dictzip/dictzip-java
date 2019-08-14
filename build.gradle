@@ -2,10 +2,9 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import groovy.swing.SwingBuilder
 
 plugins {
-    // github
-    id "co.riiid.gradle" version "0.4.2"
     // bintray
     id "com.jfrog.bintray" version "1.6"
+    id "com.github.spotbugs" version "1.7.1"
 }
 
 // common settings
@@ -13,76 +12,58 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: 'checkstyle'
-    apply plugin: 'findbugs'
-    apply plugin: 'co.riiid.gradle'
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'maven'
-    apply plugin: 'signing'
+    apply plugin: 'maven-publish'
 
-    sourceCompatibility = jdkVersion
-    targetCompatibility = jdkVersion
+    sourceCompatibility = JavaVersion.VERSION_1_8
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-    [compileJava, compileTestJava]*.options*.bootClasspath = "$JDK_HOME/jre/lib/rt.jar"
     checkstyle {
         config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
         ignoreFailures = true
         toolVersion = '6.16.1'
     }
 
-    // Force prevent checkstyle/findbugs on Test.
-    task checkstyleTest(overwrite: true) << {}
-    task findbugsTest(overwrite: true) << {}
-    tasks.withType(FindBugs) {
-        reports {
-            xml.enabled = false
-            html.enabled = true
-        }
-    }
-
     repositories {
         jcenter()
-        mavenCentral()
     }
 
     dependencies {
-        testCompile 'org.testng:testng:6.9.10'
+        testImplementation 'org.testng:testng:6.9.10'
     }
+    test.useTestNG()
 
-    test {
-        useTestNG()
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
     }
 
     javadoc {
         options.locale = 'en_US'
     }
 
-    task sourceJar(type: Jar) {
+    task sourcesJar(type: Jar, dependsOn: classes) {
         from sourceSets.main.allSource
-        classifier = 'sources'
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
         from javadoc.destinationDir
     }
 
     artifacts {
         archives jar
-        archives sourceJar
+        archives sourcesJar
         archives javadocJar
     }
 
-    signing {
-        required { gradle.taskGraph.hasTask("uploadArchives") ||
-                   gradle.taskGraph.hasTask("githubRelease") ||
-                   gradle.taskGraph.hasTask("bintrayUpload")}
-        sign configurations.archives
-    }
+//    signing {
+//        required { gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("bintrayUpload")}
+//        sign configurations.archives
+//    }
 }
 
 project(':dictzip-lib') {
     dependencies {
-        testCompile 'tokyo.northside:northside-io:0.2.0'
+        testImplementation 'tokyo.northside:northside-io:0.2.0'
     }
     version = projectVersion
     group = projectGroup
@@ -102,8 +83,6 @@ project(':dictzip-lib') {
             publicDownloadNumbers = true
         }
     }
-    task mandoc << {}
-    task githubRelease(overwrite: true) << {}
 
     install {
         repositories.mavenInstaller {
@@ -177,9 +156,9 @@ project(':dictzip-cli') {
     applicationName = 'dictzip'
 
     dependencies {
-        compile project(':dictzip-lib'),
+        implementation project(':dictzip-lib'),
            'gnu.getopt:java-getopt:1.0.13'
-        testCompile 'tokyo.northside:northside-io:0.2.0'
+        testImplementation 'tokyo.northside:northside-io:0.2.0'
     }
     version = projectVersion
     group = projectGroup
@@ -222,41 +201,13 @@ project(':dictzip-cli') {
                 from(javadocJar) {
                     into 'docs'
                 }
-                from(sourceJar) {
+                from(sourcesJar) {
                     into 'source'
                 }
             }
         }
     }
-    task githubRelease(overwrite: true) << {}
 }
-
-task mandoc << {}
-task bintrayUpload(overwrite: true) << {}
-
-github {
-    owner = projectOwner
-    repo = 'dictzip-java'
-    token = githubToken
-    tagName = projectTag
-    targetCommitish = 'master'
-    name = projectTag
-    draft = true
-    body = projectReleaseBody
-    assets = [
-            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.tgz',
-            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.tgz.asc',
-            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.zip',
-            'dictzip-cli/build/distributions/dictzip-' + projectVersion + '.zip.asc',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '.jar',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '.jar.asc',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-sources.jar',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-sources.jar.asc',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-javadoc.jar',
-            'dictzip-lib/build/libs/dictzip-lib-' + projectVersion + '-javadoc.jar.asc'
-    ]
-}
-
 
 // askPassword - guarantee asking only once.
 ext {

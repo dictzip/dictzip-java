@@ -6,9 +6,9 @@ All notable changes to this project will be documented in this file.
 - Swing dialog for PGP signing passphrase input.
 
 ### Changed
-- Update Gradle version to 3.1
+- Update Gradle version to 5.2.1
 - Consolidate gradle build script.
-- Sign to artifact for github/bintray releases.
+- Sign to artifact for bintray releases.
 
 ## [0.8.2] - 2016-10-16
 ### Fixed
@@ -106,7 +106,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.8.2...HEAD
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.8.3...HEAD
+[0.8.3]: https://github.com/dictzip/dictzip-java/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/dictzip/dictzip-java/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/dictzip/dictzip-java/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/dictzip/dictzip-java/compare/v0.7.0...v0.8.0
