@@ -1,7 +1,7 @@
 /*
  * DictZip library test.
  *
- * Copyright (C) 2016 Hiroshi Miura
+ * Copyright (C) 2016,2019 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,7 +38,10 @@
 package org.dict.zip;
 
 import org.testng.annotations.Test;
-import static org.testng.Assert.*;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 /**
  * Test for project.
@@ -51,6 +54,7 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of available method, of class RandomAccessInputStream.
+     * @throws Exception when i/o error.
      */
     @Test
     public void testAvailable() throws Exception {
@@ -63,6 +67,7 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of close method, of class RandomAccessInputStream.
+     * @throws Exception when error.
      */
     @Test
     public void testClose() throws Exception {
@@ -73,6 +78,7 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of getLength method, of class RandomAccessInputStream.
+     * @throws Exception when error.
      */
     @Test
     public void testGetLength() throws Exception {
@@ -85,6 +91,7 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of getPos method, of class RandomAccessInputStream.
+     * @throws Exception when error.
      */
     @Test
     public void testGetPos() throws Exception {
@@ -127,9 +134,10 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of read method, of class RandomAccessInputStream.
+     * @throws Exception when error.
      */
     @Test
-    public void testRead_0args() throws Exception {
+    public void testRead0args() throws Exception {
         System.out.println("read");
         try {
             RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
@@ -143,9 +151,10 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of read method, of class RandomAccessInputStream.
+     * @throws Exception when error.
      */
     @Test
-    public void testRead_3args() throws Exception {
+    public void testRead3args() throws Exception {
         System.out.println("read");
         byte[] b = new byte[512];
         int off = 100;
@@ -158,6 +167,7 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of readFully method, of class RandomAccessInputStream.
+     * @throws Exception when error.
      */
     @Test
     public void testReadFully() throws Exception {
@@ -169,6 +179,7 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of reset method, of class RandomAccessInputStream.
+     * @throws Exception when error.
      */
     @Test
     public void testReset() throws Exception {
@@ -179,6 +190,7 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of seek method, of class RandomAccessInputStream.
+     * @throws Exception when error.
      */
     @Test
     public void testSeek() throws Exception {
@@ -190,6 +202,7 @@ public class RandomAccessInputStreamTest {
 
     /**
      * Test of skip method, of class RandomAccessInputStream.
+     * @throws Exception when error.
      */
     @Test
     public void testSkip() throws Exception {

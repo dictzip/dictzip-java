@@ -1,7 +1,7 @@
 /*
  * DictZip library test.
  *
- * Copyright (C) 2016 Hiroshi Miura
+ * Copyright (C) 2016,2019 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,7 +37,9 @@
 
 package org.dict.zip;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
+
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -56,9 +58,9 @@ public class DictZipOutputStreamTest {
      * Test of close method, of class DictZipOutputStream.
      */
     @Test
-    public void testClose() throws Exception {
+    public void testClose() {
         System.out.println("close");
-        byte byteArray[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
+        byte[] byteArray = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         try {
             File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
             testOutFile.deleteOnExit();
@@ -80,11 +82,12 @@ public class DictZipOutputStreamTest {
 
     /**
      * Test of deflate method, of class DictZipOutputStream.
+     * @throws Exception when i/o error.
      */
     @Test
     public void testDeflate() throws Exception {
         System.out.println("deflate");
-        byte byteArray[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
+        byte[] byteArray = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
         testOutFile.deleteOnExit();
         RandomAccessOutputStream outFile = new RandomAccessOutputStream(
@@ -95,11 +98,12 @@ public class DictZipOutputStreamTest {
 
     /**
      * Test of write method, of class DictZipOutputStream.
+     * @throws Exception when i/o error.
      */
     @Test
-    public void testWrite_3args() throws Exception {
+    public void testWrite3args() throws Exception {
         System.out.println("write");
-        byte b[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
+        byte[] b = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         int off = 0;
         int len = 0;
         File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
@@ -114,7 +118,7 @@ public class DictZipOutputStreamTest {
      * Test of write method, of class DictZipOutputStream.
      */
     @Test
-    public void testWrite_int() {
+    public void testWriteInt() {
         System.out.println("write");
         int b = 100;
         TestDictZipOutputStream instance;
@@ -136,7 +140,7 @@ public class DictZipOutputStreamTest {
     @Test
     public void testFinish() {
         System.out.println("finish");
-        byte byteArray[] = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
+        byte[] byteArray = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         TestDictZipOutputStream instance = null;
         try {
             File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
@@ -171,15 +175,16 @@ public class DictZipOutputStreamTest {
     }
 
     /**
-     * Stub for DictZipOutputStream, for test
+     * Stub for DictZipOutputStream, for test.
      */
-    class TestDictZipOutputStream extends DictZipOutputStream {
+    static class TestDictZipOutputStream extends DictZipOutputStream {
 
-        TestDictZipOutputStream(RandomAccessOutputStream out, long dataSize) throws IOException {
+        TestDictZipOutputStream(final RandomAccessOutputStream out, final long dataSize) throws IOException {
             super(out, dataSize);
         }
 
-        TestDictZipOutputStream(RandomAccessOutputStream out, int size, long dataSize) throws IOException {
+        TestDictZipOutputStream(final RandomAccessOutputStream out, final int size, final long dataSize)
+                throws IOException {
             super(out, size, dataSize);
         }
 

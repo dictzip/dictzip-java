@@ -1,7 +1,7 @@
 /*
  * DictZip library test.
  *
- * Copyright (C) 2016 Hiroshi Miura
+ * Copyright (C) 2016,2019 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,16 +37,17 @@
 
 package org.dict.zip;
 
-import static org.testng.Assert.*;
-
-import org.testng.SkipException;
-import org.testng.annotations.*;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 import static tokyo.northside.io.IOUtils2.contentEquals;
 
 /**
@@ -58,6 +59,11 @@ public class DictZipInputStreamTest {
     private final String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
     private DictZipInputStream din;
 
+    /**
+     * rewind dictionary file.
+     *
+     * @throws Exception when i/o error.
+     */
     @BeforeMethod
     public void rewind() throws Exception {
         if (din != null) {
@@ -67,29 +73,29 @@ public class DictZipInputStreamTest {
 
     /**
      * Test constructor.
-     * @throws Exception
+     * @throws Exception when i/o error.
      */
-    @Test (groups = "init", dependsOnMethods = { "testConstructor_fromFilename",
-            "testConstructor_defaultBufSize"})
+    @Test (groups = "init", dependsOnMethods = { "testConstructorFromFilename",
+            "testConstructorDefaultBufSize"})
     public void testConstructor() throws Exception {
         din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534);
     }
 
     /**
      * Test constructor.
-     * @throws Exception
+     * @throws Exception when i/o error.
      */
     @Test (groups = "init")
-    public void testConstructor_defaultBufSize() throws Exception {
+    public void testConstructorDefaultBufSize() throws Exception {
         din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"));
     }
 
     /**
      * Test constructor from filename.
-     * @throws Exception
+     * @throws Exception when i/o error.
      */
     @Test (groups = "init")
-    public void testConstructor_fromFilename() throws Exception {
+    public void testConstructorFromFilename() throws Exception {
         din = new DictZipInputStream(dataFile);
     }
 
@@ -105,6 +111,7 @@ public class DictZipInputStreamTest {
 
     /**
      * Test of read method, of class DictZipInputStream.
+     * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
     public void testRead() throws Exception {
@@ -118,9 +125,10 @@ public class DictZipInputStreamTest {
 
     /**
      * Test of read method, of class DictZipInputStream.
+     * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testRead_with_seek() throws Exception {
+    public void testReadWithSeek() throws Exception {
         System.out.println("read with seek");
         int start = 0x20;
         int len = 10;
@@ -135,9 +143,10 @@ public class DictZipInputStreamTest {
 
     /**
      * Test of read method, of class DictZipInputStream.
+     * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testRead_null() throws Exception {
+    public void testReadNull() throws Exception {
         System.out.println("read null buffer");
         int len = 10;
         byte[] buf = null;
@@ -154,9 +163,10 @@ public class DictZipInputStreamTest {
 
     /**
      * Test of read method, of class DictZipInputStream.
+     * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testRead_outOfBound() throws Exception {
+    public void testReadOutOfBound() throws Exception {
         System.out.println("read out of buffer size");
         int len = 10;
         byte[] buf = new byte[len];
@@ -173,9 +183,10 @@ public class DictZipInputStreamTest {
 
     /**
      * Test of read method, of class DictZipInputStream.
+     * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testRead_zeroSize() throws Exception {
+    public void testReadZeroSize() throws Exception {
         System.out.println("read zero size");
         int len = 512;
         byte[] buf = new byte[len];
@@ -185,9 +196,10 @@ public class DictZipInputStreamTest {
 
     /**
      * Test of read method, of class DictZipInputStream.
+     * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testRead_with_seekLast() throws Exception {
+    public void testReadWithSeekLast() throws Exception {
         System.out.println("read with seek to last");
         int start = 383273;
         int len = 512;
@@ -200,10 +212,10 @@ public class DictZipInputStreamTest {
 
    /**
      * Test of readFully method, of class DictZipInputStream.
-     * @throws java.lang.Exception
+     * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testReadFully_byteArr() throws Exception {
+    public void testReadFullyByteArr() throws Exception {
         System.out.println("readFully");
         int start = 100;
         int len = 10;
@@ -214,10 +226,10 @@ public class DictZipInputStreamTest {
 
     /**
      * Test of readFully method, of class DictZipInputStream.
-     * @throws java.lang.Exception
+     * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testReadFully_3args() throws Exception {
+    public void testReadFully3args() throws Exception {
         System.out.println("readFully");
         int start = 200;
         int len = 10;
@@ -228,10 +240,10 @@ public class DictZipInputStreamTest {
 
     /**
      * Test of readFully method, of class DictZipInputStream.
-     * @throws java.lang.Exception
+     * @throws IOException when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testReadFully_readTrailer() throws IOException {
+    public void testReadFullyReadTrailer() throws IOException {
         System.out.println("readFully and readTrailer");
         byte[] buf = new byte[512];
         try {
@@ -247,7 +259,7 @@ public class DictZipInputStreamTest {
 
     /**
      * Test getComplength method.
-     * @throws IOException
+     * @throws IOException when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
     public void testGetCompLength() throws IOException {
@@ -257,6 +269,7 @@ public class DictZipInputStreamTest {
 
     /**
      * Test getMtime method.
+     * @throws IOException when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
     public void testGetMtime() throws IOException {
@@ -266,6 +279,7 @@ public class DictZipInputStreamTest {
 
     /**
      * Test getChunkLength method.
+     * @throws IOException when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
     public void testGetChunkLength() throws IOException {
@@ -275,6 +289,7 @@ public class DictZipInputStreamTest {
 
     /**
      * Test getChunkCount method.
+     * @throws IOException when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
     public void testGetChunkCount() throws IOException {
@@ -284,6 +299,7 @@ public class DictZipInputStreamTest {
 
     /**
      * Test getFilename method.
+     * @throws IOException when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
     public void testGetFilename() throws IOException {
@@ -292,10 +308,11 @@ public class DictZipInputStreamTest {
     }
 
    /**
-     * Test readFully with large seek
+     * Test readFully with large seek.
+    * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testReadFully_seek2() throws Exception {
+    public void testReadFullySeek2() throws Exception {
         System.out.println("readFully_seek2");
         int start = 56003;
         int len = 195;
@@ -313,10 +330,11 @@ public class DictZipInputStreamTest {
     }
 
    /**
-     * Test with large  seek
-     */
+    * Test with large  seek.
+    * @throws Exception when i/o error.
+    */
     @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testRead_seek2() throws Exception {
+    public void testReadSeek2() throws Exception {
         System.out.println("read_seek2");
         int start = 56003;
         int len = 195;
@@ -326,7 +344,7 @@ public class DictZipInputStreamTest {
             fail("Unexpected IOException");
         }
         byte[] buf = new byte[len];
-        int result=0;
+        int result = 0;
         try {
             result = din.read(buf, 0, len);
         } catch (EOFException eofe) {
@@ -334,11 +352,13 @@ public class DictZipInputStreamTest {
         }
         assertEquals(result, len);
     }
+
     /**
-     * Test with large seek comparison content
+     * Test with large seek comparison content.
+     * @throws Exception when i/o error.
      */
     @Test (groups = "test", dependsOnMethods = { "testConstructor"})
-    public void testRead_seek3() throws Exception {
+    public void testReadSeek3() throws Exception {
          System.out.println("read_seek2");
         int start = 56003;
         int len = 195;

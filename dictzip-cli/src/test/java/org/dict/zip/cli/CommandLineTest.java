@@ -5,62 +5,85 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
 
 /**
  * Created by miurahr on 16/04/09.
  */
 public class CommandLineTest {
+    /**
+     * Test Parser help.
+     */
     @Test
-    public void testParse_help() throws Exception {
+    public void testParseHelp() {
         final String[] argv = new String[1];
         argv[0] = "-h";
         CommandLine commandLine = new CommandLine();
         assertEquals(commandLine.parse(argv), 1);
     }
 
+    /**
+     * Test parser helpLong.
+     */
     @Test
-    public void testParse_helpLong() throws Exception {
+    public void testParseHelpLong() {
         final String[] argv = new String[1];
         argv[0] = "--help";
         CommandLine commandLine = new CommandLine();
         assertEquals(commandLine.parse(argv), 1);
     }
 
+    /**
+     * Test parser version.
+     */
     @Test
-    public void testParse_version() throws Exception {
+    public void testParseVersion() {
         final String[] argv = new String[1];
         argv[0] = "-v";
         CommandLine commandLine = new CommandLine();
         assertEquals(commandLine.parse(argv), 1);
     }
 
+    /**
+     * Test parser VersionLong.
+     */
     @Test
-    public void testParse_versionLong() throws Exception {
+    public void testParseVersionLong() {
         final String[] argv = new String[1];
         argv[0] = "--version";
         CommandLine commandLine = new CommandLine();
         assertEquals(commandLine.parse(argv), 1);
     }
 
+    /**
+     * Test parser License.
+     */
     @Test
-    public void testParse_license() throws Exception {
+    public void testParseLicense() {
         final String[] argv = new String[1];
         argv[0] = "-L";
         CommandLine commandLine = new CommandLine();
         assertEquals(commandLine.parse(argv), 1);
     }
 
+    /**
+     * Test parser License long.
+     */
     @Test
-    public void testParse_licenseLong() throws Exception {
+    public void testParseLicenseLong() {
         final String[] argv = new String[1];
         argv[0] = "--license";
         CommandLine commandLine = new CommandLine();
         assertEquals(commandLine.parse(argv), 1);
     }
 
+    /**
+     * Test parser Keep.
+     */
     @Test
-    public void testParse_keep() throws Exception {
+    public void testParseKeep() {
         final String[] argv = new String[1];
         argv[0] = "-k";
         CommandLine commandLine = new CommandLine();
@@ -68,8 +91,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isKeep());
     }
 
+    /**
+     * Test parser KeepLong.
+     */
     @Test
-    public void testParse_keepLong() throws Exception {
+    public void testParseKeepLong() {
         final String[] argv = new String[1];
         argv[0] = "--keep";
         CommandLine commandLine = new CommandLine();
@@ -77,8 +103,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isKeep());
     }
 
+    /**
+     * Test parser stdout.
+     */
     @Test
-    public void testParse_stdout() throws Exception {
+    public void testParseStdout() {
         final String[] argv = new String[1];
         argv[0] = "-c";
         CommandLine commandLine = new CommandLine();
@@ -86,8 +115,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isStdout());
     }
 
+    /**
+     * Test parser stdout long.
+     */
     @Test
-    public void testParse_stdoutLong() throws Exception {
+    public void testParseStdoutLong() {
         final String[] argv = new String[1];
         argv[0] = "--stdout";
         CommandLine commandLine = new CommandLine();
@@ -95,8 +127,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isStdout());
     }
 
+    /**
+     * Test parser force.
+     */
     @Test
-    public void testParse_force() throws Exception {
+    public void testParseForce() {
         final String[] argv = new String[1];
         argv[0] = "-f";
         CommandLine commandLine = new CommandLine();
@@ -104,8 +139,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isForce());
     }
 
+    /**
+     * Test parser force long.
+     */
     @Test
-    public void testParse_forceLong() throws Exception {
+    public void testParseForceLong() {
         final String[] argv = new String[1];
         argv[0] = "--force";
         CommandLine commandLine = new CommandLine();
@@ -113,8 +151,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isForce());
     }
 
+    /**
+     * Test parser decompresss.
+     */
     @Test
-    public void testParse_decompress() throws Exception {
+    public void testParseDecompress() {
         final String[] argv = new String[1];
         argv[0] = "-d";
         CommandLine commandLine = new CommandLine();
@@ -122,8 +163,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isDecompress());
     }
 
+    /**
+     * Test parser decompress long.
+     */
     @Test
-    public void testParse_decompressLong() throws Exception {
+    public void testParseDecompressLong() {
         final String[] argv = new String[1];
         argv[0] = "--decompress";
         CommandLine commandLine = new CommandLine();
@@ -131,8 +175,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isDecompress());
     }
 
+    /**
+     * Test parser List.
+     */
     @Test
-    public void testParse_list() throws Exception {
+    public void testParseList() {
         final String[] argv = new String[1];
         argv[0] = "-l";
         CommandLine commandLine = new CommandLine();
@@ -140,8 +187,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isList());
     }
 
+    /**
+     * Test parser list long version.
+     */
     @Test
-    public void testParse_listLong() throws Exception {
+    public void testParseListLong() {
         final String[] argv = new String[1];
         argv[0] = "--list";
         CommandLine commandLine = new CommandLine();
@@ -149,8 +199,11 @@ public class CommandLineTest {
         assertTrue(commandLine.options.isList());
     }
 
+    /**
+     * test parsre leve fast.
+     */
     @Test
-    public void testParse_levelFast() throws Exception {
+    public void testParseLevelFast() {
         final String[] argv = new String[1];
         argv[0] = "-1";
         CommandLine commandLine = new CommandLine();
@@ -158,8 +211,11 @@ public class CommandLineTest {
         assertEquals(commandLine.options.getLevel(), DictZipHeader.CompressionLevel.BEST_SPEED);
     }
 
+    /**
+     * Test parser level fast long version.
+     */
     @Test
-    public void testParse_levelFastLong() throws Exception {
+    public void testParseLevelFastLong() {
         final String[] argv = new String[1];
         argv[0] = "--fast";
         CommandLine commandLine = new CommandLine();
@@ -167,8 +223,11 @@ public class CommandLineTest {
         assertEquals(commandLine.options.getLevel(), DictZipHeader.CompressionLevel.BEST_SPEED);
     }
 
+    /**
+     * Test parser Level best.
+     */
     @Test
-    public void testParse_levelBest() throws Exception {
+    public void testParseLevelBest() {
         final String[] argv = new String[1];
         argv[0] = "-9";
         CommandLine commandLine = new CommandLine();
@@ -176,8 +235,11 @@ public class CommandLineTest {
         assertEquals(commandLine.options.getLevel(), DictZipHeader.CompressionLevel.BEST_COMPRESSION);
     }
 
+    /**
+     * Test parser Level best long version.
+     */
     @Test
-    public void testParse_levelBestLong() throws Exception {
+    public void testParseLevelBestLong() {
         final String[] argv = new String[1];
         argv[0] = "--best";
         CommandLine commandLine = new CommandLine();
@@ -185,8 +247,11 @@ public class CommandLineTest {
         assertEquals(commandLine.options.getLevel(), DictZipHeader.CompressionLevel.BEST_COMPRESSION);
     }
 
+    /**
+     * test parser level default.
+     */
     @Test
-    public void testParse_levelDefault() throws Exception {
+    public void testParseLevelDefault() {
         final String[] argv = new String[1];
         argv[0] = "-6";
         CommandLine commandLine = new CommandLine();
@@ -194,17 +259,29 @@ public class CommandLineTest {
         assertEquals(commandLine.options.getLevel(), DictZipHeader.CompressionLevel.DEFAULT_COMPRESSION);
     }
 
+    /**
+     * test parser target.
+     */
     @Test
-    public void testParse_target() throws Exception {
+    public void testParseTarget() {
         final String[] argv = new String[1];
         argv[0] = "target_filename";
         CommandLine commandLine = new CommandLine();
         assertEquals(commandLine.parse(argv), 0);
-        assertTrue(commandLine.getTargetFiles().equals(new ArrayList<String> (){{add("target_filename");}}));
+        assertTrue(commandLine.getTargetFiles().equals(new ArrayList<String>() {
+            {
+                add("target_filename");
+            }
+        }
+        ));
     }
 
+    /**
+     * Test parser number hex.
+     * @throws NumberFormatException when giving non-number argument.
+     */
     @Test
-    public void testParseNumber_hex() throws NumberFormatException {
+    public void testParseNumberHex() throws NumberFormatException {
         final String[] argv = new String[1];
         argv[0] = "-s 0x123A";
         CommandLine commandLine = new CommandLine();
@@ -212,8 +289,12 @@ public class CommandLineTest {
         assertEquals(commandLine.options.getStart(), 0x123A);
     }
 
+    /**
+     * Test parser Number octet.
+     * @throws NumberFormatException when giving non-number argument.
+     */
     @Test
-    public void testParseNumber_oct() throws NumberFormatException {
+    public void testParseNumberOct() throws NumberFormatException {
         final String[] argv = new String[1];
         argv[0] = "-s 01237";
         CommandLine commandLine = new CommandLine();
@@ -221,8 +302,12 @@ public class CommandLineTest {
         assertEquals(commandLine.options.getStart(), 671);
     }
 
+    /**
+     * Test parser number decimal.
+     * @throws NumberFormatException when giving non-number argument.
+     */
     @Test
-    public void testParseNumber_dec() throws NumberFormatException {
+    public void testParseNumberDec() throws NumberFormatException {
         final String[] argv = new String[1];
         argv[0] = "-s 1239";
         CommandLine commandLine = new CommandLine();
@@ -230,8 +315,12 @@ public class CommandLineTest {
         assertEquals(commandLine.options.getStart(), 1239);
     }
 
+    /**
+     * Test parser size.
+     * @throws NumberFormatException when giving non-number argument.
+     */
     @Test
-    public void testParse_size() throws NumberFormatException {
+    public void testParseSize() throws NumberFormatException {
         final String[] argv = new String[1];
         argv[0] = "-e 1239";
         CommandLine commandLine = new CommandLine();
@@ -239,25 +328,36 @@ public class CommandLineTest {
         assertEquals(commandLine.options.getSize(), 1239);
     }
 
-
+    /**
+     * Test parser start bad number.
+     * @throws NumberFormatException when giving bad number.
+     */
     @Test
-    public void testParse_start_badnum() throws NumberFormatException {
+    public void testParseStartBadnum() throws NumberFormatException {
         final String[] argv = new String[1];
         argv[0] = "-s 123A";
         CommandLine commandLine = new CommandLine();
         assertEquals(commandLine.parse(argv), 2);
     }
 
+    /**
+     * Test parser start badnum octet.
+     * @throws NumberFormatException when giving bad number.
+     */
     @Test
-    public void testParse_start_badnumOct() throws NumberFormatException {
+    public void testParseStartBadnumOct() throws NumberFormatException {
         final String[] argv = new String[1];
         argv[0] = "-s 0Q23A";
         CommandLine commandLine = new CommandLine();
         assertEquals(commandLine.parse(argv), 2);
     }
 
+    /**
+     * Test parser start badnum hex.
+     * @throws NumberFormatException when giving bad number.
+     */
     @Test
-    public void testParse_start_badnumHex() throws NumberFormatException {
+    public void testParseStartBadnumHex() throws NumberFormatException {
         final String[] argv = new String[1];
         argv[0] = "-s 0xQ23A";
         CommandLine commandLine = new CommandLine();

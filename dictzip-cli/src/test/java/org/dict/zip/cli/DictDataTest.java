@@ -22,12 +22,8 @@ package org.dict.zip.cli;
 
 import static org.testng.Assert.assertTrue;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 
 import static tokyo.northside.io.FileUtils2.contentEquals;
 import org.dict.zip.DictZipHeader;
@@ -41,7 +37,7 @@ import org.testng.annotations.Test;
  */
 public class DictDataTest {
     /**
-     * Test of printHeader method, of class DictData
+     * Test of printHeader method, of class DictData.
      * @throws java.lang.Exception if file operation failed.
      */
     @Test
@@ -75,7 +71,7 @@ public class DictDataTest {
      * @throws java.lang.Exception if file operation failed.
      */
     @Test
-    public void testDoZip_best() throws Exception {
+    public void testDoZipBest() throws Exception {
         System.out.println("doZip_best");
         String testFile = this.getClass().getResource("/test_dozip.dict").getFile();
         String zippedFile = testFile + "_best.dz";
@@ -93,7 +89,7 @@ public class DictDataTest {
      * @throws java.lang.Exception if file operation failed.
      */
     @Test
-    public void testDoZip_fast() throws Exception {
+    public void testDoZipFast() throws Exception {
         System.out.println("doZip_fast");
         String testFile = this.getClass().getResource("/test_dozip.dict").getFile();
         String zippedFile = testFile + "_fast.dz";
