@@ -5,6 +5,7 @@ plugins {
     // bintray
     id "com.jfrog.bintray" version "1.6"
     id "com.github.spotbugs" version "1.7.1"
+    id 'maven-publish'
 }
 
 // common settings
@@ -14,7 +15,6 @@ subprojects {
     apply plugin: 'checkstyle'
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'maven'
-    apply plugin: 'maven-publish'
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -54,11 +54,6 @@ subprojects {
         archives sourcesJar
         archives javadocJar
     }
-
-//    signing {
-//        required { gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("bintrayUpload")}
-//        sign configurations.archives
-//    }
 }
 
 project(':dictzip-lib') {
@@ -249,3 +244,33 @@ gradle.taskGraph.whenReady { taskGraph ->
         }
     }
 }
+
+publishing {
+  publications {
+      maven(MavenPublication) {
+          artifactId = "dictzip"
+          groupId = "org.dict.zip"
+          version = project.version.toString()
+          pom {
+            name.set(project.name)
+            description.set(projectDesc)
+            url.set(projectUrl)
+            licenses {
+              license {
+                name.set("GNU General Public License Version 2+CE")
+                url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0")
+              }
+            }
+            scm {
+              connection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
+              url.set("https://github.com/dictzip/dictzip-java")
+            }
+            issueManagement {
+              system.set("Trac")
+              url.set("https://github.com/dictzip/dictzip-java/issues")
+            }
+          }
+      }
+  }
+}
+
