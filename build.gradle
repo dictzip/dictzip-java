@@ -6,6 +6,7 @@ plugins {
     id "com.jfrog.bintray" version "1.6"
     id "com.github.spotbugs" version "1.7.1"
     id 'maven-publish'
+    id 'signing'
 }
 
 // common settings
@@ -15,6 +16,8 @@ subprojects {
     apply plugin: 'checkstyle'
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -247,7 +250,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 
 publishing {
   publications {
-      maven(MavenPublication) {
+      mavenJava(MavenPublication) {
           artifactId = "dictzip"
           groupId = "org.dict.zip"
           version = project.version.toString()
@@ -274,3 +277,8 @@ publishing {
   }
 }
 
+signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("bintrayUpload")}
+    sign publishing.publications.mavenJava
+    sign configurations.archives
+}
