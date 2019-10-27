@@ -573,6 +573,7 @@ public class DictZipHeader {
 
     /**
      * Operating systems.
+     * <ul>
      * <li>{@link #FAT}</li>
      * <li>{@link #AMIGA}</li>
      * <li>{@link #VMS}</li>
@@ -588,6 +589,7 @@ public class DictZipHeader {
      * <li>{@link #QDOS}</li>
      * <li>{@link #ACORN}</li>
      * <li>{@link #UNKNOWN}</li>
+     * </ul>
      */
     public enum OperatingSystem {
         /**
