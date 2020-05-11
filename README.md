@@ -1,10 +1,9 @@
 # dictzip-java
 
-[![Build Status](https://travis-ci.org/dictzip/dictzip-java.svg?branch=master)](https://travis-ci.org/dictzip/dictzip-java)
-
 DictZip, GZip random access compression format(.dz), access library for Java
 
-[_![Download](https://api.bintray.com/packages/dictzip/maven/dictzip-lib/images/download.svg) ](https://bintray.com/dictzip/maven/dictzip-lib/_latestVersion)
+[![Build Status](https://travis-ci.org/dictzip/dictzip-java.svg?branch=master)](https://travis-ci.org/dictzip/dictzip-java)
+[![Download](https://api.bintray.com/packages/dictzip/maven/dictzip-lib/images/download.svg) ](https://bintray.com/dictzip/maven/dictzip-lib/_latestVersion)
 
 ## Usage
 
