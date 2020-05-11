@@ -7,6 +7,7 @@ plugins {
     id "com.github.spotbugs" version "1.7.1"
     id 'maven-publish'
     id 'signing'
+    id 'de.ploing.scmversion' version '0.6.6'
 }
 
 // common settings
@@ -63,7 +64,7 @@ project(':dictzip-lib') {
     dependencies {
         testImplementation 'tokyo.northside:northside-io:0.2.0'
     }
-    version = projectVersion
+    version = project.version
     group = projectGroup
     bintray {
         dryRun = false
@@ -158,7 +159,7 @@ project(':dictzip-cli') {
            'gnu.getopt:java-getopt:1.0.13'
         testImplementation 'tokyo.northside:northside-io:0.2.0'
     }
-    version = projectVersion
+    version = project.version
     group = projectGroup
     bintray {
         user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
@@ -175,13 +176,13 @@ project(':dictzip-cli') {
         }
     }
 
-    task mandoc(type: Copy, overwrite: true) {
+    task mandoc(type: Copy) {
         from "doc/dictzip.1.in"
         into 'build/docs'
         rename { String fileName ->
             fileName.replace('dictzip.1.in', 'dictzip.1')
         }
-        filter(ReplaceTokens, tokens: [copyright: projectYears, version: projectVersion])
+        filter(ReplaceTokens, tokens: [copyright: projectYears, version: project.version])
     }
 
     distTar {
