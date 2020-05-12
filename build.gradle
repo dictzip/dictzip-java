@@ -280,7 +280,7 @@ publishing {
 }
 
 signing {
-    required { gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("bintrayUpload")}
+    required { gradle.taskGraph.hasTask("uploadArchives")}
     sign publishing.publications.mavenJava
     sign configurations.archives
 }
