@@ -3,11 +3,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.1] - 2020-05-13
+
+### Fixed
+- Gradle: JavadocJar and SourcesJar generation configuation.
+- Github Actions: fix tag release script.
+
 ## [0.9.0] - 2020-05-12
 
 ### Added
 - Github Actions: Automate making release and upload artifacts.
-- Github Actions: upload bintray when tag release automatically.
+- Github Actions: Upload bintray when tag release automatically.
 
 ### Removed
 - Gradle: Key signing. Now release file are signed by could service.
@@ -113,7 +119,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/dictzip/dictzip-java/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/dictzip/dictzip-java/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/dictzip/dictzip-java/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/dictzip/dictzip-java/compare/v0.8.0...v0.8.1
