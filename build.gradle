@@ -10,10 +10,6 @@ plugins {
     id 'signing'
 }
 
-if(githubActions.running.get()) {
-    val commitId = githubActions.environment.sha.get()
-}
-
 // common settings
 subprojects {
     apply plugin: 'java'
