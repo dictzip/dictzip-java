@@ -1,5 +1,4 @@
 import org.apache.tools.ant.filters.ReplaceTokens
-import groovy.swing.SwingBuilder
 
 plugins {
     // bintray
@@ -7,7 +6,6 @@ plugins {
     id "com.github.spotbugs" version "1.7.1"
     id "org.nosphere.gradle.github.actions" version "1.1.0"
     id 'maven-publish'
-    id 'signing'
     id 'de.ploing.scmversion' version '0.6.6'
 }
 
@@ -19,7 +17,6 @@ subprojects {
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
-    apply plugin: 'signing'
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -114,40 +111,6 @@ project(':dictzip-lib') {
             }
         }
     }
-    // maven publish to local repository.(for test)
-    uploadArchives {
-        repositories.mavenDeployer {
-            // for local maven
-            repository url: "file://$System.env.HOME/.m2/repository"
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-            pom.project {
-                name = project.name
-                packaging = 'jar'
-                description = projectDesc
-                url = projectUrl
-                version = project.version
-                licenses {
-                    license {
-                        name = licenseName
-                        url = licenseUrl
-                        distribution = 'repo'
-                    }
-                }
-                scm {
-                    url = githubUrl
-                    connection = "scm:git:${githubUrl}"
-                    developerConnection = "scm:git:${githubUrl}"
-                }
-                developers {
-                    developer {
-                        id = projectOwner
-                        name = developerName
-                        email = developerEmail
-                    }
-                }
-            }
-        }
-    }
 }
 
 project(':dictzip-cli') {
@@ -209,47 +172,6 @@ project(':dictzip-cli') {
     }
 }
 
-// askPassword - guarantee asking only once.
-ext {
-    askPassword = ''
-}
-String askPassword(prompt) {
-    if (ext.'askPassword' != '') {
-        return ext.'askPassword'
-    }
-    def keyPass = ''
-    if(System.console() == null) {
-        new SwingBuilder().edt {
-            dialog(modal: true, title: 'Enter password', alwaysOnTop: true, resizable: false, locationRelativeTo: null, pack: true, show: true) {
-                vbox {
-                    label(text: prompt)
-                    def input1 = passwordField()
-                    button(defaultButton: true, text: 'OK', actionPerformed: {
-                        keyPass = input1.password;
-                        dispose();
-                    })
-                }
-            }
-        }
-    } else {
-        System.console().println()
-        keyPass = System.console().readPassword(prompt)
-    }
-    if (keyPass.size() <= 0) {
-        throw new InvalidUserDataException("You must enter the passwords to proceed.")
-    }
-    ext.'askPassword' = new String(keyPass)
-    new String(keyPass)
-}
-
-gradle.taskGraph.whenReady { taskGraph ->
-     if (taskGraph.allTasks.any { it instanceof Sign }) {
-        allprojects {
-            ext.'signing.password' = askPassword("Enter password for PGP key ${property('signing.keyId')}: ")
-        }
-    }
-}
-
 publishing {
   publications {
       mavenJava(MavenPublication) {
@@ -279,8 +201,3 @@ publishing {
   }
 }
 
-signing {
-    required { gradle.taskGraph.hasTask("uploadArchives")}
-    sign publishing.publications.mavenJava
-    sign configurations.archives
-}
