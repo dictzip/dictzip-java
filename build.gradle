@@ -44,16 +44,13 @@ subprojects {
         options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
     }
 
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
     javadoc {
         options.locale = 'en_US'
-    }
-
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        from javadoc.destinationDir
     }
 
     artifacts {
