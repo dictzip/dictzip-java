@@ -31,6 +31,12 @@ jobs:
         release_name: Release v${{ steps.get_version.outputs.VERSION }}
         draft: false
         prerelease: false
+    - uses: eskatos/gradle-command-action@v1
+      env:
+        BINTRAY_USER: ${{ secrets.bintrayUsername }}
+        BINTRAY_KEY: ${{ secrets.bintrayApiKey }}
+      with:
+        arguments: bintrayUpload
     - name: Upload Release Asset(cli.zip)
       id: upload-release-asset-zip
       uses: actions/upload-release-asset@v1
@@ -51,9 +57,13 @@ jobs:
         asset_path: dictzip-cli/build/distributions/dictzip-${{ steps.get_version.outputs.VERSION }}.tgz
         asset_name: dictzip-${{ steps.get_version.outputs.VERSION }}.tgz
         asset_content_type: application/gzip
-    - uses: eskatos/gradle-command-action@v1
+    - name: Upload Release Asset(lib.jar)
+      id: upload-release-asset-lib
+      uses: actions/upload-release-asset@v1
       env:
-        BINTRAY_USER: ${{ secrets.bintrayUsername }}
-        BINTRAY_KEY: ${{ secrets.bintrayApiKey }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        arguments: bintrayUpload
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dictzip-lib/build/libs/dictzip-lib-${{ steps.get_version.outputs.VERSION }}.jar
+        asset_name: dictzip-lib-${{ steps.get_version.outputs.VERSION }}.jar
+        asset_content_type: application/java-archive
