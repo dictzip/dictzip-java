@@ -1,14 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+Version numbers are baaed on semantic versioning.
 
 ## [Unreleased]
-### Add
-- Swing dialog for PGP signing passphrase input.
+
+## [0.9.0-rc] - 2020-05-12
+
+### Added
+- Github Actions: Automate making release and upload artifacts.
+- Github Actions: upload bintray when tag release automatically.
+
+### Removed
+- Gradle: Key signing. Now release file are signed by could service.
 
 ### Changed
-- Update Gradle version to 5.2.1
-- Consolidate gradle build script.
-- Sign to artifact for bintray releases.
+- Gradle: Automatically detect version from git tag.
+- Gradle: Update Gradle version to 5.6.3
+- Gradle: Consolidate gradle build script.
 
 ## [0.8.2] - 2016-10-16
 ### Fixed
