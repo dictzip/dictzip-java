@@ -1,10 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
-Version numbers are baaed on semantic versioning.
 
 ## [Unreleased]
 
-## [0.9.0-rc] - 2020-05-12
+## [0.9.0] - 2020-05-12
 
 ### Added
 - Github Actions: Automate making release and upload artifacts.
