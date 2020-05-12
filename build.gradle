@@ -9,6 +9,10 @@ plugins {
     id 'de.ploing.scmversion' version '0.6.6'
 }
 
+scmversion {
+  releaseTagPattern = "v([0-9.]*)"
+}
+
 // common settings
 subprojects {
     apply plugin: 'java'
