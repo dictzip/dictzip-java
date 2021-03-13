@@ -3,10 +3,26 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.2] - 2021-03-13
+
+### Changed
+- Change group ID to 'io.github.dictzip' 
+- Publish to Github packages and Azure artifactory
+- Github actions: publish and release to Github packages
+- Change gradle versioning plugin
+- Gradle: bump to gradle 6.8.3
+
+### Fixed
+- Fix project github url
+
+### Removed
+- Github actions: don't upload to bintray
+- good-bye to travis-ci
+
 ## [0.9.1] - 2020-05-13
 
 ### Fixed
-- Gradle: JavadocJar and SourcesJar generation configuation.
+- Gradle: JavadocJar and SourcesJar generation configuration.
 - Github Actions: fix tag release script.
 
 ## [0.9.0] - 2020-05-12
@@ -19,8 +35,8 @@ All notable changes to this project will be documented in this file.
 - Gradle: Key signing. Now release file are signed by could service.
 
 ### Changed
-- Gradle: Automatically detect version from git tag.
-- Gradle: Update Gradle version to 5.6.3
+- Gradle: Automatically detect a version from git tag.
+- Gradle: Bump Gradle to 5.6.3
 - Gradle: Consolidate gradle build script.
 
 ## [0.8.2] - 2016-10-16
