@@ -1,7 +1,0 @@
-# place ${HOME}/.gradle/gradle.properties to set following private properties
-#
-bintrayUser="user"
-bintrayApiKey="key"
-signing.keyId=0ABCDE
-signing.secretKeyRingFile=$HOME/.gnupg/secring.gpg
-githubToken='XXXXXXXXXXXXXXXXXXXXXXXXXX'

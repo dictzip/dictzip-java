@@ -1,23 +1,21 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    // bintray
     id "com.jfrog.bintray" version "1.6"
-    id "com.github.spotbugs" version "1.7.1"
+    id 'java-library'
     id "org.nosphere.gradle.github.actions" version "1.1.0"
     id 'maven-publish'
     id 'com.palantir.git-version' version "0.12.3"
 }
 
 // Drop prefix 'v' from latest tag version.
-version = {it -> it.substring(1, it.length())}(gitVersion())
+version = gitVersion().substring(1)
 
 // common settings
 subprojects {
-    apply plugin: 'java'
     apply plugin: 'jacoco'
+    apply plugin: 'java'
     apply plugin: 'checkstyle'
-    apply plugin: 'com.jfrog.bintray'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
 
@@ -32,17 +30,14 @@ subprojects {
     group = projectGroup
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
+        testImplementation 'commons-io:commons-io:2.6'
         testImplementation 'org.testng:testng:6.9.10'
     }
     test.useTestNG()
-
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
-    }
 
     java {
         withSourcesJar()
@@ -61,9 +56,8 @@ subprojects {
 }
 
 project(':dictzip-lib') {
-    dependencies {
-        testImplementation 'tokyo.northside:northside-io:0.2.0'
-    }
+    apply plugin: 'java-library'
+    apply plugin: 'com.jfrog.bintray'
     version = rootProject.version
     bintray {
         dryRun = false
@@ -111,6 +105,58 @@ project(':dictzip-lib') {
             }
         }
     }
+
+    publishing {
+        publications {
+            project.afterEvaluate {
+                mavenJava(MavenPublication) {
+                    from components.java
+                    artifactId = "dictzip"
+                    groupId = projectGroup
+                    version = project.version.toString()
+                    pom {
+                        name.set(project.name)
+                        description.set(projectDesc)
+                        url.set(projectUrl)
+                        licenses {
+                            license {
+                                name.set("GNU General Public License Version 2+CE")
+                                url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0")
+                            }
+                        }
+                        scm {
+                            connection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
+                            url.set(projectUrl)
+                        }
+                        issueManagement {
+                            url.set(projectUrl + "/issues")
+                        }
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = "https://maven.pkg.github.com/dictzip/dictzip-java"
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+            maven {
+                name 'AzurePackages'
+                url 'https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1'
+                credentials(PasswordCredentials) {
+                    username = System.getenv("AZURE_USER")
+                    password = System.getenv("AZURE_TOKEN")
+                }
+                authentication {
+                    basic(BasicAuthentication)
+                }
+            }
+        }
+    }
 }
 
 project(':dictzip-cli') {
@@ -119,23 +165,8 @@ project(':dictzip-cli') {
     applicationName = 'dictzip'
     version = rootProject.version
     dependencies {
-        implementation project(':dictzip-lib'),
-           'gnu.getopt:java-getopt:1.0.13'
-        testImplementation 'tokyo.northside:northside-io:0.2.0'
-    }
-    bintray {
-        user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-        key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-        configurations = ['archives']
-        pkg {
-            repo = 'maven'
-            name = 'dictzip-cli'
-            userOrg = 'dictzip'
-            licenses = ['GPL-3.0']
-            vcsUrl = projectUrl
-            labels = ['java', 'dictzip']
-            publicDownloadNumbers = true
-        }
+        implementation project(':dictzip-lib')
+        implementation 'gnu.getopt:java-getopt:1.0.13'
     }
     task mandoc(type: Copy) {
         from "doc/dictzip.1.in"
@@ -167,35 +198,4 @@ project(':dictzip-cli') {
             }
         }
     }
-}
-
-publishing {
-  publications {
-     project.afterEvaluate {
-         mavenJava(MavenPublication) {
-             artifactId = "dictzip"
-             groupId = "org.dict.zip"
-             version = project.version.toString()
-             pom {
-                 name.set(project.name)
-                 description.set(projectDesc)
-                 url.set(projectUrl)
-                 licenses {
-                     license {
-                         name.set("GNU General Public License Version 2+CE")
-                         url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0")
-                     }
-                 }
-                 scm {
-                     connection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
-                     url.set("https://github.com/dictzip/dictzip-java")
-                 }
-                 issueManagement {
-                     system.set("Trac")
-                     url.set("https://github.com/dictzip/dictzip-java/issues")
-                 }
-             }
-         }
-     }
-  }
 }

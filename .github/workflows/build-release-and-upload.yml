@@ -32,11 +32,18 @@ jobs:
         draft: false
         prerelease: false
     - uses: eskatos/gradle-command-action@v1
+      name: Releaase artifact to Github packages
       env:
-        BINTRAY_USER: ${{ secrets.bintrayUsername }}
-        BINTRAY_KEY: ${{ secrets.bintrayApiKey }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        arguments: bintrayUpload
+        arguments: publishMavenJavaPublicationToGitHubPackagesRepository
+    - uses: eskatos/gradle-command-action@v1
+      name: Releaase artifact to Azure packages
+      env:
+        AZURE_USER: ${{ secrets.AZURE_USER }}
+        AZURE_TOKEN: ${{ secrets.AZURE_TOKEN }}
+      with:
+        arguments: publishMavenJavaPublicationToAzurePackagesRepository
     - name: Upload Release Asset(cli.zip)
       id: upload-release-asset-zip
       uses: actions/upload-release-asset@v1
@@ -56,7 +63,7 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: dictzip-cli/build/distributions/dictzip-${{ steps.get_version.outputs.VERSION }}.tgz
         asset_name: dictzip-${{ steps.get_version.outputs.VERSION }}.tgz
-        asset_content_type: application/gzip
+        asset_content_type: application/x-gtar
     - name: Upload Release Asset(lib.jar)
       id: upload-release-asset-lib
       uses: actions/upload-release-asset@v1
@@ -66,4 +73,24 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: dictzip-lib/build/libs/dictzip-lib-${{ steps.get_version.outputs.VERSION }}.jar
         asset_name: dictzip-lib-${{ steps.get_version.outputs.VERSION }}.jar
+        asset_content_type: application/java-archive
+    - name: Upload Release Asset(lib.sources.jar)
+      id: upload-release-asset-lib
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dictzip-lib/build/libs/dictzip-lib-${{ steps.get_version.outputs.VERSION }}-sources.jar
+        asset_name: dictzip-lib-${{ steps.get_version.outputs.VERSION }}-sources.jar
+        asset_content_type: application/java-archive
+    - name: Upload Release Asset(lib.javadoc.jar)
+      id: upload-release-asset-lib
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dictzip-lib/build/libs/dictzip-lib-${{ steps.get_version.outputs.VERSION }}-javadoc.jar
+        asset_name: dictzip-lib-${{ steps.get_version.outputs.VERSION }}-javadoc.jar
         asset_content_type: application/java-archive

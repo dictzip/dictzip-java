@@ -7,18 +7,35 @@ DictZip, GZip random access compression format(.dz), access library for Java
 
 ## Usage
 
-Extract archive in directory. If you want to use just library, `dictzip-lib.jar`
+Extract archive in a directory. If you want to use just library, `dictzip-lib.jar`
 is an only file for you.
 CLI is also made for example of API usage and will be a good reference.
 Also there is a javadoc of DictZip at https://miurahr.github.io/dictzip-java
 
-### from maven/gradle
+### gradle
 
-dictzip library is registered at JCenter repository. You can download
-from JCenter specifying as follows:
+dictzip library is published on GitHub Packages repository and Azure Artifactory repository.
 
 ```
-org.dict.zip:dictzip-lib:0.8.2
+repositories {
+    maven { // when use github
+        url "https://maven.pkg.github.com/dictzip/dictzip-java"
+        credentials {
+            username = 'github username'
+            password = 'personal access token'
+        }
+    }
+    maven { // when use Azure
+        url "https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1"
+        credentials {
+            username = 'azure devops username'
+            password = 'personal access token'
+        }
+    }
+}
+dependencies {
+    implementation 'org.dict.zip:dictzip-lib:0.9.1'
+}
 ```
 
 ## Build
