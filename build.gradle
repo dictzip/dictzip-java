@@ -94,7 +94,7 @@ project(':dictzip-lib') {
                 mavenJava(MavenPublication) {
                     from components.java
                     artifactId = "dictzip"
-                    groupId = "org.dict.zip"
+                    groupId = projectGroup
                     version = project.version.toString()
                     pom {
                         name.set(project.name)
@@ -108,10 +108,10 @@ project(':dictzip-lib') {
                         }
                         scm {
                             connection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
-                            url.set("https://github.com/dictzip/dictzip-java")
+                            url.set(projectUrl)
                         }
                         issueManagement {
-                            url.set("https://github.com/dictzip/dictzip-java/issues")
+                            url.set(projectUrl + "/issues")
                         }
                     }
                 }
