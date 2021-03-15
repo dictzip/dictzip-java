@@ -114,60 +114,56 @@ project(':dictzip-lib') {
 
     publishing {
         publications {
-            project.afterEvaluate {
-                mavenJava(MavenPublication) {
-                    from components.java
-                    artifactId = "dictzip"
-                    groupId = projectGroup
-                    version = project.version.toString()
-                    pom {
-                        name.set(project.name)
-                        description.set(projectDesc)
+            mavenJava(MavenPublication) {
+                from components.java
+                artifactId = "dictzip"
+                pom {
+                    name.set(project.name)
+                    description.set(projectDesc)
+                    url.set(projectUrl)
+                    licenses {
+                        license {
+                            name.set("GNU General Public License Version 2+CE")
+                            url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0")
+                        }
+                    }
+                    scm {
+                        connection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
+                        developerConnection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
                         url.set(projectUrl)
-                        licenses {
-                            license {
-                                name.set("GNU General Public License Version 2+CE")
-                                url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0")
-                            }
+                    }
+                    developers {
+                        developer {
+                            id = "miurahr"
+                            name = "Hiroshi Miura"
+                            email = "miurahr@linux.com"
                         }
-                        scm {
-                            connection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
-                            developerConnection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
-                            url.set(projectUrl)
-                        }
-                        developers {
-                            developer {
-                                id = "miurahr"
-                                name = "Hiroshi Miura"
-                                email = "miurahr@linux.com"
-                            }
-                        }
-                        issueManagement {
-                            url.set(projectUrl + "/issues")
-                        }
+                    }
+                    issueManagement {
+                        url.set(projectUrl + "/issues")
                     }
                 }
             }
         }
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = "https://maven.pkg.github.com/dictzip/dictzip-java"
-                credentials {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/dictzip/dictzip-java"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
-            maven {
-                name 'AzurePackages'
-                url 'https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1'
-                credentials(PasswordCredentials) {
-                    username = System.getenv("AZURE_USER")
-                    password = System.getenv("AZURE_TOKEN")
-                }
-                authentication {
-                    basic(BasicAuthentication)
-                }
+        }
+        maven {
+            name 'AzurePackages'
+            url 'https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1'
+            credentials(PasswordCredentials) {
+                username = System.getenv("AZURE_USER")
+                password = System.getenv("AZURE_TOKEN")
+            }
+            authentication {
+                basic(BasicAuthentication)
             }
         }
     }
@@ -182,8 +178,7 @@ project(':dictzip-lib') {
         }
     }
 
-    project.afterEvaluate {
-        signing {
+    signing {
         def signingKey = findProperty("signingKey")
         def signingPassword = findProperty("signingPassword")
         if (signingKey) {
@@ -198,7 +193,6 @@ project(':dictzip-lib') {
             onlyIf { hasKey && versionDetails().isCleanTag }
         }
     }
-}
 
 project(':dictzip-cli') {
     apply plugin: 'application'
