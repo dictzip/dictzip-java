@@ -6,10 +6,17 @@ plugins {
     id "org.nosphere.gradle.github.actions" version "1.1.0"
     id 'maven-publish'
     id 'com.palantir.git-version' version "0.12.3"
+    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
+    id "signing"
 }
 
-// Drop prefix 'v' from latest tag version.
-version = gitVersion().substring(1)
+// calculate version string from git tag, hash and commit distance
+if (versionDetails().isCleanTag) {
+    // drop first 'v' from version tag
+    version = gitVersion().substring(1)
+} else {
+    version = versionDetails().lastTag.substring(1) + '-' + versionDetails().commitDistance + '-' + versionDetails().gitHash + '-SNAPSHOT'
+}
 
 // common settings
 subprojects {
@@ -19,7 +26,6 @@ subprojects {
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
 
-    sourceCompatibility = JavaVersion.VERSION_1_8
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
     checkstyle {
         config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
@@ -40,6 +46,8 @@ subprojects {
     test.useTestNG()
 
     java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
         withSourcesJar()
         withJavadocJar()
     }
@@ -106,56 +114,85 @@ project(':dictzip-lib') {
 
     publishing {
         publications {
-            project.afterEvaluate {
-                mavenJava(MavenPublication) {
-                    from components.java
-                    artifactId = "dictzip"
-                    groupId = projectGroup
-                    version = project.version.toString()
-                    pom {
-                        name.set(project.name)
-                        description.set(projectDesc)
+            mavenJava(MavenPublication) {
+                from components.java
+                artifactId = "dictzip"
+                pom {
+                    name.set(project.name)
+                    description.set(projectDesc)
+                    url.set(projectUrl)
+                    licenses {
+                        license {
+                            name.set("GNU General Public License Version 2+CE")
+                            url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0")
+                        }
+                    }
+                    scm {
+                        connection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
+                        developerConnection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
                         url.set(projectUrl)
-                        licenses {
-                            license {
-                                name.set("GNU General Public License Version 2+CE")
-                                url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0")
-                            }
+                    }
+                    developers {
+                        developer {
+                            id = "miurahr"
+                            name = "Hiroshi Miura"
+                            email = "miurahr@linux.com"
                         }
-                        scm {
-                            connection.set("scm:git:git://github.com/dictzip/dictzip-java.git")
-                            url.set(projectUrl)
-                        }
-                        issueManagement {
-                            url.set(projectUrl + "/issues")
-                        }
+                    }
+                    issueManagement {
+                        url.set(projectUrl + "/issues")
                     }
                 }
             }
         }
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = "https://maven.pkg.github.com/dictzip/dictzip-java"
-                credentials {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/dictzip/dictzip-java"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
-            maven {
-                name 'AzurePackages'
-                url 'https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1'
-                credentials(PasswordCredentials) {
-                    username = System.getenv("AZURE_USER")
-                    password = System.getenv("AZURE_TOKEN")
-                }
-                authentication {
-                    basic(BasicAuthentication)
-                }
+        }
+        maven {
+            name 'AzurePackages'
+            url 'https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1'
+            credentials(PasswordCredentials) {
+                username = System.getenv("AZURE_USER")
+                password = System.getenv("AZURE_TOKEN")
+            }
+            authentication {
+                basic(BasicAuthentication)
             }
         }
     }
-}
+    nexusPublishing {
+        repositories {
+            sonatype {
+                nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+                snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+                username = project.hasProperty('sonatypeUsername') ? project.property('sonatypeUsername') : System.getenv('SONATYPE_USER')
+                password = project.hasProperty('sonatypePassword') ? project.property('sonatypePassword') : System.getenv('SONATYPE_PASS')
+            }
+        }
+    }
+
+    signing {
+        def signingKey = findProperty("signingKey")
+        def signingPassword = findProperty("signingPassword")
+        if (signingKey) {
+            useInMemoryPgpKeys(signingKey, signingPassword)
+        } else {
+            useGpgCmd()
+        }
+            sign publishing.publications.mavenJava
+        }
+        tasks.withType(Sign) {
+            def hasKey = project.hasProperty("signingKey") || project.hasProperty("signing.gnupg.keyName")
+            onlyIf { hasKey && versionDetails().isCleanTag }
+        }
+    }
 
 project(':dictzip-cli') {
     apply plugin: 'application'

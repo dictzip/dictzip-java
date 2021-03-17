@@ -18,6 +18,9 @@ jobs:
     - uses: eskatos/gradle-command-action@v1
       with:
         arguments: build
+      env:
+        ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SECRET_KEY }}
+        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_KEY_PASSPHARASE }}
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
@@ -31,6 +34,16 @@ jobs:
         release_name: Release v${{ steps.get_version.outputs.VERSION }}
         draft: false
         prerelease: false
+    - name: Publish package to OSSRH
+      uses: burrunan/gradle-cache-action@v1
+      with:
+        gradle-version: 6.8.3
+        arguments: publishToSonatype
+      env:
+        ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SECRET_KEY }}
+        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_KEY_PASSPHARASE }}
+        SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+        SONATYPE_PASS: ${{ secrets.SONATYPE_PASS }}
     - uses: eskatos/gradle-command-action@v1
       name: Releaase artifact to Github packages
       env:
