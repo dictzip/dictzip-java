@@ -3,11 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [0.9.3] - 2021-03-20
+## [0.9.4] - 2021-03-20
 
 ### Changed
 - Publish to sonatype/OSSRH
-- Fix POM package name
+- Fix POM package name and jar name
 
 ## [0.9.2] - 2021-03-13
 
@@ -141,8 +141,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.9.3...HEAD
-[0.9.3]: https://github.com/dictzip/dictzip-java/compare/v0.9.2...v0.9.3
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.9.4...HEAD
+[0.9.4]: https://github.com/dictzip/dictzip-java/compare/v0.9.2...v0.9.4
 [0.9.2]: https://github.com/dictzip/dictzip-java/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/dictzip/dictzip-java/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/dictzip/dictzip-java/compare/v0.8.2...v0.9.0
