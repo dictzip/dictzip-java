@@ -84,7 +84,7 @@ project(':dictzip-lib') {
     install {
         repositories.mavenInstaller {
             pom.project {
-                name = project.name
+                name = 'dictzip'
                 packaging = 'jar'
                 description = projectDesc
                 url = projectUrl
