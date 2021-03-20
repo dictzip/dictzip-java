@@ -1,13 +1,15 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id "com.jfrog.bintray" version "1.8.5"
     id 'java-library'
-    id "org.nosphere.gradle.github.actions" version "1.1.0"
     id 'maven-publish'
-    id 'com.palantir.git-version' version "0.12.3"
-    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
+    id 'java-library-distribution'
     id "signing"
+    id "com.jfrog.bintray" version "1.8.5"
+    id "org.nosphere.gradle.github.actions" version "1.1.0"
+    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
+    id "io.freefair.maven-central.validate-poms" version "5.3.0"
+    id 'com.palantir.git-version' version "0.12.3"
 }
 
 // calculate version string from git tag, hash and commit distance
@@ -117,8 +119,9 @@ project(':dictzip-lib') {
             mavenJava(MavenPublication) {
                 from components.java
                 artifactId = "dictzip"
+                groupId = "io.github.dictzip"
                 pom {
-                    name.set(project.name)
+                    name.set("dictzip")
                     description.set(projectDesc)
                     url.set(projectUrl)
                     licenses {
