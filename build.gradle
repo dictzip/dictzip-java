@@ -133,27 +133,6 @@ project(':dictzip-lib') {
             }
         }
     }
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/dictzip/dictzip-java"
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-        maven {
-            name 'AzurePackages'
-            url 'https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1'
-            credentials(PasswordCredentials) {
-                username = System.getenv("AZURE_USER")
-                password = System.getenv("AZURE_TOKEN")
-            }
-            authentication {
-                basic(BasicAuthentication)
-            }
-        }
-    }
     nexusPublishing {
         repositories {
             sonatype {
