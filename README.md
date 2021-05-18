@@ -1,4 +1,4 @@
-# dictzip-java
+# dictzip
 
 DictZip, GZip random access compression format(.dz), access library for Java
 
@@ -7,52 +7,20 @@ DictZip, GZip random access compression format(.dz), access library for Java
 
 ## Usage
 
-Extract archive in a directory. If you want to use just library, `dictzip-lib.jar`
-is an only file for you.
-CLI is also made for example of API usage and will be a good reference.
-Also there is a javadoc of DictZip at https://miurahr.github.io/dictzip-java
 
-### gradle
-
-dictzip library is published on GitHub Packages repository and Azure Artifactory repository.
+dictzip library is published on MavenCentral. When you use with gradle build system,
+just add a dependency.
 
 ```
-repositories {
-    maven { // when use github
-        url "https://maven.pkg.github.com/dictzip/dictzip-java"
-        credentials {
-            username = 'github username'
-            password = 'personal access token'
-        }
-    }
-    maven { // when use Azure
-        url "https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1"
-        credentials {
-            username = 'azure devops username'
-            password = 'personal access token'
-        }
-    }
-}
 dependencies {
-    implementation 'org.dict.zip:dictzip-lib:0.9.1'
+    implementation 'io.github.dictzip:dictzip:0.9.5'
 }
 ```
 
-## Build
+## Document
 
-DictZip for java uses Gradle for build system. You can build library and CLI
-by typing command:
+There is a javadoc of DictZip at https://miurahr.github.io/dictzip-java
 
-```
-$ gradle build
-```
-
-You will find archive files at
-
-```
-dictzip-cli/build/distributions/dictzip-<version>.tgz
-dictzip-cli/build/distributions/dictzip-<version>.zip
-```
 
 ## Contribution
 
@@ -61,30 +29,13 @@ forking source and send modification as a Pull Request.
 It is recommended to post an issue before sending a patch.
 
 
-## Dependencies
-
-DictZip library does not depend on any project without Java standard libraries.
-
-DictZip CLI utility depends on some libraries.
-It depends on JFrog bintray JCenter repository.
-
-### Runtime depenency
-
-- java-getopts library(GPLv2+)
-
-### Test dependency
-
-- TestNG framework(Apache2)
-- Northside IO library(Apache2)
-
-
 ## Copyrights and License
 
 DictZip library for Java and command line utility.
 
 Copyright (C) 2001-2004 Ho Ngoc Duc
 
-Copyright (C) 2016 Hiroshi Miura
+Copyright (C) 2016-2021 Hiroshi Miura
 
 Some part of this program are come from a part of jdictd 1.5 on java.
 
