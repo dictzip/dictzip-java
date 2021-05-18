@@ -15,7 +15,7 @@ jobs:
     - uses: actions/setup-java@v2.1.0
       with:
         distribution: 'adopt'
-        java-version: 1.8
+        java-version: 8.0.292+10
     - uses: eskatos/gradle-command-action@v1
       with:
         arguments: build
