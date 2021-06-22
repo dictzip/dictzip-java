@@ -110,8 +110,8 @@ project(':dictzip-lib') {
                     url.set(projectUrl)
                     licenses {
                         license {
-                            name.set("GNU General Public License Version 2+CE")
-                            url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0")
+                            name.set("GNU General Public License v2.0 w/Classpath exception")
+                            url.set("https://www.gnu.org/software/classpath/license.html")
                         }
                     }
                     scm {
