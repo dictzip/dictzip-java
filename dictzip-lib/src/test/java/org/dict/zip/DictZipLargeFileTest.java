@@ -43,7 +43,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -81,12 +80,18 @@ public class DictZipLargeFileTest {
         return outTextFile;
     }
 
+    /**
+     * Test case to reproduce issue #24.
+     * <p>
+     *     When seek to almost end of large dictionary, it cause error
+     *     Caused by: java.util.zip.ZipException: invalid distance too far back
+     * </p>
+     */
     @Test
     public void testLargeFileInputOutput() throws IOException {
         System.out.println("LargeFileCompress");
         File inputFile = prepareTextData();
         String zippedFile = "DictZipLargeText.dz";
-        int far = (int)inputFile.length() - 2;
 
          int defLevel = Deflater.DEFAULT_COMPRESSION;
          byte[] buf = new byte[BUF_LEN];
@@ -95,10 +100,8 @@ public class DictZipLargeFileTest {
                     new RandomAccessOutputStream(new RandomAccessFile(zippedFile, "rws")),
                      BUF_LEN, inputFile.length(), defLevel)) {
             int len;
-            long pos = 0;
             while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
                 dout.write(buf, 0, len);
-                pos += len;
             }
         } catch (EOFException eof) {
                 // ignore it.
@@ -109,8 +112,8 @@ public class DictZipLargeFileTest {
         readFromZip(dictZipFile, inputFile.length() - 2, 1);
     }
 
-    public byte[] readFromZip(File zippedFile, long start, int size) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+    private byte[] readFromZip(final File zippedFile, final long start, final int size) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
                 RandomAccessFile(zippedFile, "r")))) {
             din.seek(start);
