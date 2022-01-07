@@ -42,7 +42,7 @@ subprojects {
 
     dependencies {
         testImplementation 'commons-io:commons-io:2.11.0'
-        testImplementation 'org.testng:testng:7.4.0'
+        testImplementation 'org.testng:testng:7.5'
     }
     test.useTestNG()
 
