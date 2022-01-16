@@ -25,11 +25,11 @@ jobs:
       with:
         msg: Build failed ${{ steps.gradle.outputs.build-scan-url }}
         check_for_duplicate_msg: true
-    - uses: actions/upload-artifact@v2.2.4
+    - uses: actions/upload-artifact@v2.3.1
       with:
         name: dictzip-library
         path: dictzip-lib/build/libs
-    - uses: actions/upload-artifact@v2.2.4
+    - uses: actions/upload-artifact@v2.3.1
       with:
         name: dictzip-cli
         path: dictzip-cli/build/distributions
