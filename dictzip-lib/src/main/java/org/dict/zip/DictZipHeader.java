@@ -45,6 +45,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
@@ -64,7 +65,7 @@ public class DictZipHeader {
     protected int[] chunks;
 
     private int headerLength;
-    private static final int GZIPFLAG_SIZE = 16;
+    private static final int GZIPFLAG_SIZE = 8;
     private final BitSet gzipFlag = new BitSet(GZIPFLAG_SIZE);
     private OperatingSystem headerOS = OperatingSystem.FAT;
     private CompressionLevel extraFlag;
@@ -79,7 +80,7 @@ public class DictZipHeader {
     private long mtime;
     private String filename;
     private String comment;
-    private static final Charset CHARSET = Charset.forName("ISO-8859-1");
+    private static final Charset CHARSET = StandardCharsets.ISO_8859_1;
 
     /**
      * GZIP magic number & flag bits.
@@ -99,6 +100,15 @@ public class DictZipHeader {
     private static final int GZIP_HEADER_LEN = 10;
     /* 2 bytes header magic, 1 byte compression method, 1 byte flags
      4 bytes time, 1 byte extra flags, 1 byte OS */
+    /**
+     * Max chunk length to compressed
+     */
+    public static final int MAX_CHUNK_LEN = 58969;
+    /**
+     * Mac number of chunks
+     */
+    public static final int MAX_CHUNK_COUNT = 32765;
+    private static final int MAX_DATA_SIZE = 1932119285;  // MAX_CHUNK_LEN * MAX_CHUNK_COUNT
 
     /**
      * Default constructor.
@@ -116,11 +126,18 @@ public class DictZipHeader {
         if (bufferSize <= 0) {
             throw new IllegalArgumentException("Buffer size is zero or minus.");
         }
+        if (bufferSize > MAX_CHUNK_LEN) {
+            throw new IllegalArgumentException("Buffer size is too large.");
+        }
+        if (dataSize > MAX_DATA_SIZE) {
+            throw new IllegalArgumentException("data size is out of DictZip range.");
+        }
         long tmpCount = dataSize / bufferSize;
         if (dataSize % bufferSize > 0) {
             tmpCount++;
         }
-        if (tmpCount > Integer.MAX_VALUE) {
+        // double check
+        if (tmpCount > MAX_CHUNK_COUNT) {
             throw new IllegalArgumentException("data size is out of DictZip range.");
         }
         gzipFlag.set(FEXTRA);
@@ -147,8 +164,8 @@ public class DictZipHeader {
         // Calculate total length
         extraLength = subfieldLength + 4;
         headerLength = GZIP_HEADER_LEN + extraLength;
-        filename = "";
-        comment = "";
+        filename = null;
+        comment = null;
     }
 
     private void initOffsets() {
@@ -308,7 +325,10 @@ public class DictZipHeader {
             throws IOException {
         CRC32 headerCrc = new CRC32();
         headerCrc.reset();
+        // force Header CRC on
+        h.setGzipFlag(FHCRC, true);
         ByteBuffer bb = ByteBuffer.allocate(22).order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer chunkbb = ByteBuffer.allocate(h.chunkCount * 2).order(ByteOrder.LITTLE_ENDIAN);
         bb.putShort((short) GZIP_MAGIC);
         bb.put((byte) Deflater.DEFLATED);
         bb.put(h.gzipFlag.toByteArray()[0]);
@@ -323,38 +343,29 @@ public class DictZipHeader {
         bb.putShort((short) h.chunkLength);
         bb.putShort((short) h.chunkCount);
         out.write(bb.array());
-        if (h.gzipFlag.get(FHCRC)) {
-            headerCrc.update(bb.array());
-        }
         for (int i = 0; i < h.chunkCount; i++) {
             DictZipFileUtils.writeShort(out, h.chunks[i]);
+            chunkbb.putShort((short) h.chunks[i]);
         }
-        if (h.gzipFlag.get(FHCRC)) {
-            for (int i = 0; i < h.chunkCount; i++) {
-                headerCrc.update(ByteBuffer.allocate(2).putShort((short) h.chunks[i]).array());
-            }
-        }
+        headerCrc.update(bb.array());
+        headerCrc.update(chunkbb.array());
         if (h.gzipFlag.get(FNAME)) {
             if (h.filename != null) {
                 out.write(h.filename.getBytes(CHARSET));
-                if (h.gzipFlag.get(FHCRC)) {
-                    headerCrc.update(h.filename.getBytes(CHARSET));
-                }
+                headerCrc.update(h.filename.getBytes(CHARSET));
             }
             out.write(0);
+            headerCrc.update(0);
         }
         if (h.gzipFlag.get(FCOMMENT)) {
             if (h.comment != null) {
                 out.write(h.comment.getBytes(CHARSET));
-                if (h.gzipFlag.get(FHCRC)) {
-                    headerCrc.update(h.comment.getBytes(CHARSET));
-                }
+                headerCrc.update(h.comment.getBytes(CHARSET));
             }
             out.write(0);
+            headerCrc.update(0);
         }
-        if (h.gzipFlag.get(FHCRC)) {
-            DictZipFileUtils.writeShort(out, (int) headerCrc.getValue());
-        }
+        DictZipFileUtils.writeShort(out, (int) headerCrc.getValue());
     }
 
     /**
@@ -366,7 +377,7 @@ public class DictZipHeader {
      */
     public final int getOffset(final long start) throws IllegalArgumentException {
         long off = start % this.chunkLength;
-        if (off < Integer.MAX_VALUE) {
+        if (off < MAX_DATA_SIZE) {
             return (int) off;
         } else {
             throw new IllegalArgumentException("Index is out of boundary.");
