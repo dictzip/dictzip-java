@@ -62,11 +62,23 @@ import java.util.zip.Deflater;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DictZipLargeFileTest {
+public class DictZipFileTest {
 
     private static final int BUF_LEN = 58315;
 
     void prepareTextData(final Path outTextPath, final int size) throws IOException {
+        Random random = new Random();
+        File outTextFile = outTextPath.toFile();
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(outTextFile), StandardCharsets.US_ASCII)), false)) {
+            for (long i = 0; i < size; i++) {
+                int number = random.nextInt(94);
+                writer.print((char) (32 + number));
+            }
+        };
+    }
+
+    void prepareLargeTextData(final Path outTextPath, final int size) throws IOException {
         Random random = new Random();
         File outTextFile = outTextPath.toFile();
         PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
@@ -89,19 +101,19 @@ public class DictZipLargeFileTest {
     }
 
     /**
-     * Test case to extract large archive file.
+     * Test case to extract an archive file.
      * @param tempDir JUnit5.jupiter TempDir.
      * @throws IOException when i/o error occurred.
      * @throws InterruptedException when external dictzip not executed well.
      */
     @Test
-    public void testLargeFileReadAceess(@TempDir Path tempDir) throws IOException, InterruptedException {
+    public void testFileReadAceess(@TempDir Path tempDir) throws IOException, InterruptedException {
         // Run test when running on Linux and dictzip command installed
         Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
-        int size = 45000000;  // about 45MB
+        int size = 65536;  // 64kB
         byte[] buf = new byte[BUF_LEN];
         // create archive with dictzip command
-        Path outTextPath = tempDir.resolve("DictZipLargeText.txt");
+        Path outTextPath = tempDir.resolve("DictZipText.txt");
         prepareTextData(outTextPath, size);
         File inputFile = outTextPath.toFile();
         assertEquals(size, inputFile.length());
@@ -115,7 +127,80 @@ public class DictZipLargeFileTest {
         Process process = Runtime.getRuntime().exec(String.format("dictzip %s", outTextPath.toAbsolutePath()));
         int returnCode = process.waitFor();
         assertEquals(0, returnCode);
-        File zippedFile = tempDir.resolve("DictZipLargeText.txt.dz").toFile();
+        File zippedFile = tempDir.resolve("DictZipText.txt.dz").toFile();
+        // read dictZip archive
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
+                RandomAccessFile(zippedFile, "r")))) {
+            din.seek(size - 2);
+            int len = din.read(buf, 0, 1);
+            assertTrue(len > 0);
+        }
+        assertEquals(expected, buf[0]);
+    }
+
+    /**
+     * Test case to create large archive.
+     */
+    @Test
+    public void testFileCreation(@TempDir Path tempDir) throws IOException, InterruptedException {
+        // Run test when running on Linux and dictzip command installed
+        Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
+        int size = 65536;  // about 64kB
+        byte[] buf = new byte[BUF_LEN];
+        // create data
+        Path outTextPath = tempDir.resolve("DictZipText.txt");
+        prepareTextData(outTextPath, size);
+        File inputFile = outTextPath.toFile();
+        Path zippedPath = tempDir.resolve("DictZipText.txt.dz");
+        assertEquals(size, inputFile.length());
+        // create dictZip archive
+        int defLevel = Deflater.DEFAULT_COMPRESSION;
+        try (FileInputStream ins = new FileInputStream(inputFile);
+             DictZipOutputStream dout = new DictZipOutputStream(
+                     new RandomAccessOutputStream(new RandomAccessFile(zippedPath.toFile(), "rws")),
+                     BUF_LEN, inputFile.length(), defLevel)) {
+            int len;
+            while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
+                dout.write(buf, 0, len);
+            }
+            dout.finish();
+        }
+        Process process = Runtime.getRuntime().exec(
+                String.format("dictzip -d %s", zippedPath.toAbsolutePath()));
+        StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
+        Executors.newSingleThreadExecutor().submit(streamGobbler);
+        int returnCode = process.waitFor();
+        assertEquals(0, returnCode);
+    }
+
+    /**
+     * Test case to extract large archive file.
+     * @param tempDir JUnit5.jupiter TempDir.
+     * @throws IOException when i/o error occurred.
+     * @throws InterruptedException when external dictzip not executed well.
+     */
+    @Test
+    public void testLargeFileReadAceess(@TempDir Path tempDir) throws IOException, InterruptedException {
+        // Run test when running on Linux and dictzip command installed
+        Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
+        int size = 45000000;  // about 45MB
+        byte[] buf = new byte[BUF_LEN];
+        // create archive with dictzip command
+        Path outTextPath = tempDir.resolve("DictZipText.txt");
+        prepareLargeTextData(outTextPath, size);
+        File inputFile = outTextPath.toFile();
+        assertEquals(size, inputFile.length());
+        // get expectation
+        try (RandomAccessInputStream is = new RandomAccessInputStream(new RandomAccessFile(inputFile, "r"))) {
+            is.seek(size -2);
+            int len = is.read(buf, 0, 1);
+            assertEquals(1, len);
+        }
+        byte expected = buf[0];
+        Process process = Runtime.getRuntime().exec(String.format("dictzip %s", outTextPath.toAbsolutePath()));
+        int returnCode = process.waitFor();
+        assertEquals(0, returnCode);
+        File zippedFile = tempDir.resolve("DictZipText.txt.dz").toFile();
         // read dictZip archive
         try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
                 RandomAccessFile(zippedFile, "r")))) {
@@ -136,10 +221,10 @@ public class DictZipLargeFileTest {
         int size = 45000000;  // about 45MB
         byte[] buf = new byte[BUF_LEN];
         // create data
-        Path outTextPath = tempDir.resolve("DictZipLargeText.txt");
-        prepareTextData(outTextPath, size);
+        Path outTextPath = tempDir.resolve("DictZipText.txt");
+        prepareLargeTextData(outTextPath, size);
         File inputFile = outTextPath.toFile();
-        Path zippedPath = tempDir.resolve("DictZipJava.txt.dz");
+        Path zippedPath = tempDir.resolve("DictZipText.txt.dz");
         assertEquals(size, inputFile.length());
         // create dictZip archive
         int defLevel = Deflater.DEFAULT_COMPRESSION;
@@ -173,10 +258,10 @@ public class DictZipLargeFileTest {
         int size = 45000000;  // about 45MB
         byte[] buf = new byte[BUF_LEN];
         // create data
-        Path outTextPath = tempDir.resolve("DictZipLargeText.txt");
+        Path outTextPath = tempDir.resolve("DictZipText.txt");
         prepareTextData(outTextPath, size);
         File inputFile = outTextPath.toFile();
-        File zippedFile = tempDir.resolve("DictZipJava.txt.dz").toFile();
+        File zippedFile = tempDir.resolve("DictZipText.txt.dz").toFile();
         assertEquals(size, inputFile.length());
         // get expectation
         try (RandomAccessInputStream is = new RandomAccessInputStream(new RandomAccessFile(inputFile, "r"))) {

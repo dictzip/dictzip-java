@@ -111,7 +111,7 @@ public class DictZipOutputStream extends FilterOutputStream {
         usesDefaultDeflater = true;
     }
 
-   /**
+    /**
      * Constructor.
      * @param out output stream to filter.
      * @param defl custom deflater class, should be child of Deflater class.

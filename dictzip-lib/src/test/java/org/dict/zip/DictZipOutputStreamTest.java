@@ -42,12 +42,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
 import java.util.zip.Checksum;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -81,33 +83,25 @@ public class DictZipOutputStreamTest {
     }
 
     /**
-     * Test of deflate method, of class DictZipOutputStream.
-     * @throws Exception when i/o error.
-     */
-    @Test
-    public void testDeflate(@TempDir Path tempDir) throws Exception {
-        byte[] byteArray = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
-        File testOutFile = tempDir.resolve("DictZipOutCon.txt").toFile();
-        RandomAccessOutputStream outFile = new RandomAccessOutputStream(
-                    new RandomAccessFile(testOutFile, "rw"));
-        TestDictZipOutputStream instance = new TestDictZipOutputStream(outFile, byteArray.length);
-        instance.deflate();
-    }
-
-    /**
      * Test of write method, of class DictZipOutputStream.
      * @throws Exception when i/o error.
      */
     @Test
     public void testWrite3args(@TempDir Path tempDir) throws Exception {
         byte[] b = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
-        int off = 0;
-        int len = 0;
         File testOutFile = tempDir.resolve("DictZipOutCon.txt").toFile();
         RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
         TestDictZipOutputStream instance = new TestDictZipOutputStream(outFile, 512, 100);
-        instance.write(b, off, len);
+        instance.write(b, 0, b.length);
+        instance.close();
+        // assert
+        byte[] buf = new byte[512];
+        int len;
+        try (FileInputStream is = new FileInputStream(testOutFile)) {
+            len = is.read(buf);
+        }
+        assertTrue(len > 0);
     }
 
     /**
