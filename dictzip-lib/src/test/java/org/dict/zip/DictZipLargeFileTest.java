@@ -36,7 +36,10 @@
  */
 package org.dict.zip;
 
-import org.testng.annotations.Test;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junitpioneer.jupiter.TempDirectory;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -49,6 +52,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Random;
 import java.util.zip.Deflater;
 
@@ -88,16 +92,16 @@ public class DictZipLargeFileTest {
      * </p>
      */
     @Test
-    public void testLargeFileInputOutput() throws IOException {
-        System.out.println("LargeFileCompress");
+    @ExtendWith(TempDirectory.class)
+    public void testLargeFileInputOutput(@TempDirectory.TempDir Path tempDir) throws IOException {
         File inputFile = prepareTextData();
-        String zippedFile = "DictZipLargeText.dz";
+        Path zippedFile = tempDir.resolve("DictZipLargeText.dz");
 
          int defLevel = Deflater.DEFAULT_COMPRESSION;
          byte[] buf = new byte[BUF_LEN];
          try (FileInputStream ins = new FileInputStream(inputFile);
              DictZipOutputStream dout = new DictZipOutputStream(
-                    new RandomAccessOutputStream(new RandomAccessFile(zippedFile, "rws")),
+                    new RandomAccessOutputStream(new RandomAccessFile(zippedFile.toFile(), "rws")),
                      BUF_LEN, inputFile.length(), defLevel)) {
             int len;
             while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
@@ -106,10 +110,8 @@ public class DictZipLargeFileTest {
         } catch (EOFException eof) {
                 // ignore it.
         }
-        // start assertion
-        File dictZipFile = new File(zippedFile);
-        readFromZip(dictZipFile, 0, 10);
-        readFromZip(dictZipFile, inputFile.length() - 2, 1);
+        // start assertion, read last bytes
+        readFromZip(zippedFile.toFile(), inputFile.length() - 2, 1);
     }
 
     private byte[] readFromZip(final File zippedFile, final long start, final int size) throws IOException {

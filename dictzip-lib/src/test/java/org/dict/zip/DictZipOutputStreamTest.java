@@ -37,15 +37,15 @@
 
 package org.dict.zip;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
-
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.zip.Checksum;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -76,7 +76,7 @@ public class DictZipOutputStreamTest {
             }
             assertEquals(r, 1, "DictZip instance can still be used after close is called");
         } catch (IOException e) {
-            fail("an IO error occurred while trying to find the output file or creating DictZip constructor");
+            Assertions.fail("an IO error occurred while trying to find the output file or creating DictZip constructor");
         }
     }
 
@@ -130,7 +130,7 @@ public class DictZipOutputStreamTest {
             instance = new TestDictZipOutputStream(outFile, 10);
             instance.write(b);
         } catch (Exception e) {
-            fail("Unwanted exception happens.");
+            Assertions.fail("Unwanted exception happens.");
         }
     }
 
@@ -157,7 +157,7 @@ public class DictZipOutputStreamTest {
             }
             assertEquals(r, 1, "DictZip instance can still be used after finish is called");
         } catch (Exception ex) {
-            fail("an IO error occured while trying to find the output file or creating DictZip constructor");
+            Assertions.fail("an IO error occured while trying to find the output file or creating DictZip constructor");
         }
         try {
             File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
@@ -168,7 +168,7 @@ public class DictZipOutputStreamTest {
             instance.close();
 
             instance.finish();
-            fail("Expected IOException");
+            Assertions.fail("Expected IOException");
         } catch (IOException e) {
             // expected
         }

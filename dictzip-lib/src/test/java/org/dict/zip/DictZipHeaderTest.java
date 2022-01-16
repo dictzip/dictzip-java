@@ -36,16 +36,15 @@
  */
 package org.dict.zip;
 
-import org.testng.annotations.Test;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.dict.zip.DictZipHeader.CompressionLevel;
+import org.junit.jupiter.api.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static tokyo.northside.io.FileUtils2.contentEquals;
 
 

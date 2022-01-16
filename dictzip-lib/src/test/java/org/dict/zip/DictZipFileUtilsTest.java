@@ -36,13 +36,14 @@
  */
 package org.dict.zip;
 
-import org.testng.annotations.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static tokyo.northside.io.FileUtils2.contentEquals;
 
 /**
@@ -53,7 +54,6 @@ public class DictZipFileUtilsTest {
      * Check equals two file contentss.
      * @throws Exception when fails to open.
      */
-    @Test
     public void testContentEquals() throws Exception {
         System.out.println("isFileBinaryEquals");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
@@ -150,7 +150,6 @@ public class DictZipFileUtilsTest {
         try (DictZipInputStream dzin = new DictZipInputStream(new
                 RandomAccessInputStream(targetFile, "r"))) {
             assertTrue(DictZipFileUtils.checkDictZipInputStream(dzin));
-            dzin.close();
         }
     }
 }

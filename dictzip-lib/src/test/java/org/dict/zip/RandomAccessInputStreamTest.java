@@ -37,11 +37,12 @@
 
 package org.dict.zip;
 
-import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for project.
@@ -113,7 +114,7 @@ public class RandomAccessInputStreamTest {
             RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
             instance.mark(markpos);
         } catch (Exception ex) {
-            fail("get exception.");
+            Assertions.fail("get exception.");
         }
     }
 
@@ -128,7 +129,7 @@ public class RandomAccessInputStreamTest {
             boolean result = instance.markSupported();
             assertTrue(result);
         } catch (Exception ex) {
-            fail("get exception.");
+            Assertions.fail("get exception.");
         }
     }
 
@@ -145,7 +146,7 @@ public class RandomAccessInputStreamTest {
             int result = instance.read();
             assertEquals(result, expResult);
         } catch (Exception ex) {
-            fail("get exception.");
+            Assertions.fail("get exception.");
         }
     }
 

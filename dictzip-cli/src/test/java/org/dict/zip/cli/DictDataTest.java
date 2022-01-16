@@ -20,15 +20,14 @@
 
 package org.dict.zip.cli;
 
-import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URL;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static tokyo.northside.io.FileUtils2.contentEquals;
 import org.dict.zip.DictZipHeader;
-
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**
