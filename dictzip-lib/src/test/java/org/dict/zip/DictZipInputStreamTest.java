@@ -37,17 +37,16 @@
 
 package org.dict.zip;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static tokyo.northside.io.IOUtils2.contentEquals;
 
 /**
@@ -57,318 +56,311 @@ import static tokyo.northside.io.IOUtils2.contentEquals;
 public class DictZipInputStreamTest {
 
     private final String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
-    private DictZipInputStream din;
 
     /**
-     * rewind dictionary file.
-     *
+     * Test constructor @TestFactory.
      * @throws Exception when i/o error.
      */
-    @BeforeMethod
-    public void rewind() throws Exception {
-        if (din != null) {
-            din.seek(0);
-        }
-    }
-
-    /**
-     * Test constructor.
-     * @throws Exception when i/o error.
-     */
-    @Test (groups = "init", dependsOnMethods = { "testConstructorFromFilename",
-            "testConstructorDefaultBufSize"})
-    public void testConstructor() throws Exception {
-        din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534);
-    }
-
-    /**
-     * Test constructor.
-     * @throws Exception when i/o error.
-     */
-    @Test (groups = "init")
+    @Test
     public void testConstructorDefaultBufSize() throws Exception {
-        din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"));
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"))) {
+            // pass
+        }
     }
 
     /**
      * Test constructor from filename.
      * @throws Exception when i/o error.
      */
-    @Test (groups = "init")
+    @Test
     public void testConstructorFromFilename() throws Exception {
-        din = new DictZipInputStream(dataFile);
-    }
-
-    /**
-     * Test close of stream.
-     * @throws Exception if I/O error occurred.
-     */
-    @Test (groups = "exit", dependsOnGroups = { "test" })
-    public void testClose() throws Exception {
-        din.close();
-        din = null;
+        try (DictZipInputStream din = new DictZipInputStream(dataFile)) {
+            // pass
+        }
     }
 
     /**
      * Test of read method, of class DictZipInputStream.
      * @throws Exception when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testRead() throws Exception {
-        System.out.println("read");
         int len = 10;
         byte[] buf = new byte[len];
         byte[] expResult = {0x70, 0x72, (byte) 0xc3, (byte) 0xa9, 0x70, 0x2e, 0x20, 0x3a, 0x20, 0x2b};
-        din.read(buf, 0, len);
-        assertTrue(Arrays.equals(expResult, buf));
-    }
-
-    /**
-     * Test of read method, of class DictZipInputStream.
-     * @throws Exception when i/o error.
-     */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testReadWithSeek() throws Exception {
-        System.out.println("read with seek");
-        int start = 0x20;
-        int len = 10;
-        din.seek(start);
-        byte[] buf = new byte[len];
-        byte[] expResult = {
-            0x61, 0x70, 0x72, (byte) 0xc3, (byte) 0xa8, 0x73, 0x20, 0x75, 0x6e, 0x20
-        };
-        din.read(buf, 0, len);
-        assertTrue(Arrays.equals(buf, expResult));
-    }
-
-    /**
-     * Test of read method, of class DictZipInputStream.
-     * @throws Exception when i/o error.
-     */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testReadNull() throws Exception {
-        System.out.println("read null buffer");
-        int len = 10;
-        byte[] buf = null;
-        boolean r = false;
-        try {
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            din.seek(0);
             din.read(buf, 0, len);
-            fail("Should be throw exception.");
-        } catch (NullPointerException e) {
-            // expected.
-            r = true;
+            assertTrue(Arrays.equals(expResult, buf));
         }
-        assertTrue(r, "Got NullPointerException when buffer is null");
     }
 
     /**
      * Test of read method, of class DictZipInputStream.
      * @throws Exception when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
+    public void testReadWithSeek() throws Exception {
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            int start = 0x20;
+            int len = 10;
+            din.seek(start);
+            byte[] buf = new byte[len];
+            byte[] expResult = {
+                    0x61, 0x70, 0x72, (byte) 0xc3, (byte) 0xa8, 0x73, 0x20, 0x75, 0x6e, 0x20
+            };
+            din.read(buf, 0, len);
+            assertTrue(Arrays.equals(buf, expResult));
+        }
+    }
+
+    /**
+     * Test of read method, of class DictZipInputStream.
+     * @throws Exception when i/o error.
+     */
+    @Test
+    public void testReadNull() throws Exception {
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            int len = 10;
+            byte[] buf = null;
+            boolean r = false;
+            try {
+                din.read(buf, 0, len);
+                Assertions.fail("Should be throw exception.");
+            } catch (NullPointerException e) {
+                // expected.
+                r = true;
+            }
+            assertTrue(r, "Got NullPointerException when buffer is null");
+        }
+    }
+
+    /**
+     * Test of read method, of class DictZipInputStream.
+     * @throws Exception when i/o error.
+     */
+    @Test
     public void testReadOutOfBound() throws Exception {
-        System.out.println("read out of buffer size");
-        int len = 10;
-        byte[] buf = new byte[len];
-        boolean r = false;
-        try {
-            din.read(buf, 0, len + 10);
-            fail("Should be throw exception.");
-        } catch (IndexOutOfBoundsException e) {
-            // expected.
-            r = true;
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            int len = 10;
+            byte[] buf = new byte[len];
+            boolean r = false;
+            try {
+                din.read(buf, 0, len + 10);
+                Assertions.fail("Should be throw exception.");
+            } catch (IndexOutOfBoundsException e) {
+                // expected.
+                r = true;
+            }
+            assertTrue(r, "Got IndexOutOfBoundException when size is over the buffer size");
         }
-        assertTrue(r, "Got IndexOutOfBoundException when size is over the buffer size");
     }
 
     /**
      * Test of read method, of class DictZipInputStream.
      * @throws Exception when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testReadZeroSize() throws Exception {
-        System.out.println("read zero size");
-        int len = 512;
-        byte[] buf = new byte[len];
-        int size = din.read(buf, 0, 0);
-        assertEquals(size, 0);
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            int len = 512;
+            byte[] buf = new byte[len];
+            int size = din.read(buf, 0, 0);
+            assertEquals(size, 0);
+        }
     }
 
     /**
      * Test of read method, of class DictZipInputStream.
      * @throws Exception when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testReadWithSeekLast() throws Exception {
-        System.out.println("read with seek to last");
-        int start = 383273;
-        int len = 512;
-        din.seek(start);
-        byte[] buf = new byte[len];
-        din.read(buf, 0, len);
-        int result = din.read(buf, 0, len);
-        assertEquals(result, -1);
-    }
-
-   /**
-     * Test of readFully method, of class DictZipInputStream.
-     * @throws Exception when i/o error.
-     */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
-    public void testReadFullyByteArr() throws Exception {
-        System.out.println("readFully");
-        int start = 100;
-        int len = 10;
-        din.seek(start);
-        byte[] buf = new byte[len];
-        din.readFully(buf);
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            int start = 383273;
+            int len = 512;
+            din.seek(start);
+            byte[] buf = new byte[len];
+            din.read(buf, 0, len);
+            int result = din.read(buf, 0, len);
+            assertEquals(result, -1);
+        }
     }
 
     /**
      * Test of readFully method, of class DictZipInputStream.
      * @throws Exception when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
+    public void testReadFullyByteArr() throws Exception {
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            int start = 100;
+            int len = 10;
+            din.seek(start);
+            byte[] buf = new byte[len];
+            din.readFully(buf);
+        }
+    }
+
+    /**
+     * Test of readFully method, of class DictZipInputStream.
+     * @throws Exception when i/o error.
+     */
+    @Test
     public void testReadFully3args() throws Exception {
-        System.out.println("readFully");
-        int start = 200;
-        int len = 10;
-        din.seek(start);
-        byte[] buf = new byte[len];
-        din.readFully(buf, 0, len);
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            int start = 200;
+            int len = 10;
+            din.seek(start);
+            byte[] buf = new byte[len];
+            din.readFully(buf, 0, len);
+        }
     }
 
     /**
      * Test of readFully method, of class DictZipInputStream.
      * @throws IOException when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testReadFullyReadTrailer() throws IOException {
-        System.out.println("readFully and readTrailer");
-        byte[] buf = new byte[512];
-        try {
-            din.readFully(buf);
-        } catch (EOFException e) {
-            // Normal, continue
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            byte[] buf = new byte[512];
+            try {
+                din.readFully(buf);
+            } catch (EOFException e) {
+                // Normal, continue
+            }
+            // read trailer
+            din.readTrailer();
+            assertEquals(din.getCrc(), 0x024d1f37);
+            assertEquals(din.getLength(), 383783);
         }
-        // read trailer
-        din.readTrailer();
-        assertEquals(din.getCrc(), 0x024d1f37);
-        assertEquals(din.getLength(), 383783);
     }
 
     /**
      * Test getComplength method.
      * @throws IOException when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testGetCompLength() throws IOException {
-        System.out.println("getCompLength");
-        assertEquals(din.getCompLength(), 136856);
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            System.out.println("getCompLength");
+            assertEquals(din.getCompLength(), 136856);
+        }
     }
 
     /**
      * Test getMtime method.
      * @throws IOException when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testGetMtime() throws IOException {
-        System.out.println("getMtime");
-        assertEquals(din.getMtime(), 1193780332);
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            assertEquals(din.getMtime(), 1193780332);
+        }
     }
 
     /**
      * Test getChunkLength method.
      * @throws IOException when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testGetChunkLength() throws IOException {
-        System.out.println("getChunkLength");
-        assertEquals(din.getChunkLength(), 58315);
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            System.out.println("getChunkLength");
+            assertEquals(din.getChunkLength(), 58315);
+        }
     }
 
     /**
      * Test getChunkCount method.
      * @throws IOException when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testGetChunkCount() throws IOException {
-        System.out.println("getChunkCount");
-        assertEquals(din.getChunkCount(), 7);
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            System.out.println("getChunkCount");
+            assertEquals(din.getChunkCount(), 7);
+        }
     }
 
     /**
      * Test getFilename method.
      * @throws IOException when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testGetFilename() throws IOException {
-        System.out.println("getFilename");
-        assertEquals(din.getFilename(), "results.dict");
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            assertEquals(din.getFilename(), "results.dict");
+        }
     }
 
-   /**
+    /**
      * Test readFully with large seek.
-    * @throws Exception when i/o error.
+     * @throws Exception when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    @Test
     public void testReadFullySeek2() throws Exception {
-        System.out.println("readFully_seek2");
-        int start = 56003;
-        int len = 195;
-        try {
-            din.seek(start);
-        } catch (IOException ioe) {
-            fail("Unexpected IOException");
-        }
-        byte[] buf = new byte[len];
-        try {
-            din.readFully(buf);
-        } catch (EOFException eofe) {
-            fail("Unexpected EOF");
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            int start = 56003;
+            int len = 195;
+            try {
+                din.seek(start);
+            } catch (IOException ioe) {
+                Assertions.fail("Unexpected IOException");
+            }
+            byte[] buf = new byte[len];
+            try {
+                din.readFully(buf);
+            } catch (EOFException eofe) {
+                Assertions.fail("Unexpected EOF");
+            }
         }
     }
 
-   /**
-    * Test with large  seek.
-    * @throws Exception when i/o error.
-    */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor" })
+    /**
+     * Test with large  seek.
+     * @throws Exception when i/o error.
+     */
+    @Test
     public void testReadSeek2() throws Exception {
-        System.out.println("read_seek2");
-        int start = 56003;
-        int len = 195;
-        try {
-            din.seek(start);
-        } catch (IOException ioe) {
-            fail("Unexpected IOException");
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            System.out.println("read_seek2");
+            int start = 56003;
+            int len = 195;
+            try {
+                din.seek(start);
+            } catch (IOException ioe) {
+                Assertions.fail("Unexpected IOException");
+            }
+            byte[] buf = new byte[len];
+            int result = 0;
+            try {
+                result = din.read(buf, 0, len);
+            } catch (EOFException eofe) {
+                Assertions.fail("Unexpected EOF");
+            }
+            assertEquals(result, len);
         }
-        byte[] buf = new byte[len];
-        int result = 0;
-        try {
-            result = din.read(buf, 0, len);
-        } catch (EOFException eofe) {
-            fail("Unexpected EOF");
-        }
-        assertEquals(result, len);
     }
 
     /**
      * Test with large seek comparison content.
      * @throws Exception when i/o error.
      */
-    @Test (groups = "test", dependsOnMethods = { "testConstructor"})
+    @Test
     public void testReadSeek3() throws Exception {
-         System.out.println("read_seek2");
-        int start = 56003;
-        int len = 195;
-        try {
-            din.seek(start);
-        } catch (IOException ioe) {
-            fail("Unexpected IOException");
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
+            int start = 56003;
+            int len = 195;
+            try {
+                din.seek(start);
+            } catch (IOException ioe) {
+                Assertions.fail("Unexpected IOException");
+            }
+            FileInputStream in2 = new FileInputStream(this.getClass().getResource("/test.dict.expected").getFile());
+            in2.skip(start);
+            assertTrue(contentEquals(din, in2, 0, len));
         }
-        FileInputStream in2 = new FileInputStream(this.getClass().getResource("/test.dict.expected").getFile());
-        in2.skip(start);
-        assertTrue(contentEquals(din, in2, 0, len));
     }
 }
