@@ -44,7 +44,6 @@ subprojects {
         testImplementation 'commons-io:commons-io:2.8.0'
         testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
         testImplementation "org.junit.jupiter:junit-jupiter:5.8.1"
-        testImplementation "org.junit-pioneer:junit-pioneer:0.1.2"
     }
 
     test {

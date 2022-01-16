@@ -36,52 +36,129 @@
  */
 package org.dict.zip;
 
-
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junitpioneer.jupiter.TempDirectory;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.zip.Deflater;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DictZipLargeFileTest {
 
     private static final int BUF_LEN = 58315;
 
-    public File prepareTextData() throws IOException {
-        int size = 45000000;  // 45MB
+    void prepareTextData(final Path outTextPath, final int size) throws IOException {
         Random random = new Random();
-        File outTextFile = File.createTempFile("DictZipLargeText", ".txt");
-        PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outTextFile), StandardCharsets.UTF_8)), false);
-        int counter = 0;
+        File outTextFile = outTextPath.toFile();
+        PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(outTextFile), StandardCharsets.US_ASCII)), false);
+        int outSize = 0;
         while (true) {
-            for (int i = 0; i < 100; i++) {
-                int number = random.nextInt(96);
-                writer.print((char) (32 + number));
-            }
-            writer.println();
-            if (++counter >= 10000) {
-                if (outTextFile.length() > size) {
-                    writer.close();
-                    break;
-                } else {
-                    counter = 0;
+            for (int j = 0; j < 1000; j++) {
+                for (int i = 0; i < 99; i++) {
+                    int number = random.nextInt(94);
+                    writer.print((char) (32 + number));
                 }
+                writer.print("\n");
+            }
+            outSize += 1000 * 100;
+            if (outSize >= size) {
+                writer.close();
+                break;
             }
         }
-        return outTextFile;
+    }
+
+    /**
+     * Test case to extract large archive file.
+     * @param tempDir JUnit5.jupiter TempDir.
+     * @throws IOException when i/o error occurred.
+     * @throws InterruptedException when external dictzip not executed well.
+     */
+    @Test
+    public void testLargeFileReadAceess(@TempDir Path tempDir) throws IOException, InterruptedException {
+        // Run test when running on Linux and dictzip command installed
+        Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
+        int size = 45000000;  // about 45MB
+        byte[] buf = new byte[BUF_LEN];
+        // create archive with dictzip command
+        Path outTextPath = tempDir.resolve("DictZipLargeText.txt");
+        prepareTextData(outTextPath, size);
+        File inputFile = outTextPath.toFile();
+        assertEquals(size, inputFile.length());
+        // get expectation
+        try (RandomAccessInputStream is = new RandomAccessInputStream(new RandomAccessFile(inputFile, "r"))) {
+            is.seek(size -2);
+            int len = is.read(buf, 0, 1);
+            assertEquals(1, len);
+        }
+        byte expected = buf[0];
+        Process process = Runtime.getRuntime().exec(String.format("dictzip %s", outTextPath.toAbsolutePath()));
+        int returnCode = process.waitFor();
+        assertEquals(0, returnCode);
+        File zippedFile = tempDir.resolve("DictZipLargeText.txt.dz").toFile();
+        // read dictZip archive
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
+                RandomAccessFile(zippedFile, "r")))) {
+            din.seek(size - 2);
+            int len = din.read(buf, 0, 1);
+            assertTrue(len > 0);
+        }
+        assertEquals(expected, buf[0]);
+    }
+
+    /**
+     * Test case to create large archive.
+     */
+    @Test
+    public void testLargeFileCreation(@TempDir Path tempDir) throws IOException, InterruptedException {
+        // Run test when running on Linux and dictzip command installed
+        Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
+        int size = 45000000;  // about 45MB
+        byte[] buf = new byte[BUF_LEN];
+        // create data
+        Path outTextPath = tempDir.resolve("DictZipLargeText.txt");
+        prepareTextData(outTextPath, size);
+        File inputFile = outTextPath.toFile();
+        Path zippedPath = tempDir.resolve("DictZipJava.txt.dz");
+        assertEquals(size, inputFile.length());
+        // create dictZip archive
+        int defLevel = Deflater.DEFAULT_COMPRESSION;
+        try (FileInputStream ins = new FileInputStream(inputFile);
+             DictZipOutputStream dout = new DictZipOutputStream(
+                     new RandomAccessOutputStream(new RandomAccessFile(zippedPath.toFile(), "rws")),
+                     BUF_LEN, inputFile.length(), defLevel)) {
+            int len;
+            while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
+                dout.write(buf, 0, len);
+            }
+            dout.finish();
+        }
+        Process process = Runtime.getRuntime().exec(
+                String.format("dictzip -d -c -s %d -e %d %s", size - 2, 1, zippedPath.toAbsolutePath()));
+        StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
+        Executors.newSingleThreadExecutor().submit(streamGobbler);
+        int returnCode = process.waitFor();
+        assertEquals(0, returnCode);
     }
 
     /**
@@ -92,54 +169,58 @@ public class DictZipLargeFileTest {
      * </p>
      */
     @Test
-    @ExtendWith(TempDirectory.class)
-    public void testLargeFileInputOutput(@TempDirectory.TempDir Path tempDir) throws IOException {
-        File inputFile = prepareTextData();
-        Path zippedFile = tempDir.resolve("DictZipLargeText.dz");
-
-         int defLevel = Deflater.DEFAULT_COMPRESSION;
-         byte[] buf = new byte[BUF_LEN];
-         try (FileInputStream ins = new FileInputStream(inputFile);
-             DictZipOutputStream dout = new DictZipOutputStream(
-                    new RandomAccessOutputStream(new RandomAccessFile(zippedFile.toFile(), "rws")),
-                     BUF_LEN, inputFile.length(), defLevel)) {
-            int len;
-            while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
-                dout.write(buf, 0, len);
-            }
-        } catch (EOFException eof) {
-                // ignore it.
+    public void testLargeFileInputOutput(@TempDir Path tempDir) throws IOException, InterruptedException {
+        int size = 45000000;  // about 45MB
+        byte[] buf = new byte[BUF_LEN];
+        // create data
+        Path outTextPath = tempDir.resolve("DictZipLargeText.txt");
+        prepareTextData(outTextPath, size);
+        File inputFile = outTextPath.toFile();
+        File zippedFile = tempDir.resolve("DictZipJava.txt.dz").toFile();
+        assertEquals(size, inputFile.length());
+        // get expectation
+        try (RandomAccessInputStream is = new RandomAccessInputStream(new RandomAccessFile(inputFile, "r"))) {
+            is.seek(size -2);
+            int len = is.read(buf, 0, 1);
+            assertEquals(1, len);
         }
-        // start assertion, read last bytes
-        readFromZip(zippedFile.toFile(), inputFile.length() - 2, 1);
+        byte expected = buf[0];
+        // create dictZip archive
+        int defLevel = Deflater.DEFAULT_COMPRESSION;
+        try (RandomAccessFile raf = new RandomAccessFile(zippedFile, "rws")) {
+            try (FileInputStream ins = new FileInputStream(inputFile);
+                 DictZipOutputStream dout = new DictZipOutputStream(new RandomAccessOutputStream(raf),
+                         BUF_LEN, inputFile.length(), defLevel)) {
+                int len;
+                while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
+                    dout.write(buf, 0, len);
+                }
+                dout.finish();
+            }
+            raf.seek(0);
+            // read dictZip archive
+            try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(raf))) {
+                din.seek(size - 2);
+                int len = din.read(buf, 0, 1);
+                assertTrue(len > 0);
+            }
+            assertEquals(expected, buf[0]);
+        }
     }
 
-    private byte[] readFromZip(final File zippedFile, final long start, final int size) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
-                RandomAccessFile(zippedFile, "r")))) {
-            din.seek(start);
-            byte[] buf = new byte[BUF_LEN];
-            try {
-                int len;
-                int readSize = 0;
-                while (size - readSize > 0) {
-                    if (size - readSize < BUF_LEN) {
-                        len = din.read(buf, 0, size - readSize);
-                    } else {
-                        len = din.read(buf, 0, BUF_LEN);
-                    }
-                    if (len > 0) {
-                        outputStream.write(buf, 0, len);
-                        readSize += len;
-                    } else {
-                        break;
-                    }
-                }
-            } catch (EOFException eof) {
-                // ignore it.
-            }
+    private static class StreamGobbler implements Runnable {
+        private InputStream inputStream;
+        private Consumer<String> consumer;
+
+        public StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
+            this.inputStream = inputStream;
+            this.consumer = consumer;
         }
-        return outputStream.toByteArray();
+
+        @Override
+        public void run() {
+            new BufferedReader(new InputStreamReader(inputStream)).lines()
+              .forEach(consumer);
+        }
     }
 }
