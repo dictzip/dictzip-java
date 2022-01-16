@@ -131,6 +131,9 @@ public class DictZipOutputStream extends FilterOutputStream {
         if (inBufferSize <= 0) {
             throw new IllegalArgumentException("buffer size <= 0");
         }
+        if (inBufferSize > DictZipHeader.MAX_CHUNK_LEN) {
+            throw new IllegalArgumentException("buffer size > 64kB/1.1 - 12");
+        }
         if (size <= 0) {
             throw new IllegalArgumentException("total data size <= 0");
         }
@@ -196,6 +199,9 @@ public class DictZipOutputStream extends FilterOutputStream {
     protected void deflate() throws IOException {
         crc.update(buf, 0, buf.length);
         int len = def.deflate(buf, 0, buf.length, Deflater.SYNC_FLUSH);
+        if (len > DictZipHeader.MAX_CHUNK_LEN) {
+            throw new IOException("Invalid size of chunk: Compressed chunked data size is larger than 64kB.");
+        }
         if (len > 0) {
             out.write(buf, 0, len);
             header.chunks[cindex] = len;
