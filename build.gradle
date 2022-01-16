@@ -24,7 +24,6 @@ subprojects {
     apply plugin: 'jacoco'
     apply plugin: 'java'
     apply plugin: 'checkstyle'
-    apply plugin: 'maven'
     apply plugin: 'maven-publish'
 
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -69,37 +68,6 @@ subprojects {
 project(':dictzip-lib') {
     apply plugin: 'java-library'
     version = rootProject.version
-    install {
-        repositories.mavenInstaller {
-            pom.project {
-                name = 'dictzip'
-                packaging = 'jar'
-                description = projectDesc
-                url = projectUrl
-                version = project.version
-                licenses {
-                    license {
-                        name = licenseName
-                        url = licenseUrl
-                        distribution = 'repo'
-                    }
-                }
-                scm {
-                    url = githubUrl
-                    connection = "scm:git:${githubUrl}"
-                    developerConnection = "scm:git:${githubUrl}"
-                }
-                developers {
-                    developer {
-                        id = projectOwner
-                        name = developerName
-                        email = developerEmail
-                    }
-                }
-            }
-        }
-    }
-
     publishing {
         publications {
             mavenJava(MavenPublication) {
