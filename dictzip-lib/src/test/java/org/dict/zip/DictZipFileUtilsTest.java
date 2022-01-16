@@ -55,7 +55,6 @@ public class DictZipFileUtilsTest {
      * @throws Exception when fails to open.
      */
     public void testContentEquals() throws Exception {
-        System.out.println("isFileBinaryEquals");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util1.txt").getFile());
         assertTrue(contentEquals(firstFile, secondFile));
@@ -67,7 +66,6 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testContentEqualsSameCanonicalPath() throws Exception {
-        System.out.println("isFileBinaryEquals with same canonical path");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         assertTrue(contentEquals(firstFile, secondFile));
@@ -79,7 +77,6 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testContentEqualsFalse() throws Exception {
-        System.out.println("isFileBinaryEquals_false");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util2.txt").getFile());
         assertFalse(contentEquals(firstFile, secondFile));
@@ -91,7 +88,6 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testContentEqualsRange() throws Exception {
-        System.out.println("isFileBinaryEquals_range");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util2.txt").getFile());
         assertTrue(contentEquals(firstFile, secondFile, 10, 64));
@@ -103,7 +99,6 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testContentEqualsRangeFalse() throws Exception {
-        System.out.println("isFileBinaryEquals_range_false");
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util2.txt").getFile());
         assertFalse(contentEquals(firstFile, secondFile, 0, 64));
@@ -115,18 +110,15 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testCheckDictZipInputStreamString() throws Exception {
-        System.out.println("checkDictZipInputStream_string");
         String targetFile = this.getClass().getResource("/test.dict.dz").getFile();
         assertTrue(DictZipFileUtils.checkDictZipInputStream(targetFile));
     }
 
     /**
      * Check dictzip input streasm which is not exist.
-     * @throws Exception when fails.
      */
     @Test
-    public void testCheckDictZipInputStreamStringNoExist() throws Exception {
-        System.out.println("checkDictZipInputStream_string");
+    public void testCheckDictZipInputStreamStringNoExist() {
         String targetFile = "false.dict.dz";
         boolean result;
         try {
@@ -145,7 +137,6 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testCheckDictZipInputStream() throws Exception {
-        System.out.println("checkDictZipInputStream");
         String targetFile = this.getClass().getResource("/test.dict.dz").getFile();
         try (DictZipInputStream dzin = new DictZipInputStream(new
                 RandomAccessInputStream(targetFile, "r"))) {

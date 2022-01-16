@@ -1,7 +1,7 @@
 /*
  * DictZip Library test.
  *
- * Copyright (C) 2016,2019,2021 Hiroshi Miura
+ * Copyright (C) 2021-2022 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

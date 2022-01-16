@@ -39,9 +39,11 @@ package org.dict.zip;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.dict.zip.DictZipHeader.CompressionLevel;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -67,7 +69,6 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testReadHeaderString() throws Exception {
-        System.out.println("readHeader toString");
         String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
         assertEquals(result.toString(), toStringExpResult());
@@ -80,7 +81,6 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testReadHeaderType() throws Exception {
-        System.out.println("readHeader");
         String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
         assertEquals(result.getType(), "dzip");
@@ -93,7 +93,6 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testReadHeaderFilename() throws Exception {
-        System.out.println("readHeader");
         String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
         assertEquals(result.getFilename(), "results.dict");
@@ -106,7 +105,6 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testReadHeaderChunkCount() throws Exception {
-        System.out.println("readHeader");
         String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
         assertEquals(result.getChunkCount(), 7);
@@ -118,11 +116,9 @@ public class DictZipHeaderTest {
      * @throws java.lang.Exception if file I/O error occurred.
      */
     @Test
-    public void testReadHeaderNonGZip() throws Exception {
-        System.out.println("readHeader / not dictzip file");
+    public void testReadHeaderNonGZip(@TempDir Path tempDir) throws Exception {
         byte[] b = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
-        File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
-        testFile.deleteOnExit();
+        File testFile = tempDir.resolve("DictZipOutCon.txt.dz").toFile();
         FileOutputStream outFile = new FileOutputStream(testFile);
         outFile.write(b);
         outFile.close();
@@ -142,11 +138,9 @@ public class DictZipHeaderTest {
      * @throws java.lang.Exception if file I/O error occurred.
      */
     @Test
-    public void testReadHeaderGZipMagic() throws Exception {
-        System.out.println("readHeader / wrong gzip magic");
+    public void testReadHeaderGZipMagic(@TempDir Path tempDir) throws Exception {
         byte[] b = {(byte) 0x1f, (byte) 0x8b, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
-        File testFile = File.createTempFile("DictZipOutCon", ".txt.dz");
-        testFile.deleteOnExit();
+        File testFile = tempDir.resolve("DictZipOutCon.txt.dz").toFile();
         FileOutputStream outFile = new FileOutputStream(testFile);
         outFile.write(b);
         outFile.close();
@@ -167,7 +161,6 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testReaderHeaderDefaultCompression() throws Exception {
-        System.out.println("readHeader of default compression");
         String dataFile = this.getClass().getResource("/default.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
         assertEquals(result.getExtraFlag(), CompressionLevel.DEFAULT_COMPRESSION);
@@ -180,7 +173,6 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testReaderHeaderFastCompression() throws Exception {
-        System.out.println("readHeader of fast compression");
         String dataFile = this.getClass().getResource("/fast.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
         assertEquals(result.getExtraFlag(), CompressionLevel.BEST_SPEED);
@@ -193,7 +185,6 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testReaderHeaderBestCompression() throws Exception {
-        System.out.println("readHeader of best compression");
         String dataFile = this.getClass().getResource("/best.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
         assertEquals(result.getExtraFlag(), CompressionLevel.BEST_COMPRESSION);
@@ -206,7 +197,6 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testReaderHeaderWrongCompression() throws Exception {
-        System.out.println("readHeader of corrupted file in extra flag");
         String dataFile = this.getClass().getResource("/corrupt.dict.dz").getFile();
         boolean r = false;
         try {
@@ -224,7 +214,6 @@ public class DictZipHeaderTest {
      */
     @Test
     public void testGetMemberLength() throws Exception {
-        System.out.println("getMemberLength");
         String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
         DictZipHeader result = DictZipHeader.readHeader(dataFile);
         assertEquals(result.getMemberLength(), 136856);
@@ -236,9 +225,8 @@ public class DictZipHeaderTest {
      * @throws Exception if file I/O error occurred.
      */
     @Test
-    public void testWriteHeader() throws Exception {
-        System.out.println("writeHeader");
-        File testFile = File.createTempFile("DictZipHeader", ".dz");
+    public void testWriteHeader(@TempDir Path tempDir) throws Exception {
+        File testFile = tempDir.resolve("DictZipHeader.dz").toFile();
         FileOutputStream outFile = new FileOutputStream(testFile);
         DictZipHeader header = new DictZipHeader(1024, 256);
         header.setExtraFlag(CompressionLevel.BEST_COMPRESSION);

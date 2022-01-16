@@ -1,7 +1,7 @@
 /*
  * DictZip library test.
  *
- * Copyright (C) 2016,2019 Hiroshi Miura
+ * Copyright (C) 2016,2019,2022 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,7 +59,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testAvailable() throws Exception {
-        System.out.println("available");
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         int expResult = 136856;
         int result = instance.available();
@@ -72,7 +71,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testClose() throws Exception {
-        System.out.println("close");
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         instance.close();
     }
@@ -83,7 +81,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testGetLength() throws Exception {
-        System.out.println("getLength");
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         int expResult = 136856;
         int result = instance.getLength();
@@ -96,7 +93,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testGetPos() throws Exception {
-        System.out.println("getPos");
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         int expResult = 0;
         int result = instance.getPos();
@@ -108,7 +104,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testMark() {
-        System.out.println("mark");
         int markpos = 0;
         try {
             RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
@@ -123,7 +118,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testMarkSupported() {
-        System.out.println("markSupported");
         try {
             RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
             boolean result = instance.markSupported();
@@ -139,7 +133,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testRead0args() throws Exception {
-        System.out.println("read");
         try {
             RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
             int expResult = 31;
@@ -156,7 +149,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testRead3args() throws Exception {
-        System.out.println("read");
         byte[] b = new byte[512];
         int off = 100;
         int len = 256;
@@ -172,7 +164,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testReadFully() throws Exception {
-        System.out.println("readFully");
         byte[] b = new byte[512];
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         instance.readFully(b);
@@ -184,7 +175,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testReset() throws Exception {
-        System.out.println("reset");
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         instance.reset();
     }
@@ -195,7 +185,6 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testSeek() throws Exception {
-        System.out.println("seek");
         long pos = 100L;
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         instance.seek(pos);
@@ -207,12 +196,10 @@ public class RandomAccessInputStreamTest {
      */
     @Test
     public void testSkip() throws Exception {
-        System.out.println("skip");
         long n = 100L;
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
         long expResult = 100L;
         long result = instance.skip(n);
         assertEquals(result, expResult);
     }
-
 }

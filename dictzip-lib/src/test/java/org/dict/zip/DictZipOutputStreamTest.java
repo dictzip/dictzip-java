@@ -1,7 +1,7 @@
 /*
  * DictZip library test.
  *
- * Copyright (C) 2016,2019 Hiroshi Miura
+ * Copyright (C) 2016,2019,2022 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,10 +39,12 @@ package org.dict.zip;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Path;
 import java.util.zip.Checksum;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,12 +60,10 @@ public class DictZipOutputStreamTest {
      * Test of close method, of class DictZipOutputStream.
      */
     @Test
-    public void testClose() {
-        System.out.println("close");
+    public void testClose(@TempDir Path tempDir) {
         byte[] byteArray = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         try {
-            File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
-            testOutFile.deleteOnExit();
+            File testOutFile = tempDir.resolve("DictZipOutCon.txt").toFile();
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
             TestDictZipOutputStream outDictZip = new TestDictZipOutputStream(outFile, byteArray.length);
@@ -85,11 +85,9 @@ public class DictZipOutputStreamTest {
      * @throws Exception when i/o error.
      */
     @Test
-    public void testDeflate() throws Exception {
-        System.out.println("deflate");
+    public void testDeflate(@TempDir Path tempDir) throws Exception {
         byte[] byteArray = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
-        File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
-        testOutFile.deleteOnExit();
+        File testOutFile = tempDir.resolve("DictZipOutCon.txt").toFile();
         RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
         TestDictZipOutputStream instance = new TestDictZipOutputStream(outFile, byteArray.length);
@@ -101,13 +99,11 @@ public class DictZipOutputStreamTest {
      * @throws Exception when i/o error.
      */
     @Test
-    public void testWrite3args() throws Exception {
-        System.out.println("write");
+    public void testWrite3args(@TempDir Path tempDir) throws Exception {
         byte[] b = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         int off = 0;
         int len = 0;
-        File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
-        testOutFile.deleteOnExit();
+        File testOutFile = tempDir.resolve("DictZipOutCon.txt").toFile();
         RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
         TestDictZipOutputStream instance = new TestDictZipOutputStream(outFile, 512, 100);
@@ -118,13 +114,11 @@ public class DictZipOutputStreamTest {
      * Test of write method, of class DictZipOutputStream.
      */
     @Test
-    public void testWriteInt() {
-        System.out.println("write");
+    public void testWriteInt(@TempDir Path tempDir) {
         int b = 100;
         TestDictZipOutputStream instance;
         try {
-            File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
-            testOutFile.deleteOnExit();
+            File testOutFile = tempDir.resolve("DictZipOutCon.txt").toFile();
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);
@@ -138,13 +132,11 @@ public class DictZipOutputStreamTest {
      * Test of finish method, of class DictZipOutputStream.
      */
     @Test
-    public void testFinish() {
-        System.out.println("finish");
+    public void testFinish(@TempDir Path tempDir) {
         byte[] byteArray = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         TestDictZipOutputStream instance = null;
         try {
-            File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
-            testOutFile.deleteOnExit();
+            File testOutFile = tempDir.resolve("DictZipOutCon.txt").toFile();
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);
@@ -160,8 +152,7 @@ public class DictZipOutputStreamTest {
             Assertions.fail("an IO error occured while trying to find the output file or creating DictZip constructor");
         }
         try {
-            File testOutFile = File.createTempFile("DictZipOutCon", ".txt");
-            testOutFile.deleteOnExit();
+            File testOutFile = tempDir.resolve("DictZipOutCon2.txt").toFile();
             RandomAccessOutputStream outFile = new RandomAccessOutputStream(
                     new RandomAccessFile(testOutFile, "rw"));
             instance = new TestDictZipOutputStream(outFile, 10);
