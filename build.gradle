@@ -156,7 +156,6 @@ project(':dictzip-cli') {
 
     distributions {
         main {
-            baseName = 'dictzip'
             contents {
                 from('build/docs/dictzip.1') {
                     into 'docs/man/man1'

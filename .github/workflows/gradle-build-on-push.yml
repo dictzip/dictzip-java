@@ -1,4 +1,4 @@
-name: Build and test
+name: Gradle check
 
 on: push
 
@@ -14,22 +14,6 @@ jobs:
     - name: install dictzip command
       run: sudo apt-get install -y dictzip
     - uses: gradle/gradle-build-action@v2
-    - run: ./gradlew build distZip
+    - run: ./gradlew check
       env:
         CI: true
-    - name: comment PR
-      uses: unsplash/comment-on-pr@master
-      if: failure()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        msg: Build failed ${{ steps.gradle.outputs.build-scan-url }}
-        check_for_duplicate_msg: true
-    - uses: actions/upload-artifact@v2.3.1
-      with:
-        name: dictzip-library
-        path: dictzip-lib/build/libs
-    - uses: actions/upload-artifact@v2.3.1
-      with:
-        name: dictzip-cli
-        path: dictzip-cli/build/distributions
