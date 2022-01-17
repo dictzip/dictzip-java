@@ -41,6 +41,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,14 +52,18 @@ import static tokyo.northside.io.FileUtils2.contentEquals;
 /**
  * Created by Hiroshi Miura on 16/04/09.
  */
-public class DictZipFileUtilsTest {
+public class FileUtils2Test {
+
     /**
      * Check equals two file contentss.
      * @throws Exception when fails to open.
      */
+    @Test
     public void testContentEquals() throws Exception {
-        File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
-        File secondFile = new File(this.getClass().getResource("/test_util1.txt").getFile());
+        Path firstFile = Paths.get(
+                Objects.requireNonNull(this.getClass().getResource("/test_util.txt")).toURI());
+        Path secondFile = Paths.get(
+                Objects.requireNonNull(this.getClass().getResource("/test_util1.txt")).toURI());
         assertTrue(contentEquals(firstFile, secondFile));
     }
 
@@ -66,8 +73,10 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testContentEqualsSameCanonicalPath() throws Exception {
-        File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
-        File secondFile = new File(this.getClass().getResource("/test_util.txt").getFile());
+        Path firstFile = Paths.get(
+                Objects.requireNonNull(this.getClass().getResource("/test_util.txt")).toURI());
+        Path secondFile = Paths.get(
+                Objects.requireNonNull(this.getClass().getResource("/test_util.txt")).toURI());
         assertTrue(contentEquals(firstFile, secondFile));
     }
 
@@ -77,8 +86,10 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testContentEqualsFalse() throws Exception {
-        File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
-        File secondFile = new File(this.getClass().getResource("/test_util2.txt").getFile());
+        File firstFile = new File(
+                Objects.requireNonNull(this.getClass().getResource("/test_util.txt")).getFile());
+        File secondFile = new File(
+                Objects.requireNonNull(this.getClass().getResource("/test_util2.txt")).getFile());
         assertFalse(contentEquals(firstFile, secondFile));
     }
 

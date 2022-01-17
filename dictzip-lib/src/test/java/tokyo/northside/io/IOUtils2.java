@@ -18,11 +18,11 @@
 
 package tokyo.northside.io;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.Arrays;
-
-import org.apache.commons.io.IOUtils;
 
 /**
  * General IO stream manipulation utility.
@@ -46,7 +46,7 @@ import org.apache.commons.io.IOUtils;
  *
  * @author Hiroshi Miura
  */
-public final class IOUtils2 extends IOUtils {
+public final class IOUtils2 {
 
    private static final int BUF_LEN = 4096;
 
@@ -61,8 +61,8 @@ public final class IOUtils2 extends IOUtils {
      *     otherwise false.
      * @throws IOException when I/O error occurred.
      */
-    public static boolean contentEquals(final InputStream first, final InputStream second,
-            final long off, final long len) throws IOException {
+    public static boolean contentEquals(@NotNull final InputStream first, @NotNull final InputStream second,
+                                        final long off, final long len) throws IOException {
         boolean result;
 
         if (len < 1) {
@@ -75,63 +75,57 @@ public final class IOUtils2 extends IOUtils {
             return false;
         }
 
-        try {
-            byte[] firstBytes = new byte[BUF_LEN];
-            byte[] secondBytes = new byte[BUF_LEN];
+        byte[] firstBytes = new byte[BUF_LEN];
+        byte[] secondBytes = new byte[BUF_LEN];
 
-            if (off > 0) {
-                long totalSkipped = 0;
-                while (totalSkipped < off) {
-                    long skipped = first.skip(off - totalSkipped);
-                    if (skipped == 0) {
-                        throw new IOException("Cannot seek offset bytes.");
-                    }
-                    totalSkipped += skipped;
+        if (off > 0) {
+            long totalSkipped = 0;
+            while (totalSkipped < off) {
+                long skipped = first.skip(off - totalSkipped);
+                if (skipped == 0) {
+                    throw new IOException("Cannot seek offset bytes.");
                 }
-                totalSkipped = 0;
-                while (totalSkipped < off) {
-                    long skipped = second.skip(off - totalSkipped);
-                    if (skipped == 0) {
-                        throw new IOException("Cannot seek offset bytes.");
-                    }
-                    totalSkipped += skipped;
-                }
+                totalSkipped += skipped;
             }
-
-            long readLengthTotal = 0;
-            result = true;
-            while (readLengthTotal < len) {
-                int readLength = BUF_LEN;
-                if (len - readLengthTotal < (long) BUF_LEN) {
-                    readLength = (int) (len - readLengthTotal);
+            totalSkipped = 0;
+            while (totalSkipped < off) {
+                long skipped = second.skip(off - totalSkipped);
+                if (skipped == 0) {
+                    throw new IOException("Cannot seek offset bytes.");
                 }
-                int lenFirst = first.read(firstBytes, 0, readLength);
-                int lenSecond = second.read(secondBytes, 0, readLength);
-                if (lenFirst != lenSecond) {
+                totalSkipped += skipped;
+            }
+        }
+
+        long readLengthTotal = 0;
+        result = true;
+        while (readLengthTotal < len) {
+            int readLength = BUF_LEN;
+            if (len - readLengthTotal < (long) BUF_LEN) {
+                readLength = (int) (len - readLengthTotal);
+            }
+            int lenFirst = first.read(firstBytes, 0, readLength);
+            int lenSecond = second.read(secondBytes, 0, readLength);
+            if (lenFirst != lenSecond) {
+                result = false;
+                break;
+            }
+            if ((lenFirst < 0) && (lenSecond < 0)) {
+                result = true;
+                break;
+            }
+            readLengthTotal += lenFirst;
+            if (lenFirst < firstBytes.length) {
+                byte[] a = Arrays.copyOfRange(firstBytes, 0, lenFirst);
+                byte[] b = Arrays.copyOfRange(secondBytes, 0, lenSecond);
+                if (!Arrays.equals(a, b)) {
                     result = false;
                     break;
                 }
-                if ((lenFirst < 0) && (lenSecond < 0)) {
-                    result = true;
-                    break;
-                }
-                readLengthTotal += lenFirst;
-                if (lenFirst < firstBytes.length) {
-                    byte[] a = Arrays.copyOfRange(firstBytes, 0, lenFirst);
-                    byte[] b = Arrays.copyOfRange(secondBytes, 0, lenSecond);
-                    if (!Arrays.equals(a, b)) {
-                        result = false;
-                        break;
-                    }
-                } else if (!Arrays.equals(firstBytes, secondBytes)) {
-                    result = false;
-                    break;
-                }
+            } else if (!Arrays.equals(firstBytes, secondBytes)) {
+                result = false;
+                break;
             }
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (IOException ioe) {
-            throw ioe;
         }
         return result;
     }

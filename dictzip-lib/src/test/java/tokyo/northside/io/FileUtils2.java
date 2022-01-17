@@ -1,7 +1,7 @@
 /*
  * FileUtils library.
  *
- * Copyright (C) 2016 Hiroshi Miura
+ * Copyright (C) 2016,2022 Hiroshi Miura
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,10 @@ package tokyo.northside.io;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 
 /**
@@ -40,7 +42,49 @@ import org.apache.commons.io.FileUtils;
  *
  * @author Hiroshi Miura
  */
-public final class FileUtils2 extends FileUtils {
+public final class FileUtils2 {
+
+    /**
+     * Compare file contents in range. Both files must be files (not directories) and exist.
+     *
+     * @param first   first file
+     * @param second  second file
+     * @return boolean  true if files are equal, otherwise false
+     * @throws IOException  error in function
+     */
+    public static boolean contentEquals(@NotNull final Path first, @NotNull final Path second) throws IOException {
+        if (first.toFile().length() != second.toFile().length()) {
+            return false;
+        }
+        return contentEquals(first.toFile(), second.toFile(), 0, first.toFile().length());
+    }
+
+    /**
+     * Compare file contents in range. Both files must be files (not directories) and exist.
+     *
+     * @param first   first file
+     * @param second  second file
+     * @return boolean  true if files are equal, otherwise false
+     * @throws IOException  error in function
+     */
+    public static boolean contentEquals(@NotNull final File first, @NotNull final File second) throws IOException {
+        if (!first.exists() || !second.exists()) {
+            return false;
+        }
+        if (!first.isFile() || !second.isFile()) {
+            return false;
+        }
+        if (first.getCanonicalPath().equals(second.getCanonicalPath())) {
+            return true;
+        }
+        if (first.length() != second.length()) {
+            return false;
+        }
+        if (first.length() == 0) {
+            return true;
+        }
+        return contentEquals(first, second, 0, first.length());
+    }
 
     /**
      * Compare file contents in range. Both files must be files (not directories) and exist.
@@ -52,38 +96,34 @@ public final class FileUtils2 extends FileUtils {
      * @return boolean  true if files are equal, otherwise false
      * @throws IOException  error in function
      */
-    public static boolean contentEquals(final File first, final File second, final long off,
+    public static boolean contentEquals(@NotNull final File first, @NotNull final File second, final long off,
         final long len) throws IOException {
-        boolean result = false;
-
         if (len < 1) {
             throw new IllegalArgumentException();
         }
         if (off < 0) {
             throw new IllegalArgumentException();
         }
+        if (!first.exists() || !second.exists()) {
+            return false;
+        }
+        if (!first.isFile() || !second.isFile()) {
+            return false;
+        }
+        if (first.getCanonicalPath().equals(second.getCanonicalPath())) {
+            return true;
+        }
 
-        if ((first.exists()) && (second.exists())
-                && (first.isFile()) && (second.isFile())) {
-            if (first.getCanonicalPath().equals(second.getCanonicalPath())) {
-                result = true;
-            } else {
-                FileInputStream firstInput = null;
-                FileInputStream secondInput = null;
-
-                try {
-                    firstInput = new FileInputStream(first);
-                    secondInput = new FileInputStream(second);
-                    result = IOUtils2.contentEquals(firstInput, secondInput, off, len);
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (IOException ioe) {
-                     throw ioe;
-                } finally {
-                     org.apache.commons.io.IOUtils.closeQuietly(firstInput);
-                     org.apache.commons.io.IOUtils.closeQuietly(secondInput);
-                }
-            }
+        FileInputStream firstInput = null;
+        FileInputStream secondInput = null;
+        boolean result;
+        try {
+            firstInput = new FileInputStream(first);
+            secondInput = new FileInputStream(second);
+            result = IOUtils2.contentEquals(firstInput, secondInput, off, len);
+        } finally {
+             IOUtils.closeQuietly(firstInput);
+             IOUtils.closeQuietly(secondInput);
         }
         return result;
     }
