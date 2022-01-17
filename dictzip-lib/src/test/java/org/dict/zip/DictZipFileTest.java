@@ -254,29 +254,44 @@ public class DictZipFileTest {
      * </p>
      */
     @Test
-    public void testLargeFileInputOutput(@TempDir Path tempDir) throws IOException, InterruptedException {
+    public void testLargeFileInputOutput(@TempDir Path tempDir) throws IOException {
         int size = 45000000;  // about 45MB
+        int num_chunk = size / BUF_LEN + 1;
         byte[] buf = new byte[BUF_LEN];
+        int[] positions = new int[] {
+                BUF_LEN - 10,
+                BUF_LEN + 10,
+                BUF_LEN * 2 + 10,
+                BUF_LEN * 256 - 10,
+                BUF_LEN * 256 + 10,
+                BUF_LEN * (num_chunk /2 - 1) - 10,
+                BUF_LEN * (num_chunk /2 + 1) + 10,
+                size - BUF_LEN + 5
+        };
+        int cases = positions.length;
+        byte[] expected = new byte[cases];
+        int len;
         // create data
         Path outTextPath = tempDir.resolve("DictZipText.txt");
         prepareTextData(outTextPath, size);
         File inputFile = outTextPath.toFile();
         File zippedFile = tempDir.resolve("DictZipText.txt.dz").toFile();
         assertEquals(size, inputFile.length());
-        // get expectation
+        // get expectations
         try (RandomAccessInputStream is = new RandomAccessInputStream(new RandomAccessFile(inputFile, "r"))) {
-            is.seek(size -2);
-            int len = is.read(buf, 0, 1);
-            assertEquals(1, len);
+            for (int i = 0; i < cases; i++) {
+                is.seek(positions[i]);
+                len = is.read(buf, 0, buf.length);
+                assertTrue(len > 0);
+                expected[i] = buf[0];
+            }
         }
-        byte expected = buf[0];
         // create dictZip archive
         int defLevel = Deflater.DEFAULT_COMPRESSION;
         try (RandomAccessFile raf = new RandomAccessFile(zippedFile, "rws")) {
             try (FileInputStream ins = new FileInputStream(inputFile);
                  DictZipOutputStream dout = new DictZipOutputStream(new RandomAccessOutputStream(raf),
                          BUF_LEN, inputFile.length(), defLevel)) {
-                int len;
                 while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
                     dout.write(buf, 0, len);
                 }
@@ -285,17 +300,20 @@ public class DictZipFileTest {
             raf.seek(0);
             // read dictZip archive
             try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(raf))) {
-                din.seek(size - 2);
-                int len = din.read(buf, 0, 1);
-                assertTrue(len > 0);
+                for (int i = 0; i < cases; i++) {
+                    System.out.printf("seek position: %d%n", positions[i]);
+                    din.seek(positions[i]);
+                    len = din.read(buf, 0, 10);
+                    assertTrue(len > 0);
+                    assertEquals(expected[i], buf[0], String.format("Read data invalid at position %d", positions[i]));
+                }
             }
-            assertEquals(expected, buf[0]);
         }
     }
 
     private static class StreamGobbler implements Runnable {
-        private InputStream inputStream;
-        private Consumer<String> consumer;
+        private final InputStream inputStream;
+        private final Consumer<String> consumer;
 
         public StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
             this.inputStream = inputStream;
