@@ -24,6 +24,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,6 +39,8 @@ import org.dict.zip.DictZipInputStream;
 import org.dict.zip.DictZipOutputStream;
 import org.dict.zip.RandomAccessInputStream;
 import org.dict.zip.RandomAccessOutputStream;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 /**
@@ -48,18 +52,46 @@ public class DictData {
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
             .getBundle("org/dict/zip/cli/Bundle", Locale.getDefault());
 
-    private final String originalFileName;
-    private final String compressedFileName;
+    private final Path originalFileName;
+    private final Path compressedFileName;
     private static final int BUF_LEN = 58315;
+
+    /**
+     * Default constructor.
+     * @param originalFilePath to handle
+     * @param compressedFilePath to handle
+     */
+    public DictData(@NotNull final Path originalFilePath, @Nullable final Path compressedFilePath) {
+        this.originalFileName = originalFilePath;
+        this.compressedFileName = compressedFilePath;
+    }
+
+    /**
+     * Default constructor.
+     * @param originalFile to handle
+     * @param compressedFile to handle
+     */
+    public DictData(@NotNull final File originalFile, @Nullable final File compressedFile) {
+        this.originalFileName = Paths.get(originalFile.toURI());
+        if (compressedFile == null) {
+            this.compressedFileName = null;
+        } else {
+            this.compressedFileName = Paths.get(compressedFile.toURI());
+        }
+    }
 
     /**
      * Default constructor for reader.
      * @param originalFileName to handle
      * @param compressedFileName to handle
      */
-    public DictData(final String originalFileName, final String compressedFileName) {
-        this.originalFileName = originalFileName;
-        this.compressedFileName = compressedFileName;
+    public DictData(@NotNull final String originalFileName, @Nullable final String compressedFileName) {
+        this.originalFileName = Paths.get(originalFileName);
+        if (compressedFileName == null) {
+            this.compressedFileName = null;
+        } else {
+            this.compressedFileName = Paths.get(compressedFileName);
+        }
     }
 
     /**
@@ -67,7 +99,7 @@ public class DictData {
      * @throws IOException when stdout is terminated.
      */
     public void printHeader() throws IOException {
-        File targetFile = new File(originalFileName);
+        File targetFile = originalFileName.toFile();
         RandomAccessFile targetRaFile = new RandomAccessFile(targetFile, "r");
         try (RandomAccessInputStream in = new RandomAccessInputStream(targetRaFile);
              DictZipInputStream din = new DictZipInputStream(in);) {
@@ -83,13 +115,11 @@ public class DictData {
             String filename = din.getFilename();
             Format timeFormatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss");
             System.out.println(RESOURCE_BUNDLE.getString("dictzip.header.title"));
-            System.out.print(String.format("%s\t%08x\t%s\t", type, crc,
-                    timeFormatter.format(mtime)));
-            System.out.print(String.format("%6d\t%d\t%d\t  %d\t", chunkCount, chunkLength, comp,
-                    uncomp));
-            System.out.println(String.format("%3.1f%%\t%s", (100.0 * comp) / uncomp, filename));
-        } catch (RuntimeException ex) {
-            throw ex;
+            System.out.printf("%s\t%08x\t%s\t", type, crc,
+                    timeFormatter.format(mtime));
+            System.out.printf("%6d\t%d\t%d\t  %d\t", chunkCount, chunkLength, comp,
+                    uncomp);
+            System.out.printf("%3.1f%%\t%s%n", (100.0 * comp) / uncomp, filename);
         }
     }
 
@@ -101,7 +131,7 @@ public class DictData {
     public void doZip(final CompressionLevel level) throws IOException {
         int defLevel;
         byte[] buf = new byte[BUF_LEN];
-        File originalFile = new File(originalFileName);
+        File originalFile = originalFileName.toFile();
         switch (level) {
             case BEST_COMPRESSION:
                 defLevel = Deflater.BEST_COMPRESSION;
@@ -116,7 +146,7 @@ public class DictData {
         }
         try (FileInputStream ins = new FileInputStream(originalFile);
              DictZipOutputStream dout = new DictZipOutputStream(
-                    new RandomAccessOutputStream(new RandomAccessFile(compressedFileName, "rws")),
+                    new RandomAccessOutputStream(new RandomAccessFile(compressedFileName.toFile(), "rws")),
                      BUF_LEN, originalFile.length(), defLevel)) {
             int len;
             while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
@@ -135,8 +165,8 @@ public class DictData {
      */
     public void doUnzip(final long start, final int size) throws IOException {
         try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
-                        RandomAccessFile(new File(compressedFileName), "r")));
-                OutputStream unzipOut = new RandomAccessOutputStream(originalFileName, "rw")) {
+                        RandomAccessFile(compressedFileName.toFile(), "r")));
+                OutputStream unzipOut = new RandomAccessOutputStream(originalFileName.toAbsolutePath().toString(), "rw")) {
             byte[] buf = new byte[BUF_LEN];
             din.seek(start);
             if (size == 0) {
