@@ -22,12 +22,15 @@ package org.dict.zip.cli;
 
 
 import java.io.File;
-import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static tokyo.northside.io.FileUtils2.contentEquals;
 import org.dict.zip.DictZipHeader;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 
 /**
@@ -41,9 +44,7 @@ public class DictDataTest {
      */
     @Test
     public void testPrintHeader() throws Exception {
-        System.out.println("printHeader");
-        URL url = this.getClass().getResource("/test.dict.dz");
-        String testFile = url.getFile();
+        String testFile = this.getClass().getResource("/test.dict.dz").getFile();
         DictData instance = new DictData(testFile, null);
         instance.printHeader();
     }
@@ -53,16 +54,20 @@ public class DictDataTest {
      * @throws java.lang.Exception if file operation failed.
      */
     @Test
-    public void testDoZip() throws Exception {
-        System.out.println("doZip");
-        String testFile = this.getClass().getResource("/test_dozip.dict").getFile();
-        String zippedFile = DictZipUtils.compressedFileName(testFile);
+    public void testDoZip(@TempDir Path tempDir) throws Exception {
+        Path testFile = Paths.get(Objects.requireNonNull(
+                this.getClass().getResource("/test_dozip.dict")).toURI());
+        Path zippedFile = tempDir.resolve("test_dozip.dict.dz");
         DictData instance = new DictData(testFile, zippedFile);
         instance.doZip(DictZipHeader.CompressionLevel.DEFAULT_COMPRESSION);
-        File resultFile = new File(testFile + ".dz");
-        File expectFile = new File(this.getClass().getResource("/test_dozip.dict.dz.expected").getFile());
-        assertTrue(contentEquals(resultFile, expectFile, 10, 512));
-        resultFile.deleteOnExit();
+        Path expectFile = Paths.get(Objects.requireNonNull(
+                this.getClass().getResource("/test_dozip.dict.dz.expected")).toURI());
+        // There is 7 chunks, so header become 22(basic header length) + 7 * 2(chunks)  + 2(CRC)= 38
+        // mtime and crc fields are different on every test, so we compared
+        // 1. after mtime to crc
+        // 2. after crc.
+        assertTrue(contentEquals(zippedFile.toFile(), expectFile.toFile(), 9, 14));
+        assertTrue(contentEquals(zippedFile.toFile(), expectFile.toFile(), 39, 512));
     }
 
     /**
@@ -70,56 +75,15 @@ public class DictDataTest {
      * @throws java.lang.Exception if file operation failed.
      */
     @Test
-    public void testDoZipBest() throws Exception {
-        System.out.println("doZip_best");
-        String testFile = this.getClass().getResource("/test_dozip.dict").getFile();
-        String zippedFile = testFile + "_best.dz";
-        DictData instance = new DictData(testFile, zippedFile);
-        instance.doZip(DictZipHeader.CompressionLevel.BEST_COMPRESSION);
-        File resultFile = new File(zippedFile);
-        File expectFile = new File(this.getClass().getResource("/test_dozip.dict.dz.expected.best")
-                 .getFile());
-        assertTrue(contentEquals(resultFile, expectFile, 10, 512));
-        resultFile.deleteOnExit();
-    }
-
-    /**
-     * Test of doUnzip method, of class DictData.
-     * @throws java.lang.Exception if file operation failed.
-     */
-    @Test
-    public void testDoZipFast() throws Exception {
-        System.out.println("doZip_fast");
-        String testFile = this.getClass().getResource("/test_dozip.dict").getFile();
-        String zippedFile = testFile + "_fast.dz";
-        DictData instance = new DictData(testFile, zippedFile);
-        instance.doZip(DictZipHeader.CompressionLevel.BEST_SPEED);
-        File resultFile = new File(zippedFile);
-        File expectFile = new File(this.getClass().getResource("/test_dozip.dict.dz.expected.fast")
-                 .getFile());
-        assertTrue(contentEquals(resultFile, expectFile, 10, 512));
-        resultFile.deleteOnExit();
-    }
-
-    /**
-     * Test of doUnzip method, of class DictData.
-     * @throws java.lang.Exception if file operation failed.
-     */
-    @Test
-    public void testDoUnzip() throws Exception {
-        System.out.println("doUnzip");
-        URL url = this.getClass().getResource("/test.dict.dz");
-        String dzFile = url.getFile();
-        String file = DictZipUtils.uncompressedFileName(dzFile);
+    public void testDoUnzip(@TempDir Path tempDir) throws Exception {
+        String dzFile = this.getClass().getResource("/test.dict.dz").getFile();
+        Path decompressed = tempDir.resolve("test.dict");
         long start = 0L;
         int size = 0;
-        DictData instance = new DictData(file, dzFile);
+        DictData instance = new DictData(decompressed.toFile(), new File(dzFile));
         instance.doUnzip(start, size);
-        URL resultUrl = this.getClass().getResource("/test.dict");
-        File resultFile = new File(resultUrl.getFile());
-        URL expectedUrl = this.getClass().getResource("/test.dict.expected");
-        assertTrue(contentEquals(resultFile, new File(expectedUrl.getFile())));
-        resultFile.deleteOnExit();
+        String expected = this.getClass().getResource("/test.dict.expected").getFile();
+        assertTrue(contentEquals(decompressed.toFile(), new File(expected)));
     }
 
 }
