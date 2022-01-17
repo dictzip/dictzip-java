@@ -100,12 +100,13 @@ public class DictZipHeader {
     private static final int GZIP_HEADER_LEN = 10;
     /* 2 bytes header magic, 1 byte compression method, 1 byte flags
      4 bytes time, 1 byte extra flags, 1 byte OS */
+
     /**
-     * Max chunk length to compressed
+     * Max chunk length to compressed.
      */
     public static final int MAX_CHUNK_LEN = 58969;
     /**
-     * Mac number of chunks
+     * Mac number of chunks.
      */
     public static final int MAX_CHUNK_COUNT = 32765;
     private static final int MAX_DATA_SIZE = 1932119285;  // MAX_CHUNK_LEN * MAX_CHUNK_COUNT
