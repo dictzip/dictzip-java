@@ -5,3 +5,6 @@ build
 /.idea
 /.jacocoverage
 .run
+
+# auto generated file
+dictzip-cli/src/main/resources/org/dict/zip/Version.properties
