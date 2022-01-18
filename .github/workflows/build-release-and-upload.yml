@@ -16,15 +16,13 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '8'
-    - uses: burrunan/gradle-cache-action@v1
-      with:
-        arguments: check
-      env:
-        ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SECRET_KEY }}
-        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_KEY_PASSPHARASE }}
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+    - uses: gradle/gradle-build-action@v2
+    - run: ./gradlew check
+      env:
+        CI: true
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -36,9 +34,7 @@ jobs:
         draft: false
         prerelease: false
     - name: Publish package to OSSRH
-      uses: burrunan/gradle-cache-action@v1
-      with:
-        arguments: publishToSonatype
+      run: ./gradlew publishToSonatype
       env:
         ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SECRET_KEY }}
         ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_KEY_PASSPHARASE }}
