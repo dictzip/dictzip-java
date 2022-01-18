@@ -40,14 +40,11 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
@@ -55,8 +52,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 import java.util.zip.Deflater;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -146,31 +141,55 @@ public class DictZipFileTest {
         // Run test when running on Linux and dictzip command installed
         Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
         int size = BUF_LEN * 512 + 100;
+        int len;
         byte[] buf = new byte[BUF_LEN];
+        int[] positions = new int[] {
+                BUF_LEN - 10,
+                BUF_LEN + 10,
+                BUF_LEN * 2 + 10,
+                BUF_LEN * 256 - 10,
+                BUF_LEN * 256 + 10,
+                size - BUF_LEN + 5
+        };
+        int cases = positions.length;
+        byte[] expected = new byte[cases];
         // create data
         Path outTextPath = tempDir.resolve("DictZipText.orig.txt");
         prepareTextData(outTextPath, size);
         File inputFile = outTextPath.toFile();
         Path zippedPath = tempDir.resolve("DictZipText.txt.dz");
         assertEquals(size, inputFile.length());
+        // get expectations
+        try (RandomAccessInputStream is = new RandomAccessInputStream(new RandomAccessFile(inputFile, "r"))) {
+            for (int i = 0; i < cases; i++) {
+                is.seek(positions[i]);
+                len = is.read(buf, 0, buf.length);
+                assertTrue(len > 0);
+                expected[i] = buf[0];
+            }
+        }
         // create dictZip archive
         int defLevel = Deflater.DEFAULT_COMPRESSION;
         try (FileInputStream ins = new FileInputStream(inputFile);
              DictZipOutputStream dout = new DictZipOutputStream(
                      new RandomAccessOutputStream(new RandomAccessFile(zippedPath.toFile(), "rws")),
                      BUF_LEN, inputFile.length(), defLevel)) {
-            int len;
             while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
                 dout.write(buf, 0, len);
             }
             dout.finish();
         }
-        Process process = Runtime.getRuntime().exec(
-                String.format("dictzip -d -f -k -v %s", zippedPath.toAbsolutePath()));
-        StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
-        Executors.newSingleThreadExecutor().submit(streamGobbler);
-        int returnCode = process.waitFor();
-        assertEquals(0, returnCode);
+        // check archive
+        for (int i = 0; i < positions.length; i++) {
+            System.out.printf("seek position: %d%n", positions[i]);
+            Process process = Runtime.getRuntime().exec(
+                    String.format("dictzip -d -c -k -v -s %d -e %d  %s",
+                            positions[i], 10, zippedPath.toAbsolutePath()));
+            int b = process.getInputStream().read();
+            int returnCode = process.waitFor();
+            assertEquals(0, returnCode);
+            assertEquals(expected[i], (byte) b);
+        }
     }
 
     /**
@@ -263,8 +282,6 @@ public class DictZipFileTest {
         }
         Process process = Runtime.getRuntime().exec(
                 String.format("dictzip -d -f -k -v %s", zippedPath.toAbsolutePath()));
-        StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
-        Executors.newSingleThreadExecutor().submit(streamGobbler);
         int returnCode = process.waitFor();
         assertEquals(0, returnCode);
     }
@@ -323,8 +340,6 @@ public class DictZipFileTest {
         // check created archive
         Process process = Runtime.getRuntime().exec(
                 String.format("dictzip -d -f -k -v %s", zippedPath.toAbsolutePath()));
-        StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
-        Executors.newSingleThreadExecutor().submit(streamGobbler);
         int returnCode = process.waitFor();
         assertEquals(0, returnCode);
         // read dictZip archive
@@ -337,22 +352,6 @@ public class DictZipFileTest {
                 assertTrue(len > 0);
                 assertEquals(expected[i], buf[0], String.format("Read data invalid at position %d", positions[i]));
             }
-        }
-    }
-
-    private static class StreamGobbler implements Runnable {
-        private final InputStream inputStream;
-        private final Consumer<String> consumer;
-
-        public StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
-            this.inputStream = inputStream;
-            this.consumer = consumer;
-        }
-
-        @Override
-        public void run() {
-            new BufferedReader(new InputStreamReader(inputStream)).lines()
-              .forEach(consumer);
         }
     }
 }
