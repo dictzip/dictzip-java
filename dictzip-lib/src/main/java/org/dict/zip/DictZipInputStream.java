@@ -40,12 +40,12 @@ public class DictZipInputStream extends InflaterInputStream {
     /**
      * DictZip Header.
      */
-    private DictZipHeader header = null;
+    private DictZipHeader header;
 
     /**
      * CRC-32 for uncompressed data.
      */
-    private CRC32 crc = new CRC32();
+    private final CRC32 crc = new CRC32();
 
     private long crcVal = 0;
     private long totalLength = 0;
@@ -144,7 +144,7 @@ public class DictZipInputStream extends InflaterInputStream {
         if (offset > 0) {
             int total;
             int len;
-            byte[] b = new byte[512];
+            byte[] b = new byte[BUF_LEN];
             for (total = 0; total < offset; total += len) {
                 len = offset - total;
                 if (len > b.length) {
