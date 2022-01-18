@@ -184,31 +184,54 @@ public class DictZipFileTest {
         // Run test when running on Linux and dictzip command installed
         Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
         int size = 45000000;  // about 45MB
+        // --- preparation of data
+        int len;
+        int num_chunk = size / BUF_LEN + 1;
         byte[] buf = new byte[BUF_LEN];
+        int[] positions = new int[] {
+                BUF_LEN - 10,
+                BUF_LEN + 10,
+                BUF_LEN * 2 + 10,
+                BUF_LEN * 256 - 10,
+                BUF_LEN * 256 + 10,
+                BUF_LEN * (num_chunk /2 - 1) - 10,
+                BUF_LEN * (num_chunk /2 + 1) + 10,
+                size - BUF_LEN + 5
+        };
+        int cases = positions.length;
+        byte[] expected = new byte[cases];
         // create archive with dictzip command
         Path outTextPath = tempDir.resolve("DictZipText.txt");
         prepareLargeTextData(outTextPath, size);
         File inputFile = outTextPath.toFile();
         assertEquals(size, inputFile.length());
-        // get expectation
+        // get expectations
         try (RandomAccessInputStream is = new RandomAccessInputStream(new RandomAccessFile(inputFile, "r"))) {
-            is.seek(size -2);
-            int len = is.read(buf, 0, 1);
-            assertEquals(1, len);
+            for (int i = 0; i < cases; i++) {
+                is.seek(positions[i]);
+                len = is.read(buf, 0, buf.length);
+                assertTrue(len > 0);
+                expected[i] = buf[0];
+            }
         }
-        byte expected = buf[0];
+        // create dictzip archive with dictzip command
         Process process = Runtime.getRuntime().exec(String.format("dictzip %s", outTextPath.toAbsolutePath()));
         int returnCode = process.waitFor();
         assertEquals(0, returnCode);
         File zippedFile = tempDir.resolve("DictZipText.txt.dz").toFile();
+        // -- end of preparation
+
         // read dictZip archive
         try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
                 RandomAccessFile(zippedFile, "r")))) {
-            din.seek(size - 2);
-            int len = din.read(buf, 0, 1);
-            assertTrue(len > 0);
+            for (int i = 0; i < cases; i++) {
+                System.out.printf("seek position: %d%n", positions[i]);
+                din.seek(positions[i]);
+                len = din.read(buf, 0, 10);
+                assertTrue(len > 0);
+                assertEquals(expected[i], buf[0], String.format("Read data invalid at position %d", positions[i]));
+            }
         }
-        assertEquals(expected, buf[0]);
     }
 
     /**
@@ -254,7 +277,7 @@ public class DictZipFileTest {
      * </p>
      */
     @Test
-    public void testLargeFileInputOutput(@TempDir Path tempDir) throws IOException {
+    public void testLargeFileInputOutput(@TempDir Path tempDir) throws IOException, InterruptedException {
         int size = 45000000;  // about 45MB
         int num_chunk = size / BUF_LEN + 1;
         byte[] buf = new byte[BUF_LEN];
@@ -275,7 +298,7 @@ public class DictZipFileTest {
         Path outTextPath = tempDir.resolve("DictZipText.txt");
         prepareTextData(outTextPath, size);
         File inputFile = outTextPath.toFile();
-        File zippedFile = tempDir.resolve("DictZipText.txt.dz").toFile();
+        Path zippedPath = tempDir.resolve("DictZipText.txt.dz");
         assertEquals(size, inputFile.length());
         // get expectations
         try (RandomAccessInputStream is = new RandomAccessInputStream(new RandomAccessFile(inputFile, "r"))) {
@@ -288,25 +311,31 @@ public class DictZipFileTest {
         }
         // create dictZip archive
         int defLevel = Deflater.DEFAULT_COMPRESSION;
-        try (RandomAccessFile raf = new RandomAccessFile(zippedFile, "rws")) {
-            try (FileInputStream ins = new FileInputStream(inputFile);
-                 DictZipOutputStream dout = new DictZipOutputStream(new RandomAccessOutputStream(raf),
-                         BUF_LEN, inputFile.length(), defLevel)) {
-                while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
-                    dout.write(buf, 0, len);
-                }
-                dout.finish();
+        try (FileInputStream ins = new FileInputStream(inputFile);
+             DictZipOutputStream dout = new DictZipOutputStream(
+                     new RandomAccessOutputStream(new RandomAccessFile(zippedPath.toFile(), "rws")),
+                     BUF_LEN, inputFile.length(), defLevel)) {
+            while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
+                dout.write(buf, 0, len);
             }
-            raf.seek(0);
-            // read dictZip archive
-            try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(raf))) {
-                for (int i = 0; i < cases; i++) {
-                    System.out.printf("seek position: %d%n", positions[i]);
-                    din.seek(positions[i]);
-                    len = din.read(buf, 0, 10);
-                    assertTrue(len > 0);
-                    assertEquals(expected[i], buf[0], String.format("Read data invalid at position %d", positions[i]));
-                }
+            dout.finish();
+        }
+        // check created archive
+        Process process = Runtime.getRuntime().exec(
+                String.format("dictzip -d -f -k -v %s", zippedPath.toAbsolutePath()));
+        StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
+        Executors.newSingleThreadExecutor().submit(streamGobbler);
+        int returnCode = process.waitFor();
+        assertEquals(0, returnCode);
+        // read dictZip archive
+        try (RandomAccessFile raf = new RandomAccessFile(zippedPath.toFile(), "r");
+             DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(raf))) {
+            for (int i = 0; i < cases; i++) {
+                System.out.printf("seek position: %d%n", positions[i]);
+                din.seek(positions[i]);
+                len = din.read(buf, 0, 10);
+                assertTrue(len > 0);
+                assertEquals(expected[i], buf[0], String.format("Read data invalid at position %d", positions[i]));
             }
         }
     }
