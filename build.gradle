@@ -66,9 +66,22 @@ subprojects {
     }
 }
 
+project(':northside-io') {
+    apply plugin: 'java-library'
+    version = rootProject.version
+    dependencies {
+        implementation 'commons-io:commons-io:2.11.0'
+    }
+}
+
 project(':dictzip-lib') {
     apply plugin: 'java-library'
     version = rootProject.version
+
+    dependencies {
+        testImplementation project(':northside-io')
+    }
+
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -140,6 +153,7 @@ project(':dictzip-cli') {
     dependencies {
         implementation project(':dictzip-lib')
         implementation 'gnu.getopt:java-getopt:1.0.13'
+        testImplementation project(':northside-io')
     }
     task mandoc(type: Copy) {
         from "doc/dictzip.1.in"

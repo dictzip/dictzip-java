@@ -51,10 +51,11 @@ public class DictDataTest {
 
     /**
      * Test of doZip method, of class DictData.
+     * @param tempDir JUnit5 temporary directory support
      * @throws java.lang.Exception if file operation failed.
      */
     @Test
-    public void testDoZip(@TempDir Path tempDir) throws Exception {
+    public void testDoZip(@TempDir final Path tempDir) throws Exception {
         Path testFile = Paths.get(Objects.requireNonNull(
                 this.getClass().getResource("/test_dozip.dict")).toURI());
         Path zippedFile = tempDir.resolve("test_dozip.dict.dz");
@@ -72,10 +73,11 @@ public class DictDataTest {
 
     /**
      * Test of doUnzip method, of class DictData.
+     * @param tempDir JUnit5 temporary directory support
      * @throws java.lang.Exception if file operation failed.
      */
     @Test
-    public void testDoUnzip(@TempDir Path tempDir) throws Exception {
+    public void testDoUnzip(@TempDir final Path tempDir) throws Exception {
         String dzFile = this.getClass().getResource("/test.dict.dz").getFile();
         Path decompressed = tempDir.resolve("test.dict");
         long start = 0L;

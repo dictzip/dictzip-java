@@ -34,13 +34,11 @@
  * obligated to do so.  If you do not wish to do so, delete this
  * exception statement from your version.
  */
-package org.dict.zip;
-
+package tokyo.northside;
 
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -113,45 +111,5 @@ public class FileUtils2Test {
         File firstFile = new File(this.getClass().getResource("/test_util.txt").getFile());
         File secondFile = new File(this.getClass().getResource("/test_util2.txt").getFile());
         assertFalse(contentEquals(firstFile, secondFile, 0, 64));
-    }
-
-    /**
-     * Check dictzip inputstream.
-     * @throws Exception when fails.
-     */
-    @Test
-    public void testCheckDictZipInputStreamString() throws Exception {
-        String targetFile = this.getClass().getResource("/test.dict.dz").getFile();
-        assertTrue(DictZipFileUtils.checkDictZipInputStream(targetFile));
-    }
-
-    /**
-     * Check dictzip input streasm which is not exist.
-     */
-    @Test
-    public void testCheckDictZipInputStreamStringNoExist() {
-        String targetFile = "false.dict.dz";
-        boolean result;
-        try {
-            DictZipFileUtils.checkDictZipInputStream(targetFile);
-            result = false;
-        } catch (IOException e) {
-            // expected.
-            result = true;
-        }
-        assertTrue(result);
-    }
-
-    /**
-     * Check dictzip input stream.
-     * @throws Exception when fails.
-     */
-    @Test
-    public void testCheckDictZipInputStream() throws Exception {
-        String targetFile = this.getClass().getResource("/test.dict.dz").getFile();
-        try (DictZipInputStream dzin = new DictZipInputStream(new
-                RandomAccessInputStream(targetFile, "r"))) {
-            assertTrue(DictZipFileUtils.checkDictZipInputStream(dzin));
-        }
     }
 }
