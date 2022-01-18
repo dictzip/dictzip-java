@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.10.1] - 2022-01-18
+### Fixed
+- Release actions script
+
 ## [0.10.0] - 2022-01-18
 
 ### Fixed
@@ -161,7 +165,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.10.1...HEAD
+[0.10.1]: https://github.com/dictzip/dictzip-java/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/dictzip/dictzip-java/compare/v0.9.5...v0.10.0
 [0.9.5]: https://github.com/dictzip/dictzip-java/compare/v0.9.2...v0.9.5
 [0.9.2]: https://github.com/dictzip/dictzip-java/compare/v0.9.1...v0.9.2
