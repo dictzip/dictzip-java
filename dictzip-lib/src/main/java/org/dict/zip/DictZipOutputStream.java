@@ -65,8 +65,9 @@ public class DictZipOutputStream extends FilterOutputStream {
 
     private int cindex;
     private boolean closed = false;
-    private long dataSize;
-    private DictZipHeader header;
+    private final long dataSize;
+    private long wroteInChunk;
+    private final DictZipHeader header;
     private boolean usesDefaultDeflater = false;
     private static final int BUF_LEN = 58315;
 
@@ -87,7 +88,7 @@ public class DictZipOutputStream extends FilterOutputStream {
      * @param out output stream to filter.
      * @param buflen size of buffer to write.
      * @param size total data of test file.
-     * @throws IOException if I/O error occored.
+     * @throws IOException if I/O error occurred.
      * @throws IllegalArgumentException if parameter is invalid.
      */
     public DictZipOutputStream(final RandomAccessOutputStream out, final int buflen,
@@ -101,7 +102,7 @@ public class DictZipOutputStream extends FilterOutputStream {
      * @param level level of compression, 9=best, 1=fast.
      * @param buflen size of buffer to write.
      * @param size total data of test file.
-     * @throws IOException if I/O error occored.
+     * @throws IOException if I/O error occurred.
      * @throws IllegalArgumentException if parameter is invalid.
      */
     public DictZipOutputStream(final RandomAccessOutputStream out, final int buflen,
@@ -118,7 +119,7 @@ public class DictZipOutputStream extends FilterOutputStream {
      * @param inBufferSize size of buffer to write.
      * @param size total data of test file.
      * @param level compression level.
-     * @throws IOException if I/O error occored.
+     * @throws IOException if I/O error occurred.
      * @throws IllegalArgumentException if parameter is invalid.
      */
     public DictZipOutputStream(final RandomAccessOutputStream out, final Deflater defl,
@@ -137,7 +138,7 @@ public class DictZipOutputStream extends FilterOutputStream {
         if (size <= 0) {
             throw new IllegalArgumentException("total data size <= 0");
         }
-
+        wroteInChunk = 0;
         this.def = defl;
         int outBufferSize = (int) ((inBufferSize + 12) * 1.1);
         buf = new byte[outBufferSize];
@@ -145,7 +146,7 @@ public class DictZipOutputStream extends FilterOutputStream {
         crc = new CRC32();
 
         header = new DictZipHeader(dataSize, inBufferSize);
-        header.setMtime((long) System.currentTimeMillis() / 1000);
+        header.setMtime(System.currentTimeMillis() / 1000);
         switch (level) {
             case Deflater.DEFAULT_COMPRESSION:
                 header.setExtraFlag(DictZipHeader.CompressionLevel.DEFAULT_COMPRESSION);
@@ -198,7 +199,7 @@ public class DictZipOutputStream extends FilterOutputStream {
      */
     protected void deflate() throws IOException {
         crc.update(buf, 0, buf.length);
-        int len = def.deflate(buf, 0, buf.length, Deflater.SYNC_FLUSH);
+        int len = def.deflate(buf, 0, buf.length, Deflater.FULL_FLUSH);
         if (len > DictZipHeader.MAX_CHUNK_LEN) {
             throw new IOException("Invalid size of chunk: Compressed chunked data size is larger than 64kB.");
         }
@@ -228,20 +229,27 @@ public class DictZipOutputStream extends FilterOutputStream {
         if ((off | len | (off + len) | (b.length - (off + len))) < 0) {
             throw new IndexOutOfBoundsException();
         } else if (def.getTotalIn() + len > dataSize) {
-            throw new IOException("write beyond decralated data size");
+            throw new IOException("write beyond decelerated data size");
         } else if (len == 0) {
             return;
         }
         if (!def.finished()) {
-            // Deflate no more than stride bytes at a time.  This avoids
-            // excess copying in deflateBytes (see Deflater.c)
-            // as same as java.io.DeflaterOutputStream
-            int stride = buf.length;
-            for (int i = 0; i < len; i += stride) {
-                def.setInput(b, off + i, Math.min(stride, len - i));
-                while (!def.needsInput()) {
-                    deflate();
+            // Deflate no more than chunkLength bytes at a time.
+            // This avoids excess copying in deflateBytes (see Deflater.c)
+            int chunkLength = header.getChunkLength();
+            int idx = 0;
+            int writeSize = Math.min(chunkLength, len);
+            while (writeSize > 0) {
+                def.setInput(b, off + idx, writeSize);
+                wroteInChunk += writeSize;
+                idx += writeSize;
+                if (wroteInChunk == chunkLength) {
+                    while (!def.needsInput()) {
+                        deflate();
+                    }
+                    wroteInChunk = 0;
                 }
+                writeSize = Math.min(chunkLength, len - idx);
             }
         }
     }
@@ -266,7 +274,7 @@ public class DictZipOutputStream extends FilterOutputStream {
 
     /**
      * Finish compression, as same function as GZIPOutputStream.
-     * @throws IOException if I/O error occured.
+     * @throws IOException if I/O error occurred.
      */
     public final void finish() throws IOException {
         if (closed) {
