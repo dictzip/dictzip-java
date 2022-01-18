@@ -225,6 +225,8 @@ public class DictZipFileTest {
      */
     @Test
     public void testFileInputOutput(@TempDir Path tempDir) throws IOException, InterruptedException {
+        // Run test when running on Linux and dictzip command installed
+        Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
         int size = (BUF_LEN * 512 + 100) / 100000 * 100000;
         // int size = 45000000;  // about 45MB
         int num_chunk = size / BUF_LEN + 1;
