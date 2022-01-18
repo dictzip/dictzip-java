@@ -19,6 +19,18 @@ if (versionDetails().isCleanTag) {
     version = versionDetails().lastTag.substring(1) + '-' + versionDetails().commitDistance + '-' + versionDetails().gitHash + '-SNAPSHOT'
 }
 
+def props = project.file("dictzip-cli/src/main/resources/org/dict/zip/Version.properties")
+task writeVersionFile {
+    def folder = props.getParentFile()
+    if (!folder.exists()) {
+        folder.mkdirs()
+    }
+    props.delete()
+    props.text = "version=" + project.version
+}
+
+jar.dependsOn("writeVersionFile")
+
 // common settings
 subprojects {
     apply plugin: 'jacoco'

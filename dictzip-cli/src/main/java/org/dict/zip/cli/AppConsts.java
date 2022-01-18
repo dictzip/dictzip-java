@@ -29,32 +29,21 @@ import java.util.ResourceBundle;
 public final class AppConsts {
     static final String VERSION = ResourceBundle.getBundle("org/dict/zip/Version")
             .getString("version");
-    static final String UPDATE = ResourceBundle.getBundle("org/dict/zip/Version")
-            .getString("update");
-    static final String REVISION = ResourceBundle.getBundle("org/dict/zip/Version")
-            .getString("revision");
-
     static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
             .getBundle("org/dict/zip/cli/Bundle", Locale.getDefault());
 
     static final String NAME = RESOURCE_BUNDLE.getString("application.name");
     static final String BRANDING = "";
-    static final String YEAR = "2016";
+    static final String YEAR = "2016-2022";
     static final String AUTHORS = "Hiroshi Miura";
-    static final String LICENSE = "GPLv2+";
 
     private static String getString(final String key) {
         return RESOURCE_BUNDLE.getString(key);
     }
 
     static String getNameAndVersion() {
-        if (UPDATE != null && !UPDATE.equals("0")) {
-            return MessageFormat.format(getString("app-version-template-pretty-update"),
-                    getApplicationName(), VERSION, UPDATE);
-        } else {
-            return MessageFormat.format(getString("app-version-template-pretty"),
-                    getApplicationName(), VERSION);
-        }
+        return MessageFormat.format(getString("app-version-template-pretty"),
+                getApplicationName(), VERSION);
     }
 
     static String getApplicationName() {
