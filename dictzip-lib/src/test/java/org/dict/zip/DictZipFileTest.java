@@ -145,10 +145,10 @@ public class DictZipFileTest {
     public void testFileCreation(@TempDir Path tempDir) throws IOException, InterruptedException {
         // Run test when running on Linux and dictzip command installed
         Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
-        int size = 65536;  // about 64kB
+        int size = BUF_LEN * 512 + 100;
         byte[] buf = new byte[BUF_LEN];
         // create data
-        Path outTextPath = tempDir.resolve("DictZipText.txt");
+        Path outTextPath = tempDir.resolve("DictZipText.orig.txt");
         prepareTextData(outTextPath, size);
         File inputFile = outTextPath.toFile();
         Path zippedPath = tempDir.resolve("DictZipText.txt.dz");
@@ -166,7 +166,7 @@ public class DictZipFileTest {
             dout.finish();
         }
         Process process = Runtime.getRuntime().exec(
-                String.format("dictzip -d %s", zippedPath.toAbsolutePath()));
+                String.format("dictzip -d -f -k -v %s", zippedPath.toAbsolutePath()));
         StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
         Executors.newSingleThreadExecutor().submit(streamGobbler);
         int returnCode = process.waitFor();
@@ -221,7 +221,7 @@ public class DictZipFileTest {
         int size = 45000000;  // about 45MB
         byte[] buf = new byte[BUF_LEN];
         // create data
-        Path outTextPath = tempDir.resolve("DictZipText.txt");
+        Path outTextPath = tempDir.resolve("DictZipText.orig.txt");
         prepareLargeTextData(outTextPath, size);
         File inputFile = outTextPath.toFile();
         Path zippedPath = tempDir.resolve("DictZipText.txt.dz");
@@ -239,7 +239,7 @@ public class DictZipFileTest {
             dout.finish();
         }
         Process process = Runtime.getRuntime().exec(
-                String.format("dictzip -d -c -s %d -e %d %s", size - 2, 1, zippedPath.toAbsolutePath()));
+                String.format("dictzip -d -f -k -v %s", zippedPath.toAbsolutePath()));
         StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
         Executors.newSingleThreadExecutor().submit(streamGobbler);
         int returnCode = process.waitFor();
