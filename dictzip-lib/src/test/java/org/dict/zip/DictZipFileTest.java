@@ -96,51 +96,13 @@ public class DictZipFileTest {
     }
 
     /**
-     * Test case to extract an archive file.
-     * @param tempDir JUnit5.jupiter TempDir.
-     * @throws IOException when i/o error occurred.
-     * @throws InterruptedException when external dictzip not executed well.
-     */
-    @Test
-    public void testFileReadAceess(@TempDir Path tempDir) throws IOException, InterruptedException {
-        // Run test when running on Linux and dictzip command installed
-        Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
-        int size = 65536;  // 64kB
-        byte[] buf = new byte[BUF_LEN];
-        // create archive with dictzip command
-        Path outTextPath = tempDir.resolve("DictZipText.txt");
-        prepareTextData(outTextPath, size);
-        File inputFile = outTextPath.toFile();
-        assertEquals(size, inputFile.length());
-        // get expectation
-        try (RandomAccessInputStream is = new RandomAccessInputStream(new RandomAccessFile(inputFile, "r"))) {
-            is.seek(size -2);
-            int len = is.read(buf, 0, 1);
-            assertEquals(1, len);
-        }
-        byte expected = buf[0];
-        Process process = Runtime.getRuntime().exec(String.format("dictzip %s", outTextPath.toAbsolutePath()));
-        int returnCode = process.waitFor();
-        assertEquals(0, returnCode);
-        File zippedFile = tempDir.resolve("DictZipText.txt.dz").toFile();
-        // read dictZip archive
-        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(new
-                RandomAccessFile(zippedFile, "r")))) {
-            din.seek(size - 2);
-            int len = din.read(buf, 0, 1);
-            assertTrue(len > 0);
-        }
-        assertEquals(expected, buf[0]);
-    }
-
-    /**
      * Test case to create large archive.
      */
     @Test
     public void testFileCreation(@TempDir Path tempDir) throws IOException, InterruptedException {
         // Run test when running on Linux and dictzip command installed
         Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
-        int size = BUF_LEN * 512 + 100;
+        int size = (BUF_LEN * 512 + 100) / 100000 * 100000;
         int len;
         byte[] buf = new byte[BUF_LEN];
         int[] positions = new int[] {
@@ -183,7 +145,7 @@ public class DictZipFileTest {
         for (int i = 0; i < positions.length; i++) {
             System.out.printf("seek position: %d%n", positions[i]);
             Process process = Runtime.getRuntime().exec(
-                    String.format("dictzip -d -c -k -v -s %d -e %d  %s",
+                    String.format("dictzip -d -c -k -s %d -e %d  %s",
                             positions[i], 10, zippedPath.toAbsolutePath()));
             int b = process.getInputStream().read();
             int returnCode = process.waitFor();
@@ -199,10 +161,10 @@ public class DictZipFileTest {
      * @throws InterruptedException when external dictzip not executed well.
      */
     @Test
-    public void testLargeFileReadAceess(@TempDir Path tempDir) throws IOException, InterruptedException {
+    public void testFileReadAceess(@TempDir Path tempDir) throws IOException, InterruptedException {
         // Run test when running on Linux and dictzip command installed
         Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
-        int size = 45000000;  // about 45MB
+        int size = (BUF_LEN * 512 + 100) / 100000 * 100000;
         // --- preparation of data
         int len;
         int num_chunk = size / BUF_LEN + 1;
@@ -254,39 +216,6 @@ public class DictZipFileTest {
     }
 
     /**
-     * Test case to create large archive.
-     */
-    @Test
-    public void testLargeFileCreation(@TempDir Path tempDir) throws IOException, InterruptedException {
-        // Run test when running on Linux and dictzip command installed
-        Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
-        int size = 45000000;  // about 45MB
-        byte[] buf = new byte[BUF_LEN];
-        // create data
-        Path outTextPath = tempDir.resolve("DictZipText.orig.txt");
-        prepareLargeTextData(outTextPath, size);
-        File inputFile = outTextPath.toFile();
-        Path zippedPath = tempDir.resolve("DictZipText.txt.dz");
-        assertEquals(size, inputFile.length());
-        // create dictZip archive
-        int defLevel = Deflater.DEFAULT_COMPRESSION;
-        try (FileInputStream ins = new FileInputStream(inputFile);
-             DictZipOutputStream dout = new DictZipOutputStream(
-                     new RandomAccessOutputStream(new RandomAccessFile(zippedPath.toFile(), "rws")),
-                     BUF_LEN, inputFile.length(), defLevel)) {
-            int len;
-            while ((len = ins.read(buf, 0, BUF_LEN)) > 0) {
-                dout.write(buf, 0, len);
-            }
-            dout.finish();
-        }
-        Process process = Runtime.getRuntime().exec(
-                String.format("dictzip -d -f -k -v %s", zippedPath.toAbsolutePath()));
-        int returnCode = process.waitFor();
-        assertEquals(0, returnCode);
-    }
-
-    /**
      * Test case to reproduce issue #24.
      * <p>
      *     When seek to almost end of large dictionary, it cause error
@@ -294,16 +223,15 @@ public class DictZipFileTest {
      * </p>
      */
     @Test
-    public void testLargeFileInputOutput(@TempDir Path tempDir) throws IOException, InterruptedException {
-        int size = 45000000;  // about 45MB
+    public void testFileInputOutput(@TempDir Path tempDir) throws IOException, InterruptedException {
+        int size = (BUF_LEN * 512 + 100) / 100000 * 100000;
+        // int size = 45000000;  // about 45MB
         int num_chunk = size / BUF_LEN + 1;
         byte[] buf = new byte[BUF_LEN];
         int[] positions = new int[] {
                 BUF_LEN - 10,
                 BUF_LEN + 10,
                 BUF_LEN * 2 + 10,
-                BUF_LEN * 256 - 10,
-                BUF_LEN * 256 + 10,
                 BUF_LEN * (num_chunk /2 - 1) - 10,
                 BUF_LEN * (num_chunk /2 + 1) + 10,
                 size - BUF_LEN + 5
@@ -337,11 +265,17 @@ public class DictZipFileTest {
             }
             dout.finish();
         }
-        // check created archive
-        Process process = Runtime.getRuntime().exec(
-                String.format("dictzip -d -f -k -v %s", zippedPath.toAbsolutePath()));
-        int returnCode = process.waitFor();
-        assertEquals(0, returnCode);
+        // check archive
+        for (int i = 0; i < positions.length; i++) {
+            System.out.printf("seek position: %d%n", positions[i]);
+            Process process = Runtime.getRuntime().exec(
+                    String.format("dictzip -d -c -k -s %d -e %d  %s",
+                            positions[i], 10, zippedPath.toAbsolutePath()));
+            int b = process.getInputStream().read();
+            int returnCode = process.waitFor();
+            assertEquals(0, returnCode);
+            assertEquals(expected[i], (byte) b);
+        }
         // read dictZip archive
         try (RandomAccessFile raf = new RandomAccessFile(zippedPath.toFile(), "r");
              DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(raf))) {
