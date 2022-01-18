@@ -38,9 +38,7 @@ subprojects {
     apply plugin: 'checkstyle'
     apply plugin: 'maven-publish'
 
-    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
     checkstyle {
-        config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
         ignoreFailures = true
         toolVersion = '6.16.1'
     }
@@ -99,7 +97,6 @@ project(':dictzip-lib') {
             mavenJava(MavenPublication) {
                 from components.java
                 artifactId = "dictzip"
-                groupId = "io.github.dictzip"
                 pom {
                     name.set("dictzip")
                     description.set(projectDesc)
@@ -117,9 +114,9 @@ project(':dictzip-lib') {
                     }
                     developers {
                         developer {
-                            id = "miurahr"
-                            name = "Hiroshi Miura"
-                            email = "miurahr@linux.com"
+                            id.set("miurahr")
+                            name.set("Hiroshi Miura")
+                            email.set("miurahr@linux.com")
                         }
                     }
                     issueManagement {
@@ -132,7 +129,7 @@ project(':dictzip-lib') {
     nexusPublishing {
         repositories {
             sonatype {
-                stagingProfileId = "a1cf138b142cd"
+                stagingProfileId.set("a1cf138b142cd")
                 nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
                 snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
                 username = project.hasProperty('sonatypeUsername') ? project.property('sonatypeUsername') : System.getenv('SONATYPE_USER')
@@ -142,8 +139,8 @@ project(':dictzip-lib') {
     }
 
     signing {
-        def signingKey = findProperty("signingKey")
-        def signingPassword = findProperty("signingPassword")
+        def signingKey = findProperty("signingKey").toString()
+        def signingPassword = findProperty("signingPassword").toString()
         if (signingKey) {
             useInMemoryPgpKeys(signingKey, signingPassword)
         } else {
