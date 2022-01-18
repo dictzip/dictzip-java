@@ -13,14 +13,9 @@ just add a dependency.
 
 ```
 dependencies {
-    implementation 'io.github.dictzip:dictzip:0.9.5'
+    implementation 'io.github.dictzip:dictzip:0.10.3'
 }
 ```
-
-## Document
-
-There is a javadoc of DictZip at https://miurahr.github.io/dictzip-java
-
 
 ## Contribution
 
@@ -35,7 +30,7 @@ DictZip library for Java and command line utility.
 
 Copyright (C) 2001-2004 Ho Ngoc Duc
 
-Copyright (C) 2016-2021 Hiroshi Miura
+Copyright (C) 2016-2022 Hiroshi Miura
 
 Some part of this program are come from a part of jdictd 1.5 on java.
 
