@@ -142,11 +142,11 @@ public class DictZipFileTest {
             dout.finish();
         }
         // check archive
+        String[] command = {"/usr/bin/dictzip", "-d", "-c", "-s", null, "-e", "10", zippedPath.toAbsolutePath().toString()};
         for (int i = 0; i < positions.length; i++) {
             System.out.printf("seek position: %d%n", positions[i]);
-            Process process = Runtime.getRuntime().exec(
-                    String.format("dictzip -d -c -k -s %d -e %d  %s",
-                            positions[i], 10, zippedPath.toAbsolutePath()));
+            command[4] = Integer.toString(positions[i]);
+            Process process = Runtime.getRuntime().exec(command);
             int b = process.getInputStream().read();
             int returnCode = process.waitFor();
             assertEquals(0, returnCode);
@@ -196,7 +196,8 @@ public class DictZipFileTest {
             }
         }
         // create dictzip archive with dictzip command
-        Process process = Runtime.getRuntime().exec(String.format("dictzip %s", outTextPath.toAbsolutePath()));
+        String[] command = {"/usr/bin/dictzip", outTextPath.toAbsolutePath().toString()};
+        Process process = Runtime.getRuntime().exec(command);
         int returnCode = process.waitFor();
         assertEquals(0, returnCode);
         File zippedFile = tempDir.resolve("DictZipText.txt.dz").toFile();
@@ -266,11 +267,11 @@ public class DictZipFileTest {
             dout.finish();
         }
         // check archive
+        String[] command = {"/usr/bin/dictzip", "-d", "-c", "-s", null, "-e", "10", zippedPath.toAbsolutePath().toString()};
         for (int i = 0; i < positions.length; i++) {
             System.out.printf("seek position: %d%n", positions[i]);
-            Process process = Runtime.getRuntime().exec(
-                    String.format("dictzip -d -c -k -s %d -e %d  %s",
-                            positions[i], 10, zippedPath.toAbsolutePath()));
+            command[4] = Integer.toString(positions[i]);
+            Process process = Runtime.getRuntime().exec(command);
             int b = process.getInputStream().read();
             int returnCode = process.waitFor();
             assertEquals(0, returnCode);

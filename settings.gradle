@@ -1,2 +1,2 @@
 rootProject.name = 'dictzip'
-include 'dictzip-lib', 'dictzip-cli'
+include 'northside-io', 'dictzip-lib', 'dictzip-cli'
