@@ -39,6 +39,7 @@ package org.dict.zip;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import tokyo.northside.io.IOUtils2;
 
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -46,8 +47,8 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static tokyo.northside.io.IOUtils2.contentEquals;
 
 /**
  * Test of DictZipInputStream.
@@ -64,7 +65,7 @@ public class DictZipInputStreamTest {
     @Test
     public void testConstructorDefaultBufSize() throws Exception {
         try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"))) {
-            // pass
+            assertNotNull(din);
         }
     }
 
@@ -75,7 +76,7 @@ public class DictZipInputStreamTest {
     @Test
     public void testConstructorFromFilename() throws Exception {
         try (DictZipInputStream din = new DictZipInputStream(dataFile)) {
-            // pass
+            assertNotNull(din);
         }
     }
 
@@ -360,7 +361,7 @@ public class DictZipInputStreamTest {
             }
             FileInputStream in2 = new FileInputStream(this.getClass().getResource("/test.dict.expected").getFile());
             in2.skip(start);
-            assertTrue(contentEquals(din, in2, 0, len));
+            assertTrue(IOUtils2.contentEquals(din, in2, 0, len));
         }
     }
 }

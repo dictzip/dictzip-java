@@ -60,9 +60,10 @@ public class DictZipOutputStreamTest {
 
     /**
      * Test of close method, of class DictZipOutputStream.
+     * @param tempDir JUnit5 temporary directory.
      */
     @Test
-    public void testClose(@TempDir Path tempDir) {
+    public void testClose(@TempDir final Path tempDir) {
         byte[] byteArray = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         try {
             File testOutFile = tempDir.resolve("DictZipOutCon.txt").toFile();
@@ -84,10 +85,11 @@ public class DictZipOutputStreamTest {
 
     /**
      * Test of write method, of class DictZipOutputStream.
+     * @param tempDir JUnit5 temporary directory.
      * @throws Exception when i/o error.
      */
     @Test
-    public void testWrite3args(@TempDir Path tempDir) throws Exception {
+    public void testWrite3args(@TempDir final Path tempDir) throws Exception {
         byte[] b = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         File testOutFile = tempDir.resolve("DictZipOutCon.txt").toFile();
         RandomAccessOutputStream outFile = new RandomAccessOutputStream(
@@ -106,9 +108,10 @@ public class DictZipOutputStreamTest {
 
     /**
      * Test of write method, of class DictZipOutputStream.
+     * @param tempDir JUnit5 temporary directory.
      */
     @Test
-    public void testWriteInt(@TempDir Path tempDir) {
+    public void testWriteInt(@TempDir final Path tempDir) {
         int b = 100;
         TestDictZipOutputStream instance;
         try {
@@ -124,9 +127,10 @@ public class DictZipOutputStreamTest {
 
     /**
      * Test of finish method, of class DictZipOutputStream.
+     * @param tempDir JUnit5 temporary directory.
      */
     @Test
-    public void testFinish(@TempDir Path tempDir) {
+    public void testFinish(@TempDir final Path tempDir) {
         byte[] byteArray = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         TestDictZipOutputStream instance = null;
         try {

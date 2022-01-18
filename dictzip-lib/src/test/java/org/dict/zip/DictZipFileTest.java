@@ -57,6 +57,9 @@ import java.util.zip.Deflater;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Test archive creation and extraction.
+ */
 public class DictZipFileTest {
 
     private static final int BUF_LEN = 58315;
@@ -70,7 +73,7 @@ public class DictZipFileTest {
                 int number = random.nextInt(94);
                 writer.print((char) (32 + number));
             }
-        };
+        }
     }
 
     void prepareLargeTextData(final Path outTextPath, final int size) throws IOException {
@@ -97,9 +100,12 @@ public class DictZipFileTest {
 
     /**
      * Test case to create large archive.
+     * @param tempDir JUnit5 temporary directory..
+     * @throws IOException when file wreite filed.
+     * @throws InterruptedException when external dictzip not executed well.
      */
     @Test
-    public void testFileCreation(@TempDir Path tempDir) throws IOException, InterruptedException {
+    public void testFileCreation(@TempDir final Path tempDir) throws IOException, InterruptedException {
         // Run test when running on Linux and dictzip command installed
         Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
         int size = (BUF_LEN * 512 + 100) / 100000 * 100000;
@@ -156,18 +162,18 @@ public class DictZipFileTest {
 
     /**
      * Test case to extract large archive file.
-     * @param tempDir JUnit5.jupiter TempDir.
+     * @param tempDir JUnit5 temporary directory.
      * @throws IOException when i/o error occurred.
      * @throws InterruptedException when external dictzip not executed well.
      */
     @Test
-    public void testFileReadAceess(@TempDir Path tempDir) throws IOException, InterruptedException {
+    public void testFileReadAceess(@TempDir final Path tempDir) throws IOException, InterruptedException {
         // Run test when running on Linux and dictzip command installed
         Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
         int size = (BUF_LEN * 512 + 100) / 100000 * 100000;
         // --- preparation of data
         int len;
-        int num_chunk = size / BUF_LEN + 1;
+        int numChunk = size / BUF_LEN + 1;
         byte[] buf = new byte[BUF_LEN];
         int[] positions = new int[] {
                 BUF_LEN - 10,
@@ -175,8 +181,8 @@ public class DictZipFileTest {
                 BUF_LEN * 2 + 10,
                 BUF_LEN * 256 - 10,
                 BUF_LEN * 256 + 10,
-                BUF_LEN * (num_chunk /2 - 1) - 10,
-                BUF_LEN * (num_chunk /2 + 1) + 10,
+                BUF_LEN * (numChunk / 2 - 1) - 10,
+                BUF_LEN * (numChunk / 2 + 1) + 10,
                 size - BUF_LEN + 5
         };
         int cases = positions.length;
@@ -222,21 +228,24 @@ public class DictZipFileTest {
      *     When seek to almost end of large dictionary, it cause error
      *     Caused by: java.util.zip.ZipException: invalid distance too far back
      * </p>
+     * @param tempDir JUnit5 temporary directory.
+     * @throws IOException when i/o error occurred.
+     * @throws InterruptedException when external dictzip not executed well.
      */
     @Test
-    public void testFileInputOutput(@TempDir Path tempDir) throws IOException, InterruptedException {
+    public void testFileInputOutput(@TempDir final Path tempDir) throws IOException, InterruptedException {
         // Run test when running on Linux and dictzip command installed
         Assumptions.assumeTrue(Paths.get("/usr/bin/dictzip").toFile().exists());
         int size = (BUF_LEN * 512 + 100) / 100000 * 100000;
         // int size = 45000000;  // about 45MB
-        int num_chunk = size / BUF_LEN + 1;
+        int numChunk = size / BUF_LEN + 1;
         byte[] buf = new byte[BUF_LEN];
         int[] positions = new int[] {
                 BUF_LEN - 10,
                 BUF_LEN + 10,
                 BUF_LEN * 2 + 10,
-                BUF_LEN * (num_chunk /2 - 1) - 10,
-                BUF_LEN * (num_chunk /2 + 1) + 10,
+                BUF_LEN * (numChunk / 2 - 1) - 10,
+                BUF_LEN * (numChunk / 2 + 1) + 10,
                 size - BUF_LEN + 5
         };
         int cases = positions.length;

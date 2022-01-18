@@ -44,10 +44,10 @@ import java.nio.file.Path;
 import org.dict.zip.DictZipHeader.CompressionLevel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import tokyo.northside.io.FileUtils2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static tokyo.northside.io.FileUtils2.contentEquals;
 
 
 /**
@@ -113,10 +113,11 @@ public class DictZipHeaderTest {
    /**
      * Test of readHeader method, of class DictZipHeader.
      *
-     * @throws java.lang.Exception if file I/O error occurred.
+    * @param tempDir JUnit5 temporary directory.
+    * @throws java.lang.Exception if file I/O error occurred.
      */
     @Test
-    public void testReadHeaderNonGZip(@TempDir Path tempDir) throws Exception {
+    public void testReadHeaderNonGZip(@TempDir final Path tempDir) throws Exception {
         byte[] b = {3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         File testFile = tempDir.resolve("DictZipOutCon.txt.dz").toFile();
         FileOutputStream outFile = new FileOutputStream(testFile);
@@ -135,10 +136,11 @@ public class DictZipHeaderTest {
     /**
      * Test of readHeader method, of class DictZipHeader.
      *
+     * @param tempDir JUnit5 temporary directory.
      * @throws java.lang.Exception if file I/O error occurred.
      */
     @Test
-    public void testReadHeaderGZipMagic(@TempDir Path tempDir) throws Exception {
+    public void testReadHeaderGZipMagic(@TempDir final Path tempDir) throws Exception {
         byte[] b = {(byte) 0x1f, (byte) 0x8b, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w'};
         File testFile = tempDir.resolve("DictZipOutCon.txt.dz").toFile();
         FileOutputStream outFile = new FileOutputStream(testFile);
@@ -222,10 +224,11 @@ public class DictZipHeaderTest {
     /**
      * Test of writeHeader method.
      *
+     * @param tempDir JUnit5 temporary directory.
      * @throws Exception if file I/O error occurred.
      */
     @Test
-    public void testWriteHeader(@TempDir Path tempDir) throws Exception {
+    public void testWriteHeader(@TempDir final Path tempDir) throws Exception {
         File testFile = tempDir.resolve("DictZipHeader.dz").toFile();
         FileOutputStream outFile = new FileOutputStream(testFile);
         DictZipHeader header = new DictZipHeader(1024, 256);
@@ -242,7 +245,7 @@ public class DictZipHeaderTest {
         DictZipHeader.writeHeader(header, outFile);
         outFile.close();
         String expectedHeader = this.getClass().getResource("/test.header.dz").getFile();
-        assertTrue(contentEquals(testFile, new File(expectedHeader), 8, 45));
+        assertTrue(FileUtils2.contentEquals(testFile, new File(expectedHeader), 8, 45));
         testFile.deleteOnExit();
     }
 }

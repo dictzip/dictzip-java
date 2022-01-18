@@ -44,6 +44,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class FileUtils2 {
 
+    private FileUtils2() { }
+
     /**
      * Compare file contents in range. Both files must be files (not directories) and exist.
      *

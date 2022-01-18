@@ -7,6 +7,10 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Test of DictZipFileUtils.
+ * @author Hiroshi Miura
+ */
 public class DictZipFileUtilsTest {
 
     /**
