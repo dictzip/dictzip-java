@@ -52,6 +52,7 @@ public class DictZipInputStream extends InflaterInputStream {
     private long compLength = 0;
 
     private int offset = 0;
+    private long rawOffset = 0;
 
     private static final int BUF_LEN = 8192;
 
@@ -114,7 +115,16 @@ public class DictZipInputStream extends InflaterInputStream {
     public final void close() throws IOException {
         inf.end();
         in.close();
+        rawOffset = -1L;
         eos = true;
+    }
+
+    /**
+     * Get raw content offset in bytes.
+     * @return offset.
+     */
+    public final long getPos() {
+        return rawOffset;
     }
 
     /**
@@ -165,6 +175,7 @@ public class DictZipInputStream extends InflaterInputStream {
             eos = true;
         } else {
             crc.update(buffer, off, readLen);
+            rawOffset += readLen;
         }
         return readLen;
     }
@@ -196,6 +207,7 @@ public class DictZipInputStream extends InflaterInputStream {
                 throw new EOFException();
             }
             num += count;
+            rawOffset += count;
         }
     }
 
@@ -219,6 +231,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * @throws IOException when instance is not a RandomAccessInputStream.
      */
     public void seek(final long next) throws IOException {
+        rawOffset = next;
         if (in instanceof RandomAccessInputStream) {
             RandomAccessInputStream rain = (RandomAccessInputStream) in;
             offset = header.getOffset(next);
@@ -320,7 +333,7 @@ public class DictZipInputStream extends InflaterInputStream {
     void readTrailer() throws IOException {
         if (in instanceof RandomAccessInputStream) {
             RandomAccessInputStream rain = (RandomAccessInputStream) in;
-            compLength = rain.getLength();
+            compLength = rain.length();
             rain.seek(compLength - 8);
             crcVal = DictZipFileUtils.readUInt(rain);
             totalLength = DictZipFileUtils.readUInt(rain);
