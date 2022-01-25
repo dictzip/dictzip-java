@@ -91,4 +91,21 @@ public class RandomAccessOutputStream extends OutputStream {
         out.seek(pos);
     }
 
+    /**
+     * Get file position;
+     * @return position
+     * @throws IOException if on I/O error occurred
+     */
+    public final long position() throws IOException {
+        return out.getFilePointer();
+    }
+
+    /**
+     * Get file length.
+     * @return length of file.
+     * @throws IOException when on I/O error occurred
+     */
+    public final long length() throws IOException {
+        return out.length();
+    }
 }

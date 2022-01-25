@@ -82,8 +82,8 @@ public class RandomAccessInputStreamTest {
     @Test
     public void testGetLength() throws Exception {
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
-        int expResult = 136856;
-        int result = instance.getLength();
+        long expResult = 136856L;
+        long result = instance.length();
         assertEquals(result, expResult);
     }
 
@@ -94,8 +94,8 @@ public class RandomAccessInputStreamTest {
     @Test
     public void testGetPos() throws Exception {
         RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
-        int expResult = 0;
-        int result = instance.getPos();
+        long expResult = 0L;
+        long result = instance.position();
         assertEquals(result, expResult);
     }
 

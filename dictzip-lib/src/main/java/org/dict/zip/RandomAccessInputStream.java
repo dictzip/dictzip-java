@@ -34,7 +34,7 @@ public class RandomAccessInputStream extends InputStream {
 
     private RandomAccessFile in;
 
-    private int mark = 0;
+    private long mark = 0;
 
     /**
      * Construct RandomAccessInputStream from file.
@@ -58,7 +58,11 @@ public class RandomAccessInputStream extends InputStream {
 
     @Override
     public final int available() throws IOException {
-        return getLength() - getPos();
+        long available =  length() - position();
+        if (available > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) available;
     }
 
     @Override
@@ -72,9 +76,14 @@ public class RandomAccessInputStream extends InputStream {
      * @return length of file in byte.
      * @exception IOException if an I/O error has occurred.
      */
-    public final int getLength() throws IOException {
-        return (int) in.length();
+    public final long length() throws IOException {
+        return in.length();
     }
+
+    public final int getLength() throws IOException {
+        return (int) length();
+    }
+
 
     /**
      * Get cursor position.
@@ -82,14 +91,19 @@ public class RandomAccessInputStream extends InputStream {
      * @return position in byte.
      * @exception IOException if an I/O error has occurred.
      */
+    public final long position() throws IOException {
+        return in.getFilePointer();
+    }
+
+    @Deprecated
     public final int getPos() throws IOException {
-        return (int) in.getFilePointer();
+        return (int) position();
     }
 
     @Override
     public final synchronized void mark(final int markpos) {
         try {
-            mark = getPos();
+            mark = position();
         } catch (IOException e) {
             throw new RuntimeException(e.toString());
         }
