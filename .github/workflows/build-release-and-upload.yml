@@ -20,7 +20,7 @@ jobs:
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
     - uses: gradle/gradle-build-action@v2
-    - run: ./gradlew check
+    - run: ./gradlew check build assemble
       env:
         CI: true
     - name: Create Release
