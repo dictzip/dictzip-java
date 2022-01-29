@@ -13,7 +13,7 @@ just add a dependency.
 
 ```
 dependencies {
-    implementation 'io.github.dictzip:dictzip:0.10.3'
+    implementation 'io.github.dictzip:dictzip:0.11.0'
 }
 ```
 

@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.11.0] - 2022-01-30
+### Fixed
+- Fix EOFException on some archive when read
+
+### Changed
+- Introduce length and position method that return size and content position as long  
+  - DictZipInputStream#length
+  - DictZipInputStream#position
+  - RandomAccessInputStream#position
+  - RandomAccessOutputStream#position
+
+### Deprecated
+- RandomAccessInputStream#getPos method that return int.
+
 ## [0.10.3] - 2022-01-18
 ### Fixed
 - Release actions script
