@@ -111,6 +111,22 @@ public class DictZipInputStreamTest {
         }
     }
 
+    @Test
+    public void testMarkReset() throws Exception {
+        int len = 10;
+        byte[] buf1 = new byte[len];
+        byte[] buf2 = new byte[len];
+        byte[] buf3 = new byte[len];
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"))) {
+            assertTrue(din.markSupported());
+            din.read(buf1, 0, len);
+            din.mark(20);
+            din.read(buf2, 0, len);
+            din.reset();
+            din.read(buf3, 0, len);
+            assertTrue(Arrays.equals(buf2, buf3));
+        }
+    }
     /**
      * Test of read method, of class DictZipInputStream.
      * @throws Exception when i/o error.
