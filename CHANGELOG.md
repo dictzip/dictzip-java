@@ -2,10 +2,13 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+## [0.11.1] - 2022-01-30
+### Added
+- Support mark/reset method in DictZipInputStream(#43)
 
 ## [0.11.0] - 2022-01-30
 ### Fixed
-- Fix EOFException on some archive when read
+- Fix EOFException on some archive when read(#42)
 
 ### Changed
 - Introduce length and position method that return size and content position as long  
@@ -25,7 +28,7 @@ All notable changes to this project will be documented in this file.
 ## [0.10.0] - 2022-01-18
 
 ### Fixed
-- DictZipOutputStream to produce good archive.
+- DictZipOutputStream to produce good archive.(#38)
   all old versions of dictzip-java produce broken archive.
 
 ## Changed
@@ -180,7 +183,9 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.10.3...HEAD
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.11.1...HEAD
+[0.11.1]: https://github.com/dictzip/dictzip-java/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/dictzip/dictzip-java/compare/v0.10.3...v0.11.0
 [0.10.3]: https://github.com/dictzip/dictzip-java/compare/v0.10.0...v0.10.3
 [0.10.0]: https://github.com/dictzip/dictzip-java/compare/v0.9.5...v0.10.0
 [0.9.5]: https://github.com/dictzip/dictzip-java/compare/v0.9.2...v0.9.5
