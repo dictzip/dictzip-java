@@ -56,6 +56,9 @@ public class DictZipInputStream extends InflaterInputStream {
 
     private static final int BUF_LEN = 8192;
 
+    private int markOffset = -1;
+    private long mark;
+
     /**
      * Indicates end of input stream.
      */
@@ -129,6 +132,28 @@ public class DictZipInputStream extends InflaterInputStream {
         return rawOffset;
     }
 
+    @Override
+    public final boolean markSupported() {
+        return true;
+    }
+
+    @Override
+    public final void mark(final int markOffset) {
+        if (markOffset < 0) {
+            throw new IllegalArgumentException("markOffset should be positive number.");
+        }
+        this.markOffset = markOffset;
+        mark = position();
+    }
+
+    @Override
+    public final void reset() throws IOException {
+        if (markOffset == -1 || position() > mark + markOffset || position() < mark - markOffset) {
+            throw new IOException("Cannot reset to mark because offset overcome.");
+        }
+        seek(mark);
+    }
+
     /**
      * Reads uncompressed data into an array of bytes. Blocks until enough input is available for
      * decompression.
@@ -178,6 +203,12 @@ public class DictZipInputStream extends InflaterInputStream {
         } else {
             crc.update(buffer, off, readLen);
             rawOffset += readLen;
+        }
+        // check mark/markOffset
+        if (markOffset >= 0) {
+            if (position() > mark + markOffset) {
+                markOffset = -1;
+            }
         }
         return readLen;
     }

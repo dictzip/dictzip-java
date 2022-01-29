@@ -139,9 +139,9 @@ project(':dictzip-lib') {
     }
 
     signing {
-        def signingKey = findProperty("signingKey").toString()
-        def signingPassword = findProperty("signingPassword").toString()
-        if (signingKey) {
+        if (project.hasProperty("signingKey")) {
+            def signingKey = findProperty("signingKey").toString()
+            def signingPassword = findProperty("signingPassword").toString()
             useInMemoryPgpKeys(signingKey, signingPassword)
         } else {
             useGpgCmd()
