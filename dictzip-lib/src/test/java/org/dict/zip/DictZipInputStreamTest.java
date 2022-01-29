@@ -57,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class DictZipInputStreamTest {
 
     private final String dataFile = this.getClass().getResource("/test.dict.dz").getFile();
+    private final String dataFile2 = this.getClass().getResource("/test.dsl.dz").getFile();
 
     /**
      * Test constructor @TestFactory.
@@ -90,7 +91,21 @@ public class DictZipInputStreamTest {
         byte[] buf = new byte[len];
         byte[] expResult = {0x70, 0x72, (byte) 0xc3, (byte) 0xa9, 0x70, 0x2e, 0x20, 0x3a, 0x20, 0x2b};
         try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile, "r"), 65534)) {
-            din.seek(0);
+            din.read(buf, 0, len);
+            assertTrue(Arrays.equals(expResult, buf));
+        }
+    }
+
+    /**
+     * Test of read method with another file, of class DictZipInputStream.
+     * @throws Exception when i/o error.
+     */
+    @Test
+    public void testRead2() throws Exception {
+        int len = 10;
+        byte[] buf = new byte[len];
+        byte[] expResult = {(byte)0xFF, (byte)0xFE, 35, 0, 78, 0, 65, 0, 77, 0};
+        try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile2, "r"))) {
             din.read(buf, 0, len);
             assertTrue(Arrays.equals(expResult, buf));
         }

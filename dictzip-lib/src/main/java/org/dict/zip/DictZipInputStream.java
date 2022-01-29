@@ -103,7 +103,9 @@ public class DictZipInputStream extends InflaterInputStream {
     public DictZipInputStream(final RandomAccessInputStream in, final int size) throws IOException {
         super(in, new Inflater(true), size);
         header = readHeader();
+        in.mark(in.getLength());
         readTrailer();
+        in.reset();
     }
 
     /**
@@ -123,7 +125,7 @@ public class DictZipInputStream extends InflaterInputStream {
      * Get raw content offset in bytes.
      * @return offset.
      */
-    public final long getPos() {
+    public final long position() {
         return rawOffset;
     }
 
