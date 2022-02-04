@@ -100,6 +100,9 @@ public class RandomAccessInputStream extends InputStream {
         return (int) position();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final synchronized void mark(final int markpos) {
         try {
@@ -109,16 +112,25 @@ public class RandomAccessInputStream extends InputStream {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final boolean markSupported() {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final synchronized int read() throws IOException {
         return in.read();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final int read(final byte[] buf, final int off, final int len) throws IOException {
         return in.read(buf, off, len);
@@ -134,6 +146,9 @@ public class RandomAccessInputStream extends InputStream {
         in.readFully(buf);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final synchronized void reset() throws IOException {
         in.seek(mark);
@@ -149,8 +164,11 @@ public class RandomAccessInputStream extends InputStream {
         in.seek(pos);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final long skip(final long size) throws IOException {
-        return (long) in.skipBytes((int) size);
+        return in.skipBytes((int) size);
     }
 }
