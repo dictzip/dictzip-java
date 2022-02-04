@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -11,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Test of DictZipFileUtils.
  * @author Hiroshi Miura
  */
-public class DictZipFileUtilsTest {
+public class DictZipFilesTest {
 
     /**
      * Check dictzip inputstream.
@@ -19,8 +22,8 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testCheckDictZipInputStreamString() throws Exception {
-        String targetFile = this.getClass().getResource("/test.dict.dz").getFile();
-        Assertions.assertTrue(DictZipFileUtils.checkDictZipInputStream(targetFile));
+        String targetFile = Objects.requireNonNull(this.getClass().getResource("/test.dict.dz")).getFile();
+        Assertions.assertTrue(DictZipFiles.checkDictZipFile(targetFile));
     }
 
     /**
@@ -31,7 +34,7 @@ public class DictZipFileUtilsTest {
         String targetFile = "false.dict.dz";
         boolean result;
         try {
-            DictZipFileUtils.checkDictZipInputStream(targetFile);
+            DictZipFiles.checkDictZipFile(targetFile);
             result = false;
         } catch (IOException e) {
             // expected.
@@ -46,10 +49,9 @@ public class DictZipFileUtilsTest {
      */
     @Test
     public void testCheckDictZipInputStream() throws Exception {
-        String targetFile = this.getClass().getResource("/test.dict.dz").getFile();
-        try (DictZipInputStream dzin = new DictZipInputStream(new
-                RandomAccessInputStream(targetFile, "r"))) {
-            Assertions.assertTrue(DictZipFileUtils.checkDictZipInputStream(dzin));
+        URI targetFile = this.getClass().getResource("/test.dict.dz").toURI();
+        try (DictZipInputStream dzin = DictZipFiles.newDictZipInputStream(Paths.get(targetFile))) {
+            Assertions.assertTrue(DictZipFiles.checkDictZipInputStream(dzin));
         }
     }
 }

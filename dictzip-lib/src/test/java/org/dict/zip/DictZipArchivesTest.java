@@ -60,7 +60,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test archive creation and extraction.
  */
-public class DictZipFileTest {
+public class DictZipArchivesTest {
 
     private static final int BUF_LEN = 58315;
 
