@@ -79,41 +79,26 @@ public final class DictZipFileUtils {
 
     /**
      * Check gzip member stream w/ CRC and length in trailer.
+     * @see DictZipFiles#checkDictZipFile
      * @param filename to be checked.
      * @return true if it is a valid dictzip file, otherwise false.
      * @throws IOException when CRC error or total length error.
      */
+    @Deprecated
     public static boolean checkDictZipInputStream(final String filename) throws IOException {
-        boolean result;
-        try (DictZipInputStream dzin = new DictZipInputStream(new
-                RandomAccessInputStream(filename, "r"))) {
-            result = checkDictZipInputStream(dzin);
-            dzin.close();
-        }
-        return result;
+        return DictZipFiles.checkDictZipFile(filename);
     }
 
     /**
      * Check gzip member stream w/ CRC and length in trailer.
+     * @see DictZipFiles#checkDictZipInputStream
      * @param in inputstream to be checked.
      * @return true if inputstream is a valid dictzip, otherwise false.
      * @throws IOException when CRC error or total length error.
      */
+    @Deprecated
     public static boolean checkDictZipInputStream(final DictZipInputStream in) throws IOException {
-        byte[] tmpBuf = new byte[CHECK_BUF_LEN];
-        in.seek(0);
-        long readLen = 0;
-        while (readLen < in.getLength()) {
-            int len = in.read(tmpBuf, 0, CHECK_BUF_LEN);
-            if (len < 0) {
-                break;
-            }
-            readLen += len;
-        }
-        if (readLen != in.getLength()) {
-            return false;
-        }
-        return true;
+        return DictZipFiles.checkDictZipInputStream(in);
     }
 
     private DictZipFileUtils() {

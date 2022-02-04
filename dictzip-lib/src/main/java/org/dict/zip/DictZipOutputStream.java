@@ -74,7 +74,7 @@ public class DictZipOutputStream extends FilterOutputStream {
     /**
      * Constructor.
      * @param out output stream to filter.
-     * @param size total data of test file.
+     * @param size total data of file.
      * @throws IOException if I/O error occored.
      * @throws IllegalArgumentException if parameter is invalid.
      */
@@ -87,7 +87,7 @@ public class DictZipOutputStream extends FilterOutputStream {
      * Constructor.
      * @param out output stream to filter.
      * @param buflen size of buffer to write.
-     * @param size total data of test file.
+     * @param size total data of file.
      * @throws IOException if I/O error occurred.
      * @throws IllegalArgumentException if parameter is invalid.
      */

@@ -3,7 +3,7 @@
  *
  * This is a part of DictZip-java library.
  *
- * Copyright (C) 2016 Hiroshi Miura
+ * Copyright (C) 2016,2022 Hiroshi Miura
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 
 package org.dict.zip.cli;
 
-import org.dict.zip.DictZipFileUtils;
+import org.dict.zip.DictZipFiles;
 import org.dict.zip.DictZipHeader.CompressionLevel;
 
 import java.io.File;
@@ -67,7 +67,7 @@ public final class Main {
                 } else if (commandLine.options.isTest()) {
                     boolean result = false;
                     try {
-                        result = DictZipFileUtils.checkDictZipInputStream(fName);
+                        result = DictZipFiles.checkDictZipFile(fName);
                     } catch (IOException e) {
                         System.err.println(e.getMessage());
                         System.exit(2);
