@@ -104,13 +104,17 @@ public class DictZipInputStreamTest {
     public void testRead2() throws Exception {
         int len = 10;
         byte[] buf = new byte[len];
-        byte[] expResult = {(byte)0xFF, (byte)0xFE, 35, 0, 78, 0, 65, 0, 77, 0};
+        byte[] expResult = {(byte) 0xFF, (byte) 0xFE, 35, 0, 78, 0, 65, 0, 77, 0};
         try (DictZipInputStream din = new DictZipInputStream(new RandomAccessInputStream(dataFile2, "r"))) {
             din.read(buf, 0, len);
             assertTrue(Arrays.equals(expResult, buf));
         }
     }
 
+    /**
+     * Test mark and reset methods.
+     * @throws Exception when i/o error.
+     */
     @Test
     public void testMarkReset() throws Exception {
         int len = 10;
