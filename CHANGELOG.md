@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [0.11.2] - 2022-02-05
+### Added
+- NIO aware methods to create objects
+  - DictZipFiles.newDictZipInputStream
+  - DictZipFiles.newDictZipOutputStream
+  - DictZipFiles.newRandomAccessInputStream
+  - DictZipFiles.newRandonAccessOutputStream
+- Move check methods to DictZipFiles class
+  - DictZipFiles.checkDictZipInputStream
+  - DictZipFiles.checkDictZipFile
+
+### Deprecated
+- Deprecate check methods in DictZipUtils class
+
 ## [0.11.1] - 2022-01-30
 ### Added
 - Support mark/reset method in DictZipInputStream(#43)
@@ -183,7 +198,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.11.1...HEAD
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.11.2...HEAD
+[0.11.2]: https://github.com/dictzip/dictzip-java/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/dictzip/dictzip-java/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/dictzip/dictzip-java/compare/v0.10.3...v0.11.0
 [0.10.3]: https://github.com/dictzip/dictzip-java/compare/v0.10.0...v0.10.3
