@@ -92,7 +92,7 @@ public class RandomAccessOutputStream extends OutputStream {
     }
 
     /**
-     * Get file position;
+     * Get file position.
      * @return position
      * @throws IOException if on I/O error occurred
      */
