@@ -14,6 +14,7 @@ jobs:
     - name: install dictzip command
       run: sudo apt-get install -y dictzip
     - uses: gradle/gradle-build-action@v2
+    - uses: kiancross/checkstyle-annotations-action@v1
     - run: ./gradlew check
       env:
         CI: true
