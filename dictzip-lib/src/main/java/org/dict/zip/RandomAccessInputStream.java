@@ -26,15 +26,29 @@ import java.io.RandomAccessFile;
 
 /**
  * RandomAccessInputStream.
+ * Buffering RandomAccessFile and provide InputStream interface.
  *
  * @author Ho Ngoc Duc
  * @author Hiroshi Miura
  */
 public class RandomAccessInputStream extends InputStream {
-
+    private static final int DEFAULT_BUFSIZE = 4096;
     private RandomAccessFile in;
+    private byte inbuf[];
+
+    private long currentpos = 0;
+    private long startpos = -1;
+    private long endpos = -1;
 
     private long mark = 0;
+
+    private int bufsize;
+
+    public RandomAccessInputStream(final RandomAccessFile inFile, final int bufsize) {
+        this.in = inFile;
+        this.bufsize = bufsize;
+        inbuf = new byte[bufsize];
+    }
 
     /**
      * Construct RandomAccessInputStream from file.
@@ -42,7 +56,7 @@ public class RandomAccessInputStream extends InputStream {
      * @param inFile RandomAccessFile
      */
     public RandomAccessInputStream(final RandomAccessFile inFile) {
-        this.in = inFile;
+        this(inFile, DEFAULT_BUFSIZE);
     }
 
     /**
@@ -92,7 +106,7 @@ public class RandomAccessInputStream extends InputStream {
      * @exception IOException if an I/O error has occurred.
      */
     public final long position() throws IOException {
-        return in.getFilePointer();
+        return currentpos;
     }
 
     @Deprecated
@@ -105,11 +119,7 @@ public class RandomAccessInputStream extends InputStream {
      */
     @Override
     public final synchronized void mark(final int markpos) {
-        try {
-            mark = position();
-        } catch (IOException e) {
-            throw new RuntimeException(e.toString());
-        }
+        mark = currentpos;
     }
 
     /**
@@ -125,7 +135,26 @@ public class RandomAccessInputStream extends InputStream {
      */
     @Override
     public final synchronized int read() throws IOException {
-        return in.read();
+        return read(currentpos++);
+    }
+
+    public int read(long pos) {
+        if (pos < startpos || pos > endpos) {
+            long blockstart = (pos/ bufsize) * bufsize;
+            int n;
+            try {
+                in.seek(blockstart);
+                n = in.read(inbuf);
+            } catch (IOException e) {
+                return -1;
+            }
+            startpos = blockstart;
+            endpos = blockstart + n - 1;
+            if (pos < startpos || pos > endpos) {
+                return -1;
+            }
+        }
+        return inbuf[(int) (pos - startpos)] & 0xff;
     }
 
     /**
@@ -133,7 +162,17 @@ public class RandomAccessInputStream extends InputStream {
      */
     @Override
     public final int read(final byte[] buf, final int off, final int len) throws IOException {
-        return in.read(buf, off, len);
+        int idx = 0;
+        while (idx < len) {
+            int c = read(currentpos);
+            if (c == -1) {
+                return idx;
+            } else {
+                buf[off + idx++] = (byte) c;
+                currentpos++;
+            }
+        }
+        return idx;
     }
 
     /**
@@ -143,7 +182,15 @@ public class RandomAccessInputStream extends InputStream {
      * @exception IOException if an I/O error has occurred.
      */
     public final void readFully(final byte[] buf) throws IOException {
-        in.readFully(buf);
+        int idx = 0;
+        while (idx < buf.length) {
+            int c = read(currentpos);
+            if (c == -1) {
+                throw new IOException();
+            }
+            buf[idx++] = (byte) c;
+            currentpos++;
+        }
     }
 
     /**
@@ -151,7 +198,7 @@ public class RandomAccessInputStream extends InputStream {
      */
     @Override
     public final synchronized void reset() throws IOException {
-        in.seek(mark);
+        currentpos = mark;
     }
 
     /**
@@ -161,7 +208,7 @@ public class RandomAccessInputStream extends InputStream {
      * @exception IOException if an I/O error has occurred.
      */
     public final void seek(final long pos) throws IOException {
-        in.seek(pos);
+        currentpos = pos;
     }
 
     /**
@@ -169,6 +216,11 @@ public class RandomAccessInputStream extends InputStream {
      */
     @Override
     public final long skip(final long size) throws IOException {
-        return in.skipBytes((int) size);
+        if (currentpos + size > length()) {
+            currentpos = length();
+        } else {
+            currentpos += size;
+        }
+        return currentpos;
     }
 }
