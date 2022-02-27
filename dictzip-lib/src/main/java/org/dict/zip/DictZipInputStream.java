@@ -24,6 +24,9 @@ package org.dict.zip;
 import java.io.EOFException;
 import java.io.IOException;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.util.zip.CRC32;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
@@ -63,6 +66,8 @@ public class DictZipInputStream extends InflaterInputStream {
      * Indicates end of input stream.
      */
     private boolean eos;
+
+    private FileChannel fileChannel;
 
     /*
      * Super class has three protected variables.
@@ -105,10 +110,11 @@ public class DictZipInputStream extends InflaterInputStream {
      */
     public DictZipInputStream(final RandomAccessInputStream in, final int size) throws IOException {
         super(in, new Inflater(true), size);
+        fileChannel = in.getChannel();
         header = readHeader();
-        in.mark(in.getLength());
+        long pos = in.position();
         readTrailer();
-        in.reset();
+        in.seek(pos);
     }
 
     /**
@@ -122,6 +128,7 @@ public class DictZipInputStream extends InflaterInputStream {
         in.close();
         rawOffset = -1L;
         eos = true;
+        fileChannel = null;
     }
 
     /**
@@ -252,7 +259,7 @@ public class DictZipInputStream extends InflaterInputStream {
      */
     private DictZipHeader readHeader() throws IOException {
         if (header == null) {
-            header = DictZipHeader.readHeader(in, crc);
+            header = DictZipHeader.readHeader(fileChannel, crc);
             crc.reset();
         }
         return header;
@@ -364,14 +371,12 @@ public class DictZipInputStream extends InflaterInputStream {
      * @throws java.io.IOException If file I/O error
      */
     void readTrailer() throws IOException {
-        if (in instanceof RandomAccessInputStream) {
-            RandomAccessInputStream rain = (RandomAccessInputStream) in;
-            compLength = rain.length();
-            rain.seek(compLength - 8);
-            crcVal = DictZipFileUtils.readUInt(rain);
-            totalLength = DictZipFileUtils.readUInt(rain);
-        } else {
-            throw new IOException("Illegal type of InputStream.");
-        }
+        compLength = fileChannel.size();
+        fileChannel.position(compLength - 8);
+        ByteBuffer buf = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+        fileChannel.read(buf);
+        buf.flip();
+        crcVal = buf.getInt() & 0xffffffffL;
+        totalLength = buf.getInt() & 0xffffffffL;
     }
 }

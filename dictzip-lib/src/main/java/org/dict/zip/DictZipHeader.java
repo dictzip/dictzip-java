@@ -38,18 +38,20 @@
 
 package org.dict.zip;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.BitSet;
 import java.util.zip.CRC32;
-import java.util.zip.CheckedInputStream;
 import java.util.zip.Deflater;
+
+import static java.lang.System.in;
 
 /**
  * DictZip header structure and handler.
@@ -187,12 +189,11 @@ public class DictZipHeader {
     public static DictZipHeader readHeader(final String s) throws IOException {
         DictZipHeader h = new DictZipHeader();
         CRC32 crc = new CRC32();
-        InputStream in = new FileInputStream(s);
-        readHeader(h, in, crc);
-        in.close();
+        FileChannel channel = FileChannel.open(Paths.get(s), StandardOpenOption.READ);
+        readHeader(h, channel, crc);
+        channel.close();
         return h;
     }
-
 
     /**
      * Read dictzip header from file.
@@ -202,10 +203,16 @@ public class DictZipHeader {
      * @return dictzip header object.
      * @throws IOException when error in file read.
      */
-    public static DictZipHeader readHeader(final InputStream is, final CRC32 crc)
+    public static DictZipHeader readHeader(final RandomAccessInputStream is, final CRC32 crc)
             throws IOException {
         DictZipHeader h = new DictZipHeader();
         readHeader(h, is, crc);
+        return h;
+    }
+
+    public static DictZipHeader readHeader(final FileChannel channel, final CRC32 crc) throws IOException {
+        DictZipHeader h = new DictZipHeader();
+        readHeader(h, channel, crc);
         return h;
     }
 
@@ -215,31 +222,35 @@ public class DictZipHeader {
      * @param h return dictzip header values.
      * @param is input stream for retrieve header.
      * @param crc CRC32 value for check.
-     * @throws IOException when error in file read.
      */
-    private static void readHeader(final DictZipHeader h, final InputStream is, final CRC32 crc)
-            throws IOException {
-        CheckedInputStream in = new CheckedInputStream(is, crc);
-        crc.reset();
+    private static void readHeader(final DictZipHeader h, final RandomAccessInputStream is, final CRC32 crc) throws IOException {
+        readHeader(h, is.getChannel(), crc);
+    }
 
+    private static void readHeader(final DictZipHeader h, final FileChannel channel, final CRC32 crc) throws IOException {
+        crc.reset();
+        ByteBuffer buffer = ByteBuffer.allocate(GZIP_HEADER_LEN);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
         // Check header magic
-        if (DictZipFileUtils.readUShort(in) != GZIP_MAGIC) {
+        channel.read(buffer);
+        buffer.flip();
+        if (GZIP_MAGIC != (buffer.getShort() & 0xffff)) {
             throw new IOException("Not in GZIP format");
         }
         // Check compression method
-        if (DictZipFileUtils.readUByte(in) != Deflater.DEFLATED) {
+        if (Deflater.DEFLATED != (buffer.get() & 0xff)) {
             throw new IOException("Unsupported compression method");
         }
         // Read flags
-        int flg = DictZipFileUtils.readUByte(in);
+        int flg = buffer.get() & 0xff;
         for (int i = 0; i < GZIPFLAG_SIZE; i++) {
             int testbit = 1 << i;
             if ((flg & testbit) == testbit) {
                 h.gzipFlag.set(i);
             }
         }
-        h.mtime = DictZipFileUtils.readUInt(in);
-        int compFlg = DictZipFileUtils.readUByte(in);
+        h.mtime = buffer.getInt() & 0xffffffffL;
+        int compFlg = buffer.get() & 0xff;
         if (compFlg == 0x02) {
             h.extraFlag = CompressionLevel.BEST_COMPRESSION;
         } else if (compFlg == 0x04) {
@@ -249,7 +260,7 @@ public class DictZipHeader {
         } else {
             throw new IOException("Corrupt GZIP header");
         }
-        int hos = DictZipFileUtils.readUByte(in);
+        int hos = buffer.get() & 0xff;
         h.headerOS = OperatingSystem.UNKNOWN;
         for (OperatingSystem os: OperatingSystem.values()) {
             if (hos == os.value) {
@@ -257,44 +268,86 @@ public class DictZipHeader {
                 break;
             }
         }
+        buffer.rewind();
+        crc.update(buffer);
         h.headerLength = GZIP_HEADER_LEN;
         // Optional extra field
         if (h.gzipFlag.get(FEXTRA)) {
-            h.extraLength = DictZipFileUtils.readUShort(in);
+            buffer = ByteBuffer.allocate(12).order(ByteOrder.LITTLE_ENDIAN);
+            channel.read(buffer);
+            buffer.flip();
+            h.extraLength = buffer.getShort() & 0xffff;
             h.headerLength += h.extraLength + 2;
-            h.subfieldID1 = (byte) DictZipFileUtils.readUByte(in);
-            h.subfieldID2 = (byte) DictZipFileUtils.readUByte(in);
-            h.subfieldLength = DictZipFileUtils.readUShort(in); // 2 bytes subfield length
-            h.subfieldVersion = DictZipFileUtils.readUShort(in); // 2 bytes subfield version
-            h.chunkLength = DictZipFileUtils.readUShort(in); // 2 bytes chunk length
-            h.chunkCount = DictZipFileUtils.readUShort(in); // 2 bytes chunk count
+            h.subfieldID1 = buffer.get();
+            h.subfieldID2 = buffer.get();
+            h.subfieldLength = buffer.getShort() & 0xffff; // 2 bytes subfield length
+            h.subfieldVersion = buffer.getShort() & 0xffff;  // 2 bytes subfield version
+            h.chunkLength = buffer.getShort() & 0xffff; // 2 bytes chunk length
+            h.chunkCount = buffer.getShort() & 0xffff; // 2 bytes chunk count
             h.chunks = new int[h.chunkCount];
+            buffer.rewind();
+            crc.update(buffer);
+            buffer = ByteBuffer.allocate(h.chunkCount * 2).order(ByteOrder.LITTLE_ENDIAN);
+            channel.read(buffer);
+            buffer.flip();
             for (int i = 0; i < h.chunkCount; i++) {
-                h.chunks[i] = DictZipFileUtils.readUShort(in);
+                h.chunks[i] = buffer.getShort() & 0xffff;
             }
+            buffer.rewind();
+            crc.update(buffer);
         }
+        final int BUF_LEN = 256;
+        buffer = ByteBuffer.allocate(BUF_LEN).order(ByteOrder.LITTLE_ENDIAN);
+        channel.read(buffer);
+        buffer.flip();
         // Skip optional file name
         if (h.gzipFlag.get(FNAME)) {
             StringBuilder sb = new StringBuilder();
             int ubyte;
-            while ((ubyte = DictZipFileUtils.readUByte(in)) != 0) {
+            while ((ubyte = buffer.get() & 0xff) != 0) {
                 sb.append((char) (ubyte & 0xff));
                 h.headerLength++;
+                if (!buffer.hasRemaining()) {
+                    buffer.rewind();
+                    crc.update(buffer);
+                    buffer.clear();
+                    channel.read(buffer);
+                    buffer.flip();
+                }
             }
             h.filename = sb.toString();
             h.headerLength++;
         }
         // Skip optional file comment
         if (h.gzipFlag.get(FCOMMENT)) {
-            while (DictZipFileUtils.readUByte(in) != 0) {
+            while (buffer.get() != 0) {
                 h.headerLength++;
+                if (!buffer.hasRemaining()) {
+                    buffer.rewind();
+                    crc.update(buffer);
+                    buffer.clear();
+                    channel.read(buffer);
+                    buffer.flip();
+                }
             }
             h.headerLength++;
         }
         // Check optional header CRC
         if (h.gzipFlag.get(FHCRC)) {
+            if (!buffer.hasRemaining()) {
+                buffer.rewind();
+                crc.update(buffer);
+                buffer.clear();
+                channel.read(buffer);
+                buffer.flip();
+            }
+            int pos = buffer.position();
+            int ref = buffer.getShort() & 0xffff;
+            buffer.position(pos);
+            buffer.flip();
+            crc.update(buffer);
             int v = (int) crc.getValue() & 0xffff;
-            if (DictZipFileUtils.readUShort(in) != v) {
+            if (v != ref) {
                 throw new IOException("Corrupt GZIP header");
             }
             h.headerLength += 2;
@@ -304,15 +357,10 @@ public class DictZipHeader {
 
     @Override
     public final String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\nHeader length = ").append(headerLength);
-        sb.append("\nSubfield ID = ").append((char) subfieldID1).append((char) subfieldID2);
-        sb.append("\nSubfield length = ").append(subfieldLength);
-        sb.append("\nSubfield version = ").append(subfieldVersion);
-        sb.append("\nChunk length = ").append(chunkLength);
-        sb.append("\nNumber of chunks = ").append(chunkCount);
-        sb.append("\nLength of member = ").append(getMemberLength());
-        return sb.toString();
+        return String.format("\nHeader length = %d\nSubfield ID = %s%s\nSubfield length = %d\nSubfield version = %d\n" +
+                        "Chunk length = %d\nNumber of chunks = %d\nLength of member = %d",
+                headerLength, (char) subfieldID1, (char) subfieldID2, subfieldLength, subfieldVersion, chunkLength,
+                chunkCount, getMemberLength());
     }
 
     /**
@@ -337,8 +385,8 @@ public class DictZipHeader {
         bb.put((byte) h.extraFlag.value);
         bb.put((byte) h.headerOS.value);
         bb.putShort((short) h.extraLength);
-        bb.put((byte) h.subfieldID1);
-        bb.put((byte) h.subfieldID2);
+        bb.put(h.subfieldID1);
+        bb.put(h.subfieldID2);
         bb.putShort((short) h.subfieldLength);
         bb.putShort((short) h.subfieldVersion);
         bb.putShort((short) h.chunkLength);
@@ -348,12 +396,12 @@ public class DictZipHeader {
             DictZipFileUtils.writeShort(out, h.chunks[i]);
             chunkbb.putShort((short) h.chunks[i]);
         }
-        headerCrc.update(bb.array());
-        headerCrc.update(chunkbb.array());
+        headerCrc.update(bb);
+        headerCrc.update(chunkbb);
         if (h.gzipFlag.get(FNAME)) {
             if (h.filename != null) {
                 out.write(h.filename.getBytes(CHARSET));
-                headerCrc.update(h.filename.getBytes(CHARSET));
+                headerCrc.update(ByteBuffer.wrap(h.filename.getBytes(CHARSET)));
             }
             out.write(0);
             headerCrc.update(0);
@@ -361,7 +409,7 @@ public class DictZipHeader {
         if (h.gzipFlag.get(FCOMMENT)) {
             if (h.comment != null) {
                 out.write(h.comment.getBytes(CHARSET));
-                headerCrc.update(h.comment.getBytes(CHARSET));
+                headerCrc.update(ByteBuffer.wrap(h.comment.getBytes(CHARSET)));
             }
             out.write(0);
             headerCrc.update(0);
