@@ -353,6 +353,7 @@ public class DictZipHeader {
             h.headerLength += 2;
         }
         h.initOffsets();
+        channel.position(h.headerLength);
     }
 
     @Override
