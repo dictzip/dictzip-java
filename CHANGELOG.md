@@ -3,7 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.12.0] - 2022-02-27
+
+### Changed
+* RandomAccessInputStream now buffering input from RandomAccessFile class(#48)
+
+
 ## [0.11.2] - 2022-02-05
+
 ### Added
 - NIO aware methods to create objects
   - DictZipFiles.newDictZipInputStream
@@ -18,10 +25,12 @@ All notable changes to this project will be documented in this file.
 - Deprecate check methods in DictZipUtils class
 
 ## [0.11.1] - 2022-01-30
+
 ### Added
 - Support mark/reset method in DictZipInputStream(#43)
 
 ## [0.11.0] - 2022-01-30
+
 ### Fixed
 - Fix EOFException on some archive when read(#42)
 
@@ -36,6 +45,7 @@ All notable changes to this project will be documented in this file.
 - RandomAccessInputStream#getPos method that return int.
 
 ## [0.10.3] - 2022-01-18
+
 ### Fixed
 - Release actions script
 - Fix test case to pass when external dictzip does not exist
@@ -198,7 +208,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.11.2...HEAD
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/dictzip/dictzip-java/compare/v0.11.2...v0.12.0
 [0.11.2]: https://github.com/dictzip/dictzip-java/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/dictzip/dictzip-java/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/dictzip/dictzip-java/compare/v0.10.3...v0.11.0
