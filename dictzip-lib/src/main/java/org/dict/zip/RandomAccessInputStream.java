@@ -48,14 +48,12 @@ public class RandomAccessInputStream extends InputStream {
     private long startpos = -1;
     private long endpos = -1;
     private int bufsize;
-    private long fileSize;
 
     public RandomAccessInputStream(final RandomAccessFile inFile, final int bufsize) throws IOException {
         this.in = inFile;
         this.bufsize = bufsize;
         fileChannel = inFile.getChannel();
         byteBuffer = ByteBuffer.allocate(bufsize);
-        fileSize = fileChannel.size();
     }
 
     /**
@@ -76,6 +74,14 @@ public class RandomAccessInputStream extends InputStream {
      */
     public RandomAccessInputStream(final String file, final String mode) throws IOException {
         this(new RandomAccessFile(file, mode));
+    }
+
+    /**
+     * Get an unique FileChannel Object related to the file.
+     * @return FileChannel object.
+     */
+    public final FileChannel getChannel() {
+        return fileChannel;
     }
 
     @Override
@@ -100,7 +106,7 @@ public class RandomAccessInputStream extends InputStream {
      * @exception IOException if an I/O error has occurred.
      */
     public final long length() throws IOException {
-        return fileSize;
+        return fileChannel.size();
     }
 
     public final int getLength() throws IOException {
@@ -242,6 +248,7 @@ public class RandomAccessInputStream extends InputStream {
      */
     @Override
     public final long skip(final long size) throws IOException {
+        long fileSize = fileChannel.size();
         if (currentpos + size > fileSize) {
             currentpos = fileSize;
         } else {
