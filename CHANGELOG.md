@@ -3,11 +3,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.12.1] - 2022-02-28
+
+### Fixed
+* RrandomAccessInputStream return wrong postion() value after
+  call read() at end of file.(#51)
+
 ## [0.12.0] - 2022-02-27
 
 ### Changed
 * RandomAccessInputStream now buffering input from RandomAccessFile class(#48)
-
 
 ## [0.11.2] - 2022-02-05
 
@@ -208,7 +213,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.12.1...HEAD
+[0.12.1]: https://github.com/dictzip/dictzip-java/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/dictzip/dictzip-java/compare/v0.11.2...v0.12.0
 [0.11.2]: https://github.com/dictzip/dictzip-java/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/dictzip/dictzip-java/compare/v0.11.0...v0.11.1
