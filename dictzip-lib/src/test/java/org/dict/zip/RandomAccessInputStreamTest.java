@@ -202,4 +202,31 @@ public class RandomAccessInputStreamTest {
         long result = instance.skip(n);
         assertEquals(result, expResult);
     }
+
+    @Test
+    public void testLastByte() throws Exception {
+        RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
+        instance.seek(136854);
+        int c = instance.read();
+        assertEquals(5, c);
+        c = instance.read();
+        assertEquals(0, c);
+        c = instance.read();
+        assertEquals(-1, c);
+        long pos = instance.position();
+        assertEquals(136856, pos);
+    }
+
+    @Test
+    public void testLastBytes() throws Exception {
+        RandomAccessInputStream instance = new RandomAccessInputStream(dataFile, "r");
+        instance.seek(136848);
+        byte[] buf = new byte[9];
+        int len = instance.read(buf, 0, buf.length);
+        assertEquals(8, len);
+        assertEquals(5, buf[len - 2]);
+        assertEquals(0, buf[len - 1]);
+        long pos = instance.position();
+        assertEquals(136856, pos);
+    }
 }
