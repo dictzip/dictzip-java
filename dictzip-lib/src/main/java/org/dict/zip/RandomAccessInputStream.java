@@ -135,9 +135,21 @@ public class RandomAccessInputStream extends InputStream {
      */
     @Override
     public final synchronized int read() throws IOException {
-        return read(currentpos++);
+        int c = read(currentpos);
+        if (c == -1) {
+            return -1;
+        }
+        currentpos++;
+        return c;
     }
 
+    /**
+     * Read one byte from specified position.
+     * This method does not modify this stream's position.
+     * If the given position is greater than the file's current size then no bytes are read and return -1.
+     * @param pos position to read.
+     * @return -1 when position is greater than the file's current size, otherwise byte value.
+     */
     public int read(long pos) {
         if (pos < startpos || pos > endpos) {
             long blockstart = (pos/ bufsize) * bufsize;
