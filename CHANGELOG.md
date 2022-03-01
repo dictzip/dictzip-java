@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.12.2] - 2022-03-01
+
+### Fixed
+* Fix Out of bound error, because of readFully wrongly increment position.(#53)
+
 ## [0.12.1] - 2022-02-28
 
 ### Fixed
@@ -213,7 +218,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.12.1...HEAD
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.12.2...HEAD
+[0.12.2]: https://github.com/dictzip/dictzip-java/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/dictzip/dictzip-java/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/dictzip/dictzip-java/compare/v0.11.2...v0.12.0
 [0.11.2]: https://github.com/dictzip/dictzip-java/compare/v0.11.1...v0.11.2
