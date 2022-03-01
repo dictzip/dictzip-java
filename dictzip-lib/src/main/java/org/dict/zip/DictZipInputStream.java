@@ -240,7 +240,6 @@ public class DictZipInputStream extends InflaterInputStream {
                 throw new EOFException();
             }
             num += count;
-            rawOffset += count;
         }
     }
 
