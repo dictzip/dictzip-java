@@ -227,30 +227,39 @@ public class RandomAccessInputStream extends InputStream {
 
     /**
      * Seek file position.
+     * <p>
+     *     when specified position is beyond of end of the file, position is set to end of file.
      *
      * @param pos file position in byte.
      * @exception IOException if an I/O error has occurred.
      */
     public final void seek(final long pos) throws IOException {
         if (pos < 0) {
-            currentpos = 0;
+            throw new IOException("seek position is less than 0");
         } else {
             currentpos = Math.min(pos, length());
         }
     }
 
     /**
-     * {@inheritDoc}
+     * Skip n byte of input stream.
+     * <p>
+     *     when n is less than 0, it seek backward.
+     *
+     * @param n the number of bytes to be skipped.
+     * @return the actual number of bytes skipped.
+     * @throws IOException if the stream does not support seek, or if some other I/O error occurs.
      */
     @Override
-    public final long skip(final long size) throws IOException {
-        if (size < 0 && currentpos + size < 0) {
+    public final long skip(final long n) throws IOException {
+        long previous = currentpos;
+        if (n < 0 && currentpos + n < 0) {
             currentpos = 0;
-        } else if (currentpos + size > length()) {
+        } else if (currentpos + n > length()) {
             currentpos = length();
         } else {
-            currentpos += size;
+            currentpos += n;
         }
-        return currentpos;
+        return currentpos - previous;
     }
 }
