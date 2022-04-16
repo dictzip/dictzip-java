@@ -52,9 +52,8 @@ public class RandomAccessInputStream extends InputStream {
      * Construct RandomAccessInputStream from file and buffer size.
      * @param inFile RandomAccessFile
      * @param bufsize buffer size
-     * @throws IOException
      */
-    public RandomAccessInputStream(final RandomAccessFile inFile, final int bufsize) throws IOException {
+    public RandomAccessInputStream(final RandomAccessFile inFile, final int bufsize) {
         in = inFile;
         this.bufsize = bufsize;
         fileChannel = inFile.getChannel();
@@ -65,9 +64,8 @@ public class RandomAccessInputStream extends InputStream {
      * Construct RandomAccessInputStream from file.
      *
      * @param inFile RandomAccessFile
-     * @throws IOException when i/o error occurred.
      */
-    public RandomAccessInputStream(final RandomAccessFile inFile) throws IOException {
+    public RandomAccessInputStream(final RandomAccessFile inFile) {
         this(inFile, DEFAULT_BUFSIZE);
     }
 
