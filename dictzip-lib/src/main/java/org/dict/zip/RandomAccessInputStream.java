@@ -246,8 +246,12 @@ public class RandomAccessInputStream extends InputStream {
      *
      * @param pos file position in byte.
      */
-    public final void seek(final long pos) {
-        currentpos = pos;
+    public final void seek(final long pos) throws IOException {
+        if (pos < 0) {
+            currentpos = 0;
+        } else {
+            currentpos = Math.min(fileChannel.size(), pos);
+        }
     }
 
     /**
@@ -256,7 +260,9 @@ public class RandomAccessInputStream extends InputStream {
     @Override
     public final long skip(final long size) throws IOException {
         long fileSize = fileChannel.size();
-        if (currentpos + size > fileSize) {
+        if (size < 0 && currentpos + size < 0) {
+            currentpos = 0;
+        } else if (fileSize - size < currentpos) {
             currentpos = fileSize;
         } else {
             currentpos += size;
