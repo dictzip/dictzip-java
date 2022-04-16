@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.13.0] - 2022-04-16
+
+### Added
+* RandomAcessInputStream: Support java.nio.channels.FileChannel (#49)
+  * add `RandomAccessInputStream#getFileChannel`
+
+### Fixed
+* RandomAccessInputStream: fix return value of `RandomAccessInputStream#skip`
+  * return actual skip bytes
+
 ## [0.12.2] - 2022-03-01
 
 ### Fixed
@@ -218,7 +228,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.12.2...HEAD
+[Unreleased]: https://github.com/dictzip/dictzip-java/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/dictzip/dictzip-java/compare/v0.12.2...v0.13.0
 [0.12.2]: https://github.com/dictzip/dictzip-java/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/dictzip/dictzip-java/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/dictzip/dictzip-java/compare/v0.11.2...v0.12.0
