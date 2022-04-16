@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 /**
  * RandomAccessInputStream.
@@ -36,24 +38,26 @@ import java.io.RandomAccessFile;
 public class RandomAccessInputStream extends InputStream {
     private static final int DEFAULT_BUFSIZE = 4096;
     private final RandomAccessFile in;
-    private final byte[] inbuf;
+    private final ByteBuffer byteBuffer;
     private final int bufsize;
 
     private long currentpos = 0;
     private long startpos = -1;
     private long endpos = -1;
     private long mark = 0;
+    private FileChannel fileChannel;
 
 
     /**
      * Constructor of RandomAccessInputStream, accept RandomAccessFile and buffer size.
-     * @param inFile RandomAccessFile file.
-     * @param bufsize buffer size.
+     * @param inFile RandomAccessFile
+     * @param bufsize buffer size
      */
     public RandomAccessInputStream(final RandomAccessFile inFile, final int bufsize) {
-        this.in = inFile;
+        in = inFile;
         this.bufsize = bufsize;
-        inbuf = new byte[bufsize];
+        fileChannel = inFile.getChannel();
+        byteBuffer = ByteBuffer.allocate(bufsize);
     }
 
     /**
@@ -77,6 +81,14 @@ public class RandomAccessInputStream extends InputStream {
     }
 
     /**
+     * Get an unique FileChannel Object related to the file.
+     * @return FileChannel object.
+     */
+    public final FileChannel getChannel() {
+        return fileChannel;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -94,6 +106,7 @@ public class RandomAccessInputStream extends InputStream {
     @Override
     public final void close() throws IOException {
         in.close();
+        fileChannel = null;
     }
 
     /**
@@ -103,7 +116,7 @@ public class RandomAccessInputStream extends InputStream {
      * @exception IOException if an I/O error has occurred.
      */
     public final long length() throws IOException {
-        return in.length();
+        return fileChannel.size();
     }
 
     public final int getLength() throws IOException {
@@ -162,23 +175,25 @@ public class RandomAccessInputStream extends InputStream {
      * @param pos position to read.
      * @return -1 when position is greater than the file's current size, otherwise byte value.
      */
-    public int read(long pos) {
+    public synchronized int read(long pos) {
         if (pos < startpos || pos > endpos) {
             long blockstart = (pos/ bufsize) * bufsize;
-            int n;
+            int n = 0;
             try {
-                in.seek(blockstart);
-                n = in.read(inbuf);
+                fileChannel.position(blockstart);
+                byteBuffer.clear();
+                n += fileChannel.read(byteBuffer);
             } catch (IOException e) {
                 return -1;
             }
+            byteBuffer.flip();
             startpos = blockstart;
             endpos = blockstart + n - 1;
             if (pos < startpos || pos > endpos) {
                 return -1;
             }
         }
-        return inbuf[(int) (pos - startpos)] & 0xff;
+        return byteBuffer.get((int) (pos - startpos)) & 0xff;
     }
 
     /**
@@ -186,17 +201,27 @@ public class RandomAccessInputStream extends InputStream {
      */
     @Override
     public final int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
-        int idx = 0;
-        while (idx < len) {
-            int c = read(currentpos);
-            if (c == -1) {
-                return idx;
-            } else {
-                buf[off + idx++] = (byte) c;
-                currentpos++;
+        if (currentpos < startpos || currentpos > endpos) {
+            long blockstart = (currentpos / bufsize) * bufsize;
+            long n = 0;
+            try {
+                fileChannel.position(blockstart);
+                byteBuffer.clear();
+                n += fileChannel.read(byteBuffer);
+            } catch (IOException e) {
+                return -1;
+            }
+            startpos = blockstart;
+            endpos = blockstart + n - 1;
+            if (currentpos < startpos || currentpos > endpos) {
+                return -1;
             }
         }
-        return idx;
+        byteBuffer.position((int) (currentpos - startpos));
+        int size = Math.min(Math.min(len, (int)(length() - currentpos)), byteBuffer.remaining());
+        byteBuffer.get(buf, off, size);
+        currentpos += size;
+        return size;
     }
 
     /**
@@ -206,14 +231,9 @@ public class RandomAccessInputStream extends InputStream {
      * @exception IOException if an I/O error has occurred.
      */
     public final void readFully(final byte[] buf) throws IOException {
-        int idx = 0;
-        while (idx < buf.length) {
-            int c = read(currentpos);
-            if (c == -1) {
-                throw new IOException();
-            }
-            buf[idx++] = (byte) c;
-            currentpos++;
+        int offset = read(buf, 0, buf.length);
+        while (offset < buf.length) {
+            offset += read(buf, offset, buf.length - offset);
         }
     }
 
@@ -221,7 +241,7 @@ public class RandomAccessInputStream extends InputStream {
      * {@inheritDoc}
      */
     @Override
-    public final synchronized void reset() throws IOException {
+    public final synchronized void reset() {
         currentpos = mark;
     }
 
@@ -231,7 +251,6 @@ public class RandomAccessInputStream extends InputStream {
      *     when specified position is beyond of end of the file, position is set to end of file.
      *
      * @param pos file position in byte.
-     * @exception IOException if an I/O error has occurred.
      */
     public final void seek(final long pos) throws IOException {
         if (pos < 0) {

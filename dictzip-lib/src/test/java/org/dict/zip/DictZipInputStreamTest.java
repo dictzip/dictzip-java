@@ -268,8 +268,8 @@ public class DictZipInputStreamTest {
             }
             // read trailer
             din.readTrailer();
-            assertEquals(din.getCrc(), 0x024d1f37);
-            assertEquals(din.getLength(), 383783);
+            assertEquals(0x024d1f37, din.getCrc());
+            assertEquals(383783, din.getLength());
         }
     }
 
