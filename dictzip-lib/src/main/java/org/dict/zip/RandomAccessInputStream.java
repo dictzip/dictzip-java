@@ -35,17 +35,21 @@ import java.io.RandomAccessFile;
  */
 public class RandomAccessInputStream extends InputStream {
     private static final int DEFAULT_BUFSIZE = 4096;
-    private RandomAccessFile in;
-    private byte inbuf[];
+    private final RandomAccessFile in;
+    private final byte[] inbuf;
+    private final int bufsize;
 
     private long currentpos = 0;
     private long startpos = -1;
     private long endpos = -1;
-
     private long mark = 0;
 
-    private int bufsize;
 
+    /**
+     * Constructor of RandomAccessInputStream, accept RandomAccessFile and buffer size.
+     * @param inFile RandomAccessFile file.
+     * @param bufsize buffer size.
+     */
     public RandomAccessInputStream(final RandomAccessFile inFile, final int bufsize) {
         this.in = inFile;
         this.bufsize = bufsize;
@@ -72,6 +76,9 @@ public class RandomAccessInputStream extends InputStream {
         this(new RandomAccessFile(file, mode));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final int available() throws IOException {
         long available =  length() - position();
@@ -81,6 +88,9 @@ public class RandomAccessInputStream extends InputStream {
         return (int) available;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final void close() throws IOException {
         in.close();
