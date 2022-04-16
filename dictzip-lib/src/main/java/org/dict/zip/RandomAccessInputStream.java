@@ -20,6 +20,8 @@
  */
 package org.dict.zip;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -173,7 +175,7 @@ public class RandomAccessInputStream extends InputStream {
      * {@inheritDoc}
      */
     @Override
-    public final int read(final byte[] buf, final int off, final int len) throws IOException {
+    public final int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
         int idx = 0;
         while (idx < len) {
             int c = read(currentpos);
@@ -220,7 +222,11 @@ public class RandomAccessInputStream extends InputStream {
      * @exception IOException if an I/O error has occurred.
      */
     public final void seek(final long pos) throws IOException {
-        currentpos = pos;
+        if (pos < 0) {
+            currentpos = 0;
+        } else {
+            currentpos = Math.min(pos, length());
+        }
     }
 
     /**
@@ -228,7 +234,9 @@ public class RandomAccessInputStream extends InputStream {
      */
     @Override
     public final long skip(final long size) throws IOException {
-        if (currentpos + size > length()) {
+        if (size < 0 && currentpos + size < 0) {
+            currentpos = 0;
+        } else if (currentpos + size > length()) {
             currentpos = length();
         } else {
             currentpos += size;
