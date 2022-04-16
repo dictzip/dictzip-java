@@ -20,6 +20,8 @@
  */
 package org.dict.zip;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -33,17 +35,21 @@ import java.io.RandomAccessFile;
  */
 public class RandomAccessInputStream extends InputStream {
     private static final int DEFAULT_BUFSIZE = 4096;
-    private RandomAccessFile in;
-    private byte inbuf[];
+    private final RandomAccessFile in;
+    private final byte[] inbuf;
+    private final int bufsize;
 
     private long currentpos = 0;
     private long startpos = -1;
     private long endpos = -1;
-
     private long mark = 0;
 
-    private int bufsize;
 
+    /**
+     * Constructor of RandomAccessInputStream, accept RandomAccessFile and buffer size.
+     * @param inFile RandomAccessFile file.
+     * @param bufsize buffer size.
+     */
     public RandomAccessInputStream(final RandomAccessFile inFile, final int bufsize) {
         this.in = inFile;
         this.bufsize = bufsize;
@@ -70,6 +76,9 @@ public class RandomAccessInputStream extends InputStream {
         this(new RandomAccessFile(file, mode));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final int available() throws IOException {
         long available =  length() - position();
@@ -79,6 +88,9 @@ public class RandomAccessInputStream extends InputStream {
         return (int) available;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final void close() throws IOException {
         in.close();
@@ -173,7 +185,7 @@ public class RandomAccessInputStream extends InputStream {
      * {@inheritDoc}
      */
     @Override
-    public final int read(final byte[] buf, final int off, final int len) throws IOException {
+    public final int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
         int idx = 0;
         while (idx < len) {
             int c = read(currentpos);
@@ -215,24 +227,39 @@ public class RandomAccessInputStream extends InputStream {
 
     /**
      * Seek file position.
+     * <p>
+     *     when specified position is beyond of end of the file, position is set to end of file.
      *
      * @param pos file position in byte.
      * @exception IOException if an I/O error has occurred.
      */
     public final void seek(final long pos) throws IOException {
-        currentpos = pos;
+        if (pos < 0) {
+            throw new IOException("seek position is less than 0");
+        } else {
+            currentpos = Math.min(pos, length());
+        }
     }
 
     /**
-     * {@inheritDoc}
+     * Skip n byte of input stream.
+     * <p>
+     *     when n is less than 0, it seek backward.
+     *
+     * @param n the number of bytes to be skipped.
+     * @return the actual number of bytes skipped.
+     * @throws IOException if the stream does not support seek, or if some other I/O error occurs.
      */
     @Override
-    public final long skip(final long size) throws IOException {
-        if (currentpos + size > length()) {
+    public final long skip(final long n) throws IOException {
+        long previous = currentpos;
+        if (n < 0 && currentpos + n < 0) {
+            currentpos = 0;
+        } else if (currentpos + n > length()) {
             currentpos = length();
         } else {
-            currentpos += size;
+            currentpos += n;
         }
-        return currentpos;
+        return currentpos - previous;
     }
 }
