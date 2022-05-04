@@ -1,3 +1,10 @@
+/*
+ * DictZip library.
+ *
+ * Copyright (C) 2016-2022 Hiroshi Miura
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later WITH Classpath-exception-2.0
+ */
 package org.dict.zip;
 
 import java.io.EOFException;
