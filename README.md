@@ -23,6 +23,10 @@ As usual of other projects hosted on GitHub, DictZip for java also welcome
 forking source and send modification as a Pull Request.
 It is recommended to post an issue before sending a patch.
 
+## Mirror
+
+Dictzip-java is mirrored to https://gitlab.com/dictzip/dictzip-java periodically and automatically.
+Please raise issues and merge-request on main project site https://github.com/dictzip/dictzip-java
 
 ## Copyrights and License
 
