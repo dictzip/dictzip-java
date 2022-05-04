@@ -1,6 +1,10 @@
 name: Mirror and run GitLab CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+      - releases/*
 
 jobs:
   mirror-n-ci:
