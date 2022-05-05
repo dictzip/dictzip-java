@@ -299,7 +299,8 @@ public class DictZipHeader {
         headerCrc.reset();
         // force Header CRC on
         h.setGzipFlag(FHCRC, true);
-        ByteBuffer bb = ByteBuffer.allocate(22).order(ByteOrder.LITTLE_ENDIAN);
+        byte[] buf = new byte[22];
+        ByteBuffer bb = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
         ByteBuffer chunkbb = ByteBuffer.allocate(h.chunkCount * 2).order(ByteOrder.LITTLE_ENDIAN);
         bb.putShort((short) GZIP_MAGIC);
         bb.put((byte) Deflater.DEFLATED);
@@ -314,13 +315,15 @@ public class DictZipHeader {
         bb.putShort((short) h.subfieldVersion);
         bb.putShort((short) h.chunkLength);
         bb.putShort((short) h.chunkCount);
-        out.write(bb.array());
+        out.write(buf);
+        headerCrc.update(buf);
         for (int i = 0; i < h.chunkCount; i++) {
             DictZipFileUtils.writeShort(out, h.chunks[i]);
             chunkbb.putShort((short) h.chunks[i]);
         }
-        headerCrc.update(bb.array());
-        headerCrc.update(chunkbb.array());
+        chunkbb.flip();
+        headerCrc.update(chunkbb);
+        //
         if (h.gzipFlag.get(FNAME)) {
             if (h.filename != null) {
                 out.write(h.filename.getBytes(CHARSET));
