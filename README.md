@@ -4,37 +4,14 @@ DictZip, GZip random access compression format(.dz), access library for Java
 
 [![Build Status](https://travis-ci.org/dictzip/dictzip-java.svg?branch=master)](https://travis-ci.org/dictzip/dictzip-java)
 
+# Give Up GitHub
 
-## Usage
+This project has given up GitHub.  ([See Software Freedom Conservancy's *Give Up  GitHub* site for details](https://GiveUpGitHub.org).)
 
+You can now find this project at [Codeberg.org](https://codeberg.org/miurahr/dictzip-java) instead.
 
-dictzip library is published on MavenCentral. When you use with gradle build system,
-just add a dependency.
+Any use of this project's code by GitHub Copilot, past or present, is done without our permission.  We do not consent to GitHub's use of this project's code in Copilot.
 
-```
-dependencies {
-    implementation 'io.github.dictzip:dictzip:0.11.1'
-}
-```
+Join us; you can [give up GitHub](https://GiveUpGitHub.org) too!
 
-## Contribution
-
-As usual of other projects hosted on GitHub, DictZip for java also welcome
-forking source and send modification as a Pull Request.
-It is recommended to post an issue before sending a patch.
-
-## Mirror
-
-Dictzip-java is mirrored to https://gitlab.com/dictzip/dictzip-java periodically and automatically.
-Please raise issues and merge-request on main project site https://github.com/dictzip/dictzip-java
-
-## Copyright
-
-- Copyright (C) 2001-2004 Ho Ngoc Duc
-- Copyright (C) 2016-2022 Hiroshi Miura
-
-Some part are come from a part of jdictd 1.5 on java.
-
-## License
-
-Please see COPYING.
+![Logo of the GiveUpGitHub campaign](https://sfconservancy.org/img/GiveUpGitHub.png)
