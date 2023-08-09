@@ -19,7 +19,7 @@ if (versionDetails().isCleanTag) {
 }
 
 def props = project.file("dictzip-cli/src/main/resources/org/dict/zip/Version.properties")
-task writeVersionFile {
+tasks.register('writeVersionFile') {
     def folder = props.getParentFile()
     if (!folder.exists()) {
         folder.mkdirs()
@@ -58,8 +58,10 @@ subprojects {
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(8)
+            vendor = JvmVendorSpec.ADOPTIUM
+        }
         withSourcesJar()
         withJavadocJar()
     }
@@ -96,7 +98,7 @@ project(':dictzip-lib') {
         publications {
             mavenJava(MavenPublication) {
                 from components.java
-                artifactId = "dictzip"
+                artifactId = 'dictzip'
                 pom {
                     name.set("dictzip")
                     description.set(projectDesc)
@@ -148,7 +150,7 @@ project(':dictzip-lib') {
         }
         sign publishing.publications.mavenJava
     }
-    tasks.withType(Sign) {
+    tasks.withType(Sign).configureEach {
         def hasKey = project.hasProperty("signingKey") || project.hasProperty("signing.gnupg.keyName")
         onlyIf { hasKey && versionDetails().isCleanTag }
     }
@@ -164,13 +166,14 @@ project(':dictzip-cli') {
         implementation 'gnu.getopt:java-getopt:1.0.13'
         testImplementation project(':northside-io')
     }
-    task mandoc(type: Copy) {
+    tasks.register('mandoc', Copy) {
         from "doc/dictzip.1.in"
-        into 'build/docs'
+        into "$buildDir/docs/man"
         rename { String fileName ->
             fileName.replace('dictzip.1.in', 'dictzip.1')
         }
         filter(ReplaceTokens, tokens: [copyright: projectYears, version: project.version])
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
     distTar {
@@ -181,7 +184,7 @@ project(':dictzip-cli') {
     distributions {
         main {
             contents {
-                from('build/docs/dictzip.1') {
+                from(tasks.mandoc.outputs) {
                     into 'docs/man/man1'
                 }
                 from(javadocJar) {
