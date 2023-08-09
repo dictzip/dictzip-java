@@ -70,9 +70,10 @@ public class RandomAccessInputStream extends InputStream {
     }
 
     /**
-     * Get an unique FileChannel Object related to the file.
+     * Get a unique FileChannel Object related to the file.
      * @return FileChannel object.
      */
+    @SuppressWarnings("unused")
     public final FileChannel getChannel() {
         return fileChannel;
     }
@@ -237,9 +238,10 @@ public class RandomAccessInputStream extends InputStream {
     /**
      * Seek file position.
      * <p>
-     *     when specified position is beyond of end of the file, position is set to end of file.
+     *     when specified position is beyond the end of the file, position is set to end of file.
      *
      * @param pos file position in byte.
+     * @throws IOException when seek position is negative.
      */
     public final void seek(final long pos) throws IOException {
         if (pos < 0) {
