@@ -1,0 +1,17 @@
+when:
+  branch: [master]
+
+clone:
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      partial: false
+      depth: 1
+      lfs: false
+      tags: true
+
+steps:
+  build:
+    image: adoptopenjdk/openjdk11:alpine
+    commands:
+      - ./gradlew --no-daemon clean check
