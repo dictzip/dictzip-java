@@ -21,7 +21,7 @@ dictzip = "0.13.0"
 jacoco = "0.8.6"
 javacc = "7.0.10"
 testng = "7.7.0"
-checkstyle = "6.16.1"
+checkstyle = "8.41.1"
 
 [libraries]
 slf4j-api = {group = "org.slf4j", name = "slf4j-api",  version.ref = "slf4j"}
