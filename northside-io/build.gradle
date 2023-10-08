@@ -1,0 +1,20 @@
+plugins {
+    id 'java-library'
+}
+
+version = rootProject.version
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation(libs.commons.io)
+    implementation(libs.jetbrains.annotations)
+    testImplementation(libs.junit.jupiter)
+}
+
+test {
+    useJUnitPlatform()
+}
+
