@@ -109,6 +109,11 @@ public class RandomAccessInputStream extends InputStream {
         return fileChannel.size();
     }
 
+    /**
+     * Get length of stream.
+     * @return length in int.
+     * @throws IOException if an I/O error has occurred.
+     */
     public final int getLength() throws IOException {
         return (int) length();
     }
@@ -118,7 +123,7 @@ public class RandomAccessInputStream extends InputStream {
      * Get cursor position.
      *
      * @return position in byte.
-     * @exception IOException if an I/O error has occurred.
+     * @throws IOException if an I/O error has occurred.
      */
     public final long position() throws IOException {
         return currentpos;

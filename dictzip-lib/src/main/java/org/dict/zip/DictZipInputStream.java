@@ -126,11 +126,11 @@ public class DictZipInputStream extends InflaterInputStream {
     }
 
     @Override
-    public final void mark(final int markOffset) {
-        if (markOffset < 0) {
+    public final void mark(final int offset) {
+        if (offset < 0) {
             throw new IllegalArgumentException("markOffset should be positive number.");
         }
-        this.markOffset = markOffset;
+        markOffset = offset;
         mark = position();
     }
 
@@ -304,45 +304,40 @@ public class DictZipInputStream extends InflaterInputStream {
      * Get type of compression.
      *
      * @return "DZIP" or "GZIP"
-     * @throws IOException if I/O error occurred.
      */
-    public String getType() throws IOException {
+    public String getType() {
         return header.getType();
     }
 
     /**
      * Get length of each chunk.
      * @return size of chunk.
-     * @throws IOException if I/O error occurred.
      */
-    public int getChunkLength() throws IOException {
+    public int getChunkLength() {
         return header.getChunkLength();
     }
 
     /**
      * Get number of chunks.
      * @return number of chunks.
-     * @throws IOException if I/O error occurred.
      */
-    public int getChunkCount() throws IOException {
+    public int getChunkCount() {
         return header.getChunkCount();
     }
 
     /**
      * Get mtime in long.
      * @return mtime in long.
-     * @throws IOException if I/O error occurred.
      */
-    public long getMtime() throws IOException {
+    public long getMtime() {
         return header.getMtime();
     }
 
     /**
      * Get Filename field if exist.
      * @return filename or null.
-     * @throws IOException if I/O error occurred.
      */
-    public String getFilename() throws IOException {
+    public String getFilename() {
         return header.getFilename();
     }
 
