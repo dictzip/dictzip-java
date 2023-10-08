@@ -16,7 +16,12 @@ import org.dict.zip.RandomAccessOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Format;
@@ -86,7 +91,7 @@ public class DictData {
         File targetFile = originalFileName.toFile();
         RandomAccessFile targetRaFile = new RandomAccessFile(targetFile, "r");
         try (RandomAccessInputStream in = new RandomAccessInputStream(targetRaFile);
-             DictZipInputStream din = new DictZipInputStream(in);) {
+             DictZipInputStream din = new DictZipInputStream(in)) {
             // These three parameters are able to get only from din.
             long uncomp = din.getLength();
             long comp = din.getCompLength();
