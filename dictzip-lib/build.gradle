@@ -46,7 +46,8 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifactId = 'dictzip' as Publication
+            artifactId = 'dictzip'
+            groupId = 'tokyo.northside'
             pom {
                 name.set("dictzip")
                 description.set(projectDesc)
@@ -74,12 +75,6 @@ publishing {
                 }
             }
         }
-    }
-}
-nexusPublishing.repositories {
-    sonatype {
-        username = project.hasProperty('sonatypeUsername') ? project.property('sonatypeUsername') : System.getenv('SONATYPE_USER')
-        password = project.hasProperty('sonatypePassword') ? project.property('sonatypePassword') : System.getenv('SONATYPE_PASS')
     }
 }
 

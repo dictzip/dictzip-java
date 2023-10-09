@@ -14,3 +14,10 @@ if (versionDetails().isCleanTag) {
 } else {
     version = versionDetails().lastTag.substring(1) + '-' + versionDetails().commitDistance + '-' + versionDetails().gitHash + '-SNAPSHOT'
 }
+
+nexusPublishing.repositories {
+    sonatype {
+        username = project.hasProperty('sonatypeUsername') ? project.property('sonatypeUsername') : System.getenv('SONATYPE_USER')
+        password = project.hasProperty('sonatypePassword') ? project.property('sonatypePassword') : System.getenv('SONATYPE_PASS')
+    }
+}
