@@ -3,16 +3,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.14.1] - 2023-10-09
+
+### Fixed
+- Publish config
+
 ## [0.14.0] - 2023-10-08
 
-## Added
+### Added
 - JPMS module-info.java
 - module names:
     - lib: `tokyo.northside.dictzip.lib`
     - northside-io: `tokyo.northside.io`
     - cli: `tokyo.northside.dictzip.cli`
 
-## Changed
+### Changed
 - Change artifact's group to be "tokyo.northside"
 - CLI: Migrate to picocli
 
@@ -241,7 +246,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://codeberg.org/miurahr/dictzip-java/compare/v0.14.0...HEAD
+[Unreleased]: https://codeberg.org/miurahr/dictzip-java/compare/v0.14.1...HEAD
+[0.14.1]: https://codeberg.org/miurahr/dictzip-java/compare/v0.14.0...v0.14.1
 [0.14.0]: https://codeberg.org/miurahr/dictzip-java/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/dictzip/dictzip-java/compare/v0.12.2...v0.13.0
 [0.12.2]: https://github.com/dictzip/dictzip-java/compare/v0.12.1...v0.12.2
