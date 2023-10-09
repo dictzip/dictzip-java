@@ -17,23 +17,31 @@ import java.util.ResourceBundle;
  * @author Hiroshi Miura
  */
 public final class AppConsts {
-    static final String VERSION = ResourceBundle.getBundle("org/dict/zip/Version")
+    private static final String VERSION = ResourceBundle.getBundle("org/dict/zip/Version")
             .getString("version");
-    static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
             .getBundle("org/dict/zip/cli/Bundle", Locale.getDefault());
 
-    static final String NAME = RESOURCE_BUNDLE.getString("application.name");
-    static final String BRANDING = "";
-    static final String YEAR = "2016-2022";
-    static final String AUTHORS = "Hiroshi Miura";
+    private static final String NAME = RESOURCE_BUNDLE.getString("application.name");
+    private static final String BRANDING = "";
+    private static final String YEAR = "2016-2023";
+    private static final String AUTHORS = "Hiroshi Miura";
 
-    private static String getString(final String key) {
+    static String getString(final String key) {
         return RESOURCE_BUNDLE.getString(key);
     }
 
     static String getNameAndVersion() {
-        return MessageFormat.format(getString("app-version-template-pretty"),
-                getApplicationName(), VERSION);
+        return MessageFormat.format(getString("app-version-template-pretty"), getApplicationName(), VERSION);
+    }
+
+    static String getVersion() {
+        return VERSION;
+    }
+
+
+    static String getCopyright() {
+        return MessageFormat.format(getString("help.copyright.template"), AppConsts.YEAR, AppConsts.AUTHORS);
     }
 
     static String getApplicationName() {

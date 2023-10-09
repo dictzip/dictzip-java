@@ -8,7 +8,10 @@
 
 package org.dict.zip.cli;
 
-import org.dict.zip.DictZipHeader.CompressionLevel;
+import picocli.CommandLine;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -16,18 +19,58 @@ import org.dict.zip.DictZipHeader.CompressionLevel;
  */
 public class Options {
 
-    private boolean decompress = false;
-    private boolean force = false;
-    private boolean keep = false;
-    private boolean list = false;
+    /**
+     * Command line options.
+     */
+    @CommandLine.Option(names = {"-c", "--stdout"}, description = "return result in stdout.")
     private boolean stdout = false;
-    private boolean test = false;
-    private boolean verbose = false;
-    private boolean debugVerbose = false;
-    private long start = 0;
-    private int size = 0;
-    private CompressionLevel level = CompressionLevel.DEFAULT_COMPRESSION;
 
+    @CommandLine.Option(names = {"-d", "--decompress"}, description = "decompression mode")
+    private boolean decompress = false;
+
+    @CommandLine.Option(names = {"-f", "--force"}, description = "force overwrite.")
+    private boolean force = false;
+
+    @CommandLine.Option(names = {"-k", "--keep"}, description = "keep source archive")
+    private boolean keep = false;
+
+    @CommandLine.Option(names = {"-l", "--list"}, description = "list archive files")
+    private boolean list = false;
+
+    @CommandLine.Option(names = {"-t", "--test"}, description = "test archive")
+    private boolean test = false;
+
+    @CommandLine.Option(names = {"-L", "--license"}, description = "show license information")
+    private boolean license;
+
+    @CommandLine.Option(names = {"-v", "--verbose"}, description = "verbose")
+    private boolean verbose = false;
+
+    private boolean debugVerbose = false;
+
+    @CommandLine.Option(names = {"-s", "--start"}, description = "start position")
+    private long start = 0;
+
+    @CommandLine.Option(names = {"-e", "--size"}, description = "extract size")
+    private int size = 0;
+
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "show help")
+    private boolean helpRequested = false;
+
+    @CommandLine.Option(names = {"-1", "--fast"}, description = "fast compression level")
+    private boolean fast;
+
+    @CommandLine.Option(names = {"-6", "--moderate"}, description = "moderate compression level")
+    private boolean moderate;
+
+    @CommandLine.Option(names = {"-9", "--best"}, description = "best compression level")
+    private boolean best;
+
+    @CommandLine.Option(names = {"-V", "--version"}, description = "show version")
+    private boolean version;
+
+    @CommandLine.Parameters
+    private List<String> targetFiles;
 
     /**
      * Whether -d option is spedified.
@@ -38,27 +81,11 @@ public class Options {
     }
 
     /**
-     * Set -d option.
-     * @param decompress true if -d option is specified.
-     */
-    void setDecompress(final boolean decompress) {
-        this.decompress = decompress;
-    }
-
-    /**
      * Whether -f/--force option is specified.
      * @return true if -f option is specified.
      */
     boolean isForce() {
         return force;
-    }
-
-    /**
-     * Set -f/--force option.
-     * @param force true if -f option is specified.
-     */
-    void setForce(final boolean force) {
-        this.force = force;
     }
 
     /**
@@ -86,27 +113,11 @@ public class Options {
     }
 
     /**
-     * Set -l option.
-     * @param list true if -l option is specified.
-     */
-    void setList(final boolean list) {
-        this.list = list;
-    }
-
-    /**
      * Whther -c option is specified.
      * @return true if -l option is specified.
      */
     boolean isStdout() {
         return stdout;
-    }
-
-    /**
-     * Set -c option.
-     * @param stdout true when -c option specified.
-     */
-    void setStdout(final boolean stdout) {
-        this.stdout = stdout;
     }
 
     /**
@@ -118,27 +129,11 @@ public class Options {
     }
 
     /**
-     * Set -t option.
-     * @param test true if -t specified.
-     */
-    void setTest(final boolean test) {
-        this.test = test;
-    }
-
-    /**
      * Whether -v/--verbose option specified.
      * @return true if -v specified.
      */
     boolean isVerbose() {
         return verbose;
-    }
-
-    /**
-     * Set -v option.
-     * @param verbose true if -v option specified.
-     */
-    void setVerbose(final boolean verbose) {
-        this.verbose = verbose;
     }
 
     /**
@@ -150,27 +145,11 @@ public class Options {
     }
 
     /**
-     * Set -Dverbose/--debug=verbose specified.
-     * @param debugVerbose true if specified.
-     */
-    void setDebugVerbose(final boolean debugVerbose) {
-        this.debugVerbose = debugVerbose;
-    }
-
-    /**
      * Get value of -s/--start option.
      * @return Value of -s/--start option. If not specified, return 0.
      */
     long getStart() {
         return start;
-    }
-
-    /**
-     * Set value of start option.
-     * @param start value of start option.
-     */
-    void setStart(final long start) {
-        this.start = start;
     }
 
     /**
@@ -181,19 +160,31 @@ public class Options {
         return size;
     }
 
-    /**
-     * Set value of size option.
-     * @param size value of size option.
-     */
-    void setSize(final int size) {
-        this.size = size;
+    public boolean isLicense() {
+        return license;
     }
 
-    CompressionLevel getLevel() {
-        return level;
+    public boolean isHelpRequested() {
+        return helpRequested;
     }
 
-    void setLevel(final CompressionLevel level) {
-        this.level = level;
+    public boolean isFast() {
+        return fast;
     }
+
+    public boolean isBest() {
+        return best;
+    }
+
+    public boolean isVersion() {
+        return version;
+    }
+
+    List<String> getTargetFiles() {
+        if (targetFiles == null) {
+            targetFiles = Collections.emptyList();
+        }
+        return targetFiles;
+    }
+
 }

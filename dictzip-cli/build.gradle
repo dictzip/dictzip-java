@@ -31,9 +31,9 @@ repositories {
 dependencies {
     implementation project(':dictzip-lib')
     implementation(libs.jetbrains.annotations)
+    implementation(libs.picocli)
     testImplementation(libs.commons.io)
     testImplementation(libs.junit.jupiter)
-    implementation 'gnu.getopt:java-getopt:1.0.13'
     testImplementation project(':northside-io')
 }
 
@@ -46,6 +46,10 @@ java {
         languageVersion = JavaLanguageVersion.of(11)
         vendor = JvmVendorSpec.ADOPTIUM
     }
+}
+
+compileJava {
+    options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
 }
 
 tasks.register('mandoc', Copy) {

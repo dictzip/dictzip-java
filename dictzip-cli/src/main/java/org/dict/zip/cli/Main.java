@@ -10,24 +10,17 @@ package org.dict.zip.cli;
 
 import org.dict.zip.DictZipFiles;
 import org.dict.zip.DictZipHeader.CompressionLevel;
+import picocli.CommandLine;
 
 import java.io.File;
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.io.IOException;
+import java.text.MessageFormat;
 
 /**
  * dictzip/dictunzip main class.
  * @author Hiroshi Miura
  */
 public final class Main {
-    /**
-     * The localized strings are kept in a separate file.
-     */
-    private static ResourceBundle messages = ResourceBundle.getBundle(
-            "org/dict/zip/cli/Bundle", Locale.getDefault());
-
-    private static CommandLine commandLine = new CommandLine();
 
     /**
      * main method.
@@ -35,22 +28,28 @@ public final class Main {
      * @param argv command line argument
      */
     public static void main(final String[] argv) {
-        int res = commandLine.parse(argv);
-        // If error in command line, exit with code
-        if (res > 1) {
-            System.exit(res);
-        } else if (res == 1) {
-            // normal exit.
+        Options options = new Options();
+        new CommandLine(options).parseArgs(argv);
+
+        if (options.isHelpRequested()) {
+            System.out.println(AppConsts.getNameAndVersion());
+            showCopyright();
+            System.out.println();
+            showHelp();
             System.exit(0);
         }
-        for (String fName: commandLine.getTargetFiles()) {
+        if (options.isVersion()) {
+            System.out.println(AppConsts.getVersion());
+            System.exit(0);
+        }
+        for (String fName: options.getTargetFiles()) {
             try {
                 DictData dict;
-                if (commandLine.options.isList()) {
-                    commandLine.options.setKeep(true);
+                if (options.isList()) {
+                    options.setKeep(true);
                     dict = new DictData(fName, null);
                     dict.printHeader();
-                } else if (commandLine.options.isTest()) {
+                } else if (options.isTest()) {
                     boolean result = false;
                     try {
                         result = DictZipFiles.checkDictZipFile(fName);
@@ -61,30 +60,37 @@ public final class Main {
                     if (result) {
                         System.exit(0);
                     } else {
-                        System.err.println(messages.getString("main.test.error"));
+                        System.err.println(getString("main.test.error"));
                         System.exit(1);
                     }
-                } else if (commandLine.options.isDecompress()) {
+                } else if (options.isDecompress()) {
                     String extractFile = DictZipUtils.uncompressedFileName(fName);
-                    long start = commandLine.options.getStart();
-                    int size = commandLine.options.getSize();
+                    long start = options.getStart();
+                    int size = options.getSize();
                     dict = new DictData(extractFile, fName);
                     dict.doUnzip(start, size);
                 } else { // compression.
                     String zippedFile = DictZipUtils.compressedFileName(fName);
-                    CompressionLevel level = commandLine.options.getLevel();
+                    CompressionLevel level;
+                    if (options.isBest()) {
+                        level = CompressionLevel.BEST_COMPRESSION;
+                    } else if (options.isFast()) {
+                        level = CompressionLevel.BEST_SPEED;
+                    } else {
+                        level = CompressionLevel.DEFAULT_COMPRESSION;
+                    }
                     dict = new DictData(fName, zippedFile);
                     dict.doZip(level);
                 }
-                if (!commandLine.options.isKeep()) {
+                if (!options.isKeep()) {
                     File targetFile = new File(fName);
                     if (!targetFile.delete()) {
-                        System.err.println(messages.getString("main.delete.error"));
+                        System.err.println(getString("main.delete.error"));
                         System.exit(2);
                     }
                 }
             } catch (IOException ex) {
-                System.err.println(messages.getString("main.io.error"));
+                System.err.println(getString("main.io.error"));
                 System.err.println(ex.getLocalizedMessage());
                 System.exit(1);
             }
@@ -93,6 +99,18 @@ public final class Main {
     }
 
     private Main() {
+    }
+
+    private static String getString(final String key) {
+        return AppConsts.getString(key);
+    }
+
+    private static void showCopyright() {
+        System.out.println(AppConsts.getCopyright());
+    }
+    private static void showHelp() {
+        System.out.println(MessageFormat.format(getString("help.message"),
+                AppConsts.getApplicationName()));
     }
 
 }

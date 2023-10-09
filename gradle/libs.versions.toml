@@ -16,6 +16,7 @@ guava = "31.0.1-jre"
 annotations = "23.0.0"
 trie4j = "0.9.8"
 stardict4j = "0.5.1"
+picocli = "4.7.5"
 protobuf = "3.21.7"
 dictzip = "0.13.0"
 jacoco = "0.8.6"
@@ -46,6 +47,7 @@ stardict4j = {group = "tokyo.northside", name = "stardict4j", version.ref = "sta
 protobuf = {group = "com.google.protobuf", name = "protobuf-java", version.ref = "protobuf"}
 dictzip = {group = "io.github.dictzip", name = "dictzip", version.ref = "dictzip"}
 testng = {group = "org.testng", name = "testng", version.ref = "testng"}
+picocli = {group = "info.picocli", name = "picocli", version.ref = "picocli"}
 
 [plugins]
 spotbugs = {id = "com.github.spotbugs", version = "5.1.3"}
