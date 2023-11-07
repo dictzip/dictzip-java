@@ -1,18 +1,29 @@
 plugins {
     alias(libs.plugins.nexus.publish)
-    alias(libs.plugins.git.version)
+    alias(libs.plugins.git.version) apply false
 }
 
 group = projectGroup
 
-// calculate version string from git tag, hash and commit distance
-// It treat as release tag when current HEAD has a tag,
-// and repository is clean, no modification,and no untracked files,
-if (versionDetails().isCleanTag) {
-    // drop first 'v' from version tag
-    version = gitVersion().substring(1)
+def dotgit = project.file(".git")
+if (dotgit.exists()) {
+    apply plugin: 'com.palantir.git-version'
+    // calculate version string from git tag, hash and commit distance
+    // It treat as release tag when current HEAD has a tag,
+    // and repository is clean, no modification,and no untracked files,
+    if (versionDetails().isCleanTag) {
+        // drop first 'v' from version tag
+        version = gitVersion().substring(1)
+    } else {
+        version = versionDetails().lastTag.substring(1) + '-' + versionDetails().commitDistance + '-' + versionDetails().gitHash + '-SNAPSHOT'
+    }
 } else {
-    version = versionDetails().lastTag.substring(1) + '-' + versionDetails().commitDistance + '-' + versionDetails().gitHash + '-SNAPSHOT'
+    def gitArchival = project.file(".git-archival.properties")
+    def prop = new Properties()
+    prop.load(new FileInputStream(gitArchival))
+    def versionDescribe = prop.getProperty("describe")
+    def matcher = versionDescribe =~ /^v\d+\.\d+\.\d+$/
+    version = matcher.find() ? versionDescribe.substring(1) : versionDescribe.substring(1) + "-SNAPSHOT"
 }
 
 nexusPublishing.repositories {
