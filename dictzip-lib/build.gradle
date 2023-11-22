@@ -91,7 +91,7 @@ signing {
 
 tasks.withType(Sign).configureEach {
     def hasKey = project.hasProperty("signingKey") || project.hasProperty("signing.gnupg.keyName")
-    onlyIf { hasKey && versionDetails().isCleanTag }
+    onlyIf { hasKey && !project.version.toString().endsWith("-SNAPSHOT")}
 }
 
 checkstyle {
