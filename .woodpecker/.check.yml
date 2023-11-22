@@ -1,5 +1,9 @@
 when:
-  branch: [master]
+  - event: pull_request
+  - event: tag
+    ref: refs/tags/v*
+  - event: push
+    branch: [master, releases/*]
 
 clone:
   git:
@@ -14,4 +18,5 @@ steps:
   build:
     image: adoptopenjdk/openjdk11:alpine
     commands:
+      - sudo apk add dictzip
       - ./gradlew --no-daemon clean check

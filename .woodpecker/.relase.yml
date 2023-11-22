@@ -1,0 +1,28 @@
+when:
+  - event: tag
+    ref: refs/tags/v*
+
+depends_on:
+  - check
+
+clone:
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      partial: false
+      depth: 1
+      lfs: false
+      tags: true
+
+steps:
+  build:
+    image: adoptopenjdk/openjdk11:alpine
+    commands:
+      - export ORG_GRADLE_PROJECT_signingKey=$GPG_SECRET_KEY
+      - export ORG_GRADLE_PROJECT_signingPassword=$GPG_KEY_PASSPHRASE
+      - ./gradlew --no-daemon clean publish
+    secrets:
+      - gpg_secret_key
+      - gpg_key_passphrase
+      - sonatype_user
+      - sonatype_pass
