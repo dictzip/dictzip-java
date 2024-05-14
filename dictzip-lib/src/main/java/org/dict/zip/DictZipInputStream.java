@@ -2,7 +2,7 @@
  * DictZip library.
  *
  * Copyright (C) 2001-2004 Ho Ngoc Duc
- * Copyright (C) 2016-2022 Hiroshi Miura
+ * Copyright (C) 2016-2024 Hiroshi Miura
  *
  * SPDX-License-Identifier: GPL-2.0-or-later WITH Classpath-exception-2.0
  */
@@ -126,11 +126,11 @@ public class DictZipInputStream extends InflaterInputStream {
     }
 
     @Override
-    public final void mark(final int offset) {
-        if (offset < 0) {
+    public final void mark(final int off) {
+        if (off < 0) {
             throw new IllegalArgumentException("markOffset should be positive number.");
         }
-        markOffset = offset;
+        markOffset = off;
         mark = position();
     }
 

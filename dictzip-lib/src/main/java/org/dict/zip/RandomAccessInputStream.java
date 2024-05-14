@@ -2,7 +2,7 @@
  * DictZip library.
  *
  * Copyright (C) 2001-2004 Ho Ngoc Duc
- * Copyright (C) 2016-2022 Hiroshi Miura
+ * Copyright (C) 2016-2024 Hiroshi Miura
  *
  * SPDX-License-Identifier: GPL-2.0-or-later WITH Classpath-exception-2.0
  */
@@ -170,9 +170,9 @@ public class RandomAccessInputStream extends InputStream {
      * @param pos position to read.
      * @return -1 when position is greater than the file's current size, otherwise byte value.
      */
-    public synchronized int read(long pos) {
+    public synchronized int read(final long pos) {
         if (pos < startpos || pos > endpos) {
-            long blockstart = (pos/ bufsize) * bufsize;
+            long blockstart = (pos / bufsize) * bufsize;
             int n = 0;
             try {
                 fileChannel.position(blockstart);
@@ -213,7 +213,7 @@ public class RandomAccessInputStream extends InputStream {
             }
         }
         byteBuffer.position((int) (currentpos - startpos));
-        int size = Math.min(Math.min(len, (int)(length() - currentpos)), byteBuffer.remaining());
+        int size = Math.min(Math.min(len, (int) (length() - currentpos)), byteBuffer.remaining());
         byteBuffer.get(buf, off, size);
         currentpos += size;
         return size;

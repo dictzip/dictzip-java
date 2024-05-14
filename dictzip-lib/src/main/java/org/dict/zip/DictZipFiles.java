@@ -1,7 +1,7 @@
 /*
  * DictZip library.
  *
- * Copyright (C) 2016-2022 Hiroshi Miura
+ * Copyright (C) 2016-2024 Hiroshi Miura
  *
  * SPDX-License-Identifier: GPL-2.0-or-later WITH Classpath-exception-2.0
  */
@@ -15,9 +15,11 @@ import java.nio.file.Paths;
 /**
  * @author Hiroshi Miura
  */
-public class DictZipFiles {
- 
+public final class DictZipFiles {
     static final int CHECK_BUF_LEN = 65536;
+
+    private DictZipFiles() {
+    }
 
     public static DictZipInputStream newDictZipInputStream(final Path path) throws IOException {
         return new DictZipInputStream(newRandomAccessInputStream(path));
