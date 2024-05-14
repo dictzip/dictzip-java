@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.0] - 2024-05-14
+
+### Changed
+- Bump commons-io@2.16.1
+- Bump Gradle@8.6
+- Support Gradle build scan
+- Update gradle plugin versions
+  - spotbugs@6.0.14
+  - spotless@6.25.0
+  - git-version@3.0.0
+  - nexus-publish@2.0.0
+
 ## [0.14.1] - 2023-10-09
 
 ### Fixed
@@ -246,7 +258,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Start project.
 
-[Unreleased]: https://codeberg.org/miurahr/dictzip-java/compare/v0.14.1...HEAD
+[Unreleased]: https://codeberg.org/miurahr/dictzip-java/compare/v1.0.0...HEAD
+[1.0.0]: https://codeberg.org/miurahr/dictzip-java/compare/v0.14.1...v1.0.0
 [0.14.1]: https://codeberg.org/miurahr/dictzip-java/compare/v0.14.0...v0.14.1
 [0.14.0]: https://codeberg.org/miurahr/dictzip-java/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/dictzip/dictzip-java/compare/v0.12.2...v0.13.0
