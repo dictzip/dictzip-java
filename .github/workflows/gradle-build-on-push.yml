@@ -22,7 +22,7 @@ jobs:
         java-version: '8'
     - name: install dictzip command
       run: sudo apt-get install -y dictzip
-    - uses: gradle/gradle-build-action@v2
+    - uses: gradle/gradle-build-action@v3
     - uses: kiancross/checkstyle-annotations-action@v1
     - run: ./gradlew check
       env:
