@@ -9,6 +9,8 @@
 
 package org.dict.zip;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -32,7 +34,7 @@ public class RandomAccessInputStream extends InputStream {
     private long startpos = -1;
     private long endpos = -1;
     private long mark = 0;
-    private FileChannel fileChannel;
+    private @Nullable FileChannel fileChannel;
 
 
     /**

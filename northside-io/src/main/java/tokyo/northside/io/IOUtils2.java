@@ -98,8 +98,7 @@ public final class IOUtils2 {
                 result = false;
                 break;
             }
-            if ((lenFirst < 0) && (lenSecond < 0)) {
-                result = true;
+            if (lenFirst < 0) {
                 break;
             }
             readLengthTotal += lenFirst;

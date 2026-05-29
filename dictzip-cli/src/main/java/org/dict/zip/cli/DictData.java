@@ -132,6 +132,9 @@ public class DictData {
                 defLevel = Deflater.DEFAULT_COMPRESSION;
                 break;
         }
+        if (compressedFileName == null) {
+            throw new IOException("dictzip.error.no.compressed.file");
+        }
         try (FileInputStream ins = new FileInputStream(originalFile);
              DictZipOutputStream dout = new DictZipOutputStream(
                     new RandomAccessOutputStream(new RandomAccessFile(compressedFileName.toFile(), "rws")),
