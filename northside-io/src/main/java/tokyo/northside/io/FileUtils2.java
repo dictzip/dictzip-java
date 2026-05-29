@@ -9,7 +9,6 @@
 package tokyo.northside.io;
 
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,7 +43,7 @@ public final class FileUtils2 {
      * @return boolean  true if files are equal, otherwise false
      * @throws IOException  error in function
      */
-    public static boolean contentEquals(@NotNull final Path first, @NotNull final Path second) throws IOException {
+    public static boolean contentEquals(Path first, Path second) throws IOException {
         if (first.toFile().length() != second.toFile().length()) {
             return false;
         }
@@ -59,7 +58,7 @@ public final class FileUtils2 {
      * @return boolean  true if files are equal, otherwise false
      * @throws IOException  error in function
      */
-    public static boolean contentEquals(@NotNull final File first, @NotNull final File second) throws IOException {
+    public static boolean contentEquals(File first, File second) throws IOException {
         if (!first.exists() || !second.exists()) {
             return false;
         }
@@ -88,7 +87,7 @@ public final class FileUtils2 {
      * @return boolean  true if files are equal, otherwise false
      * @throws IOException  error in function
      */
-    public static boolean contentEquals(@NotNull final File first, @NotNull final File second, final long off,
+    public static boolean contentEquals(File first, File second, final long off,
         final long len) throws IOException {
         if (len < 1) {
             throw new IllegalArgumentException();

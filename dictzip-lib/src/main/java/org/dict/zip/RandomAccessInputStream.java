@@ -9,8 +9,6 @@
 
 package org.dict.zip;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -195,7 +193,7 @@ public class RandomAccessInputStream extends InputStream {
      * {@inheritDoc}
      */
     @Override
-    public final int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
+    public final int read(final byte [] buf, final int off, final int len) throws IOException {
         if (currentpos < startpos || currentpos > endpos) {
             long blockstart = (currentpos / bufsize) * bufsize;
             long n = 0;

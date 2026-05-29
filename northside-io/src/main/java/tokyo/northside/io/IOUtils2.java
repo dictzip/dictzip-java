@@ -8,8 +8,6 @@
 
 package tokyo.northside.io;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -51,7 +49,7 @@ public final class IOUtils2 {
      *     otherwise false.
      * @throws IOException when I/O error occurred.
      */
-    public static boolean contentEquals(@NotNull final InputStream first, @NotNull final InputStream second,
+    public static boolean contentEquals(InputStream first, InputStream second,
                                         final long off, final long len) throws IOException {
         boolean result;
 

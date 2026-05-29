@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.jetbrains.annotations)
+    implementation(libs.jspecify)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.commons.io)
     testImplementation project(':northside-io')

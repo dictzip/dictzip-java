@@ -22,7 +22,7 @@ It is recommended to post an issue before sending a patch.
 ## Copyright
 
 - Copyright (C) 2001–2004 Ho Ngoc Duc
-- Copyright (C) 2016–2024 Hiroshi Miura
+- Copyright (C) 2016–2026 Hiroshi Miura
 
 Some parts are coming from a part of jdictd 1.5 on java.
 

@@ -30,7 +30,7 @@ repositories {
 
 dependencies {
     implementation project(':dictzip-lib')
-    implementation(libs.jetbrains.annotations)
+    implementation(libs.jspecify)
     implementation(libs.picocli)
     testImplementation(libs.commons.io)
     testImplementation(libs.junit.jupiter)

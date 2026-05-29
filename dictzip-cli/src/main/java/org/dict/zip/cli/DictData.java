@@ -13,8 +13,7 @@ import org.dict.zip.DictZipInputStream;
 import org.dict.zip.DictZipOutputStream;
 import org.dict.zip.RandomAccessInputStream;
 import org.dict.zip.RandomAccessOutputStream;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.EOFException;
 import java.io.File;
@@ -42,7 +41,7 @@ public class DictData {
             .getBundle("org/dict/zip/cli/Bundle", Locale.getDefault());
 
     private final Path originalFileName;
-    private final Path compressedFileName;
+    private final @Nullable Path compressedFileName;
     private static final int BUF_LEN = 58315;
 
     /**
@@ -50,7 +49,7 @@ public class DictData {
      * @param originalFilePath to handle
      * @param compressedFilePath to handle
      */
-    public DictData(@NotNull final Path originalFilePath, @Nullable final Path compressedFilePath) {
+    public DictData(Path originalFilePath, @Nullable Path compressedFilePath) {
         this.originalFileName = originalFilePath;
         this.compressedFileName = compressedFilePath;
     }
@@ -60,7 +59,7 @@ public class DictData {
      * @param originalFile to handle
      * @param compressedFile to handle
      */
-    public DictData(@NotNull final File originalFile, @Nullable final File compressedFile) {
+    public DictData(File originalFile, @Nullable File compressedFile) {
         this.originalFileName = Paths.get(originalFile.toURI());
         if (compressedFile == null) {
             this.compressedFileName = null;
@@ -74,7 +73,7 @@ public class DictData {
      * @param originalFileName to handle
      * @param compressedFileName to handle
      */
-    public DictData(@NotNull final String originalFileName, @Nullable final String compressedFileName) {
+    public DictData(String originalFileName, @Nullable final String compressedFileName) {
         this.originalFileName = Paths.get(originalFileName);
         if (compressedFileName == null) {
             this.compressedFileName = null;

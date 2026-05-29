@@ -1,15 +1,15 @@
 [versions]
 junit5 = "5.8.2"
 commons_io = "2.16.1"
-annotations = "23.0.0"
 picocli = "4.7.5"
 checkstyle = "8.41.1"
+jspecify = "1.0.0"
 
 [libraries]
 junit-jupiter = {group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit5"}
 commons-io = {group = "commons-io", name = "commons-io", version.ref = "commons_io"}
-jetbrains-annotations = {group = "org.jetbrains", name = "annotations", version.ref = "annotations"}
 picocli = {group = "info.picocli", name = "picocli", version.ref = "picocli"}
+jspecify = {group = "org.jspecify", name = "jspecify", version.ref = "jspecify"}
 
 [plugins]
 spotbugs = {id = "com.github.spotbugs", version = "6.0.14"}
