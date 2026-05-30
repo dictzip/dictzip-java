@@ -1,0 +1,28 @@
+name: Check
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Install dictzip
+        run: sudo apt-get update && sudo apt-get install -y dictzip
+
+      - name: Run build check
+        run: ./gradlew check --scan
