@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -23,6 +23,12 @@ jobs:
 
       - name: Install dictzip
         run: sudo apt-get update && sudo apt-get install -y dictzip
+        id: install-dictzip
+
+      - uses: gradle/actions/setup-gradle@v6
+        name: Setup Gradle
+        id: setup-gradle
 
       - name: Run build check
         run: ./gradlew check --scan
+        id: gradle-check
