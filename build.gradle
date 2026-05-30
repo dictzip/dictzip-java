@@ -26,6 +26,12 @@ if (dotgit.exists()) {
     version = matcher.find() ? versionDescribe.substring(1) : versionDescribe.substring(1) + "-SNAPSHOT"
 }
 
+// Explicitly specify Gradle wrapper version
+tasks.withType(Wrapper.class).configureEach {
+    distributionType = Wrapper.DistributionType.BIN
+    gradleVersion = "8.14.2" // set the same version as in gradle/wrapper/gradle-wrapper.properties
+}
+
 nexusPublishing.repositories {
     sonatype {
         nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
